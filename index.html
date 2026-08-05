@@ -45,6 +45,23 @@
     <div id="expiryTabs" class="expiry-tabs"></div>
   </section>
 
+  <section class="chain-charts">
+    <div class="chart-card">
+      <div class="panel-header">
+        <h2>IV Skew — <span id="ivSkewExpiry">—</span></h2>
+        <span class="hint"><span class="dot dot-call"></span>Call IV <span class="dot dot-put"></span>Put IV</span>
+      </div>
+      <div id="ivSkewChart" class="svg-chart"></div>
+    </div>
+    <div class="chart-card">
+      <div class="panel-header">
+        <h2>Open Interest by Strike</h2>
+        <span class="hint"><span class="dot dot-call"></span>Calls <span class="dot dot-put"></span>Puts</span>
+      </div>
+      <div id="oiChart" class="svg-chart"></div>
+    </div>
+  </section>
+
   <main class="ladder-wrap">
     <section class="ladder-panel">
       <div class="panel-header">
@@ -79,6 +96,10 @@
       </div>
       <div class="ob-meta">
         <span id="obStatus" class="pill pill-connecting">connecting…</span>
+      </div>
+      <div class="ob-price-chart-wrap">
+        <div class="ob-price-chart-title">Price history (30m candles)</div>
+        <div id="obPriceChart" class="ob-price-chart"></div>
       </div>
       <div class="ob-table">
         <div class="ob-col ob-asks">

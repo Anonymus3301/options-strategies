@@ -7,6 +7,13 @@ const REST_BASE = "https://www.deribit.com/api/v2/public";
 const WS_URL = "wss://www.deribit.com/ws/api/v2";
 const CHAIN_POLL_MS = 5000;
 const INSTRUMENTS_REFRESH_MS = 5 * 60 * 1000;
+const OB_CHART_REFRESH_MS = 30000;
+
+const COLOR_CALL = "#35d399";
+const COLOR_PUT = "#ff5c7c";
+const COLOR_ACCENT = "#f7931a";
+const COLOR_BORDER = "#232a3a";
+const COLOR_DIM = "#8892a6";
 
 const state = {
   instrumentsByExpiry: new Map(), // expiryTs -> { calls: Map(strike->name), puts: Map(strike->name) }
@@ -22,6 +29,7 @@ let obWs = null;
 let mainWsRetryDelay = 1000;
 let rpcId = 1;
 let chart, chartSeries;
+let obChart, obCandleSeries, obChartInterval;
 
 const $ = (id) => document.getElementById(id);
 
@@ -42,6 +50,16 @@ function fmtStrike(n) {
 
 async function fetchInstruments() {
   const res = await fetch(`${REST_BASE}/get_instruments?currency=${CURRENCY}&kind=option&expired=false`);
+  const json = await res.json();
+  if (json.error) throw new Error(json.error.message);
+  return json.result;
+}
+
+async function fetchOptionOhlc(instrumentName) {
+  const end = Date.now();
+  const start = end - 2 * 24 * 60 * 60 * 1000; // last 2 days of 30m candles
+  const url = `${REST_BASE}/get_tradingview_chart_data?instrument_name=${instrumentName}&start_timestamp=${start}&end_timestamp=${end}&resolution=30`;
+  const res = await fetch(url);
   const json = await res.json();
   if (json.error) throw new Error(json.error.message);
   return json.result;
@@ -173,6 +191,139 @@ function renderLadder() {
     });
     body.appendChild(tr);
   }
+
+  renderIvSkewChart(strikes, bucket, atm);
+  renderOiChart(strikes, bucket);
+}
+
+// ---------- Chain charts: IV skew + open interest by strike (SVG, no extra API calls) ----------
+
+function buildLineChartSvg(xValues, series, opts = {}) {
+  const W = 600, H = 200, padL = 42, padR = 12, padT = 10, padB = 22;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const xMin = Math.min(...xValues), xMax = Math.max(...xValues);
+  const xScale = (x) => padL + (xMax === xMin ? innerW / 2 : ((x - xMin) / (xMax - xMin)) * innerW);
+
+  const allVals = series.flatMap((s) => s.data).filter((v) => v != null);
+  if (!allVals.length) return '<p class="loading">No data</p>';
+  const yMax = Math.max(...allVals) * 1.15 || 1;
+  const yScale = (v) => padT + innerH - (v / yMax) * innerH;
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
+
+  const ticks = 4;
+  for (let i = 0; i <= ticks; i++) {
+    const v = (yMax * i) / ticks;
+    const y = yScale(v);
+    svg += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="${COLOR_BORDER}" stroke-width="1"/>`;
+    svg += `<text x="${padL - 6}" y="${y + 3}" text-anchor="end" font-size="9" fill="${COLOR_DIM}">${v.toFixed(0)}</text>`;
+  }
+
+  const labelStep = Math.max(1, Math.ceil(xValues.length / 8));
+  xValues.forEach((x, i) => {
+    if (i % labelStep === 0 || i === xValues.length - 1) {
+      svg += `<text x="${xScale(x)}" y="${H - 4}" text-anchor="middle" font-size="9" fill="${COLOR_DIM}">${(x / 1000).toFixed(0)}k</text>`;
+    }
+  });
+
+  if (opts.atmX != null && opts.atmX >= xMin && opts.atmX <= xMax) {
+    const ax = xScale(opts.atmX);
+    svg += `<line x1="${ax}" y1="${padT}" x2="${ax}" y2="${H - padB}" stroke="${COLOR_ACCENT}" stroke-width="1" stroke-dasharray="3,3"/>`;
+  }
+
+  for (const s of series) {
+    let d = "";
+    let open = false;
+    xValues.forEach((x, i) => {
+      const v = s.data[i];
+      if (v == null) {
+        open = false;
+        return;
+      }
+      const px = xScale(x).toFixed(1);
+      const py = yScale(v).toFixed(1);
+      d += (open ? "L" : "M") + px + "," + py + " ";
+      open = true;
+    });
+    if (d) svg += `<path d="${d.trim()}" fill="none" stroke="${s.color}" stroke-width="2"/>`;
+  }
+
+  svg += "</svg>";
+  return svg;
+}
+
+function buildOiChartSvg(xValues, callData, putData) {
+  const W = 600, H = 200, padL = 42, padR = 12, padT = 10, padB = 22;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const maxVal = Math.max(1, ...callData, ...putData);
+  const zeroY = padT + innerH / 2;
+  const scale = innerH / 2 / maxVal;
+  const n = xValues.length;
+  const bandW = innerW / n;
+  const barW = Math.max(1, bandW * 0.6);
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
+  svg += `<line x1="${padL}" y1="${zeroY}" x2="${W - padR}" y2="${zeroY}" stroke="${COLOR_BORDER}" stroke-width="1"/>`;
+  svg += `<text x="${padL - 6}" y="${padT + 8}" text-anchor="end" font-size="9" fill="${COLOR_DIM}">${fmtNum(maxVal, 0)}</text>`;
+  svg += `<text x="${padL - 6}" y="${zeroY + 3}" text-anchor="end" font-size="9" fill="${COLOR_DIM}">0</text>`;
+  svg += `<text x="${padL - 6}" y="${H - padB}" text-anchor="end" font-size="9" fill="${COLOR_DIM}">${fmtNum(maxVal, 0)}</text>`;
+
+  const labelStep = Math.max(1, Math.ceil(n / 8));
+  xValues.forEach((x, i) => {
+    const cx = padL + bandW * i + bandW / 2;
+    const callH = (callData[i] || 0) * scale;
+    const putH = (putData[i] || 0) * scale;
+    svg += `<rect x="${(cx - barW / 2).toFixed(1)}" y="${(zeroY - callH).toFixed(1)}" width="${barW.toFixed(1)}" height="${callH.toFixed(1)}" fill="${COLOR_CALL}" opacity="0.85"/>`;
+    svg += `<rect x="${(cx - barW / 2).toFixed(1)}" y="${zeroY.toFixed(1)}" width="${barW.toFixed(1)}" height="${putH.toFixed(1)}" fill="${COLOR_PUT}" opacity="0.85"/>`;
+    if (i % labelStep === 0 || i === n - 1) {
+      svg += `<text x="${cx.toFixed(1)}" y="${H - 4}" text-anchor="middle" font-size="9" fill="${COLOR_DIM}">${(x / 1000).toFixed(0)}k</text>`;
+    }
+  });
+
+  svg += "</svg>";
+  return svg;
+}
+
+function renderIvSkewChart(strikes, bucket, atm) {
+  const el = $("ivSkewChart");
+  $("ivSkewExpiry").textContent = state.selectedExpiry ? expiryLabel(state.selectedExpiry) : "—";
+  if (!strikes.length) {
+    el.innerHTML = '<p class="loading">No data</p>';
+    return;
+  }
+  const callIv = strikes.map((s) => {
+    const sum = state.summaries.get(bucket.calls.get(s));
+    return sum && sum.mark_iv != null ? sum.mark_iv : null;
+  });
+  const putIv = strikes.map((s) => {
+    const sum = state.summaries.get(bucket.puts.get(s));
+    return sum && sum.mark_iv != null ? sum.mark_iv : null;
+  });
+  el.innerHTML = buildLineChartSvg(
+    strikes,
+    [
+      { data: callIv, color: COLOR_CALL },
+      { data: putIv, color: COLOR_PUT },
+    ],
+    { atmX: atm }
+  );
+}
+
+function renderOiChart(strikes, bucket) {
+  const el = $("oiChart");
+  if (!strikes.length) {
+    el.innerHTML = '<p class="loading">No data</p>';
+    return;
+  }
+  const callOi = strikes.map((s) => {
+    const sum = state.summaries.get(bucket.calls.get(s));
+    return sum ? sum.open_interest || 0 : 0;
+  });
+  const putOi = strikes.map((s) => {
+    const sum = state.summaries.get(bucket.puts.get(s));
+    return sum ? sum.open_interest || 0 : 0;
+  });
+  el.innerHTML = buildOiChartSvg(strikes, callOi, putOi);
 }
 
 function highlightAtmOnly() {
@@ -251,12 +402,63 @@ function connectMainWs() {
 
 // ---------- Order book panel (WebSocket, per selected instrument) ----------
 
+function initObChart() {
+  const container = $("obPriceChart");
+  container.innerHTML = "";
+  if (typeof LightweightCharts === "undefined") {
+    container.innerHTML = '<p class="loading">Chart library unavailable</p>';
+    obChart = null;
+    obCandleSeries = null;
+    return;
+  }
+  obChart = LightweightCharts.createChart(container, {
+    layout: { background: { color: "transparent" }, textColor: COLOR_DIM },
+    grid: { vertLines: { color: "#1c2331" }, horzLines: { color: "#1c2331" } },
+    rightPriceScale: { borderColor: COLOR_BORDER },
+    timeScale: { borderColor: COLOR_BORDER, timeVisible: true },
+    handleScroll: false,
+    handleScale: false,
+    autoSize: true,
+  });
+  obCandleSeries = obChart.addCandlestickSeries({
+    upColor: COLOR_CALL,
+    downColor: COLOR_PUT,
+    borderVisible: false,
+    wickUpColor: COLOR_CALL,
+    wickDownColor: COLOR_PUT,
+  });
+}
+
+async function refreshObChart(instrumentName) {
+  if (!obCandleSeries) return;
+  try {
+    const data = await fetchOptionOhlc(instrumentName);
+    if (data.status !== "ok" || !data.ticks || !data.ticks.length) return;
+    const candles = data.ticks.map((t, i) => ({
+      time: Math.floor(t / 1000),
+      open: data.open[i],
+      high: data.high[i],
+      low: data.low[i],
+      close: data.close[i],
+    }));
+    obCandleSeries.setData(candles);
+  } catch (err) {
+    console.error("get_tradingview_chart_data failed", err);
+  }
+}
+
 function closeOrderBook() {
   if (obWs) {
     obWs.onclose = null;
     obWs.close();
     obWs = null;
   }
+  if (obChartInterval) {
+    clearInterval(obChartInterval);
+    obChartInterval = null;
+  }
+  obChart = null;
+  obCandleSeries = null;
   state.obInstrument = null;
   $("orderBookPanel").classList.add("hidden");
 }
@@ -269,6 +471,10 @@ function openOrderBook(instrumentName) {
   setPill("obStatus", "connecting…", "pill-connecting");
   $("obAsks").innerHTML = "";
   $("obBids").innerHTML = "";
+
+  initObChart();
+  refreshObChart(instrumentName);
+  obChartInterval = setInterval(() => refreshObChart(instrumentName), OB_CHART_REFRESH_MS);
 
   obWs = new WebSocket(WS_URL);
   obWs.onopen = () => {

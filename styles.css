@@ -99,6 +99,15 @@ body {
   background: rgba(247, 147, 26, 0.08);
 }
 
+.chain-charts { display: flex; gap: 16px; margin: 16px 20px; }
+.chart-card { flex: 1; min-width: 0; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.svg-chart { height: 200px; padding: 8px 12px; box-sizing: border-box; }
+.svg-chart svg { width: 100%; height: 100%; overflow: visible; }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin: 0 4px 0 10px; }
+.dot:first-child { margin-left: 0; }
+.dot-call { background: var(--call); }
+.dot-put { background: var(--put); }
+
 .ladder-wrap { display: flex; gap: 0; margin: 0 20px 20px; align-items: flex-start; }
 .ladder-panel { flex: 1; margin: 0; min-width: 0; }
 .ladder-scroll { max-height: 70vh; overflow: auto; }
@@ -132,6 +141,9 @@ td.dim { color: var(--text-dim); }
   font-size: 18px; cursor: pointer; line-height: 1;
 }
 .ob-meta { padding: 8px 16px; }
+.ob-price-chart-wrap { padding: 0 16px 8px; }
+.ob-price-chart-title { color: var(--text-dim); font-size: 10px; text-transform: uppercase; margin-bottom: 4px; }
+.ob-price-chart { height: 140px; }
 .ob-table { display: flex; gap: 8px; padding: 0 16px 16px; }
 .ob-col { flex: 1; }
 .ob-col-title { color: var(--text-dim); font-size: 11px; text-transform: uppercase; margin-bottom: 6px; }
@@ -151,4 +163,5 @@ td.dim { color: var(--text-dim); }
 @media (max-width: 900px) {
   .ladder-wrap { flex-direction: column; }
   .orderbook-panel { width: auto; margin-left: 0; margin-top: 16px; }
+  .chain-charts { flex-direction: column; }
 }
