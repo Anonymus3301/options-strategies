@@ -7,8 +7,6 @@ const REST_BASE = "https://www.deribit.com/api/v2/public";
 const WS_URL = "wss://www.deribit.com/ws/api/v2";
 const CHAIN_POLL_MS = 5000;
 const INSTRUMENTS_REFRESH_MS = 5 * 60 * 1000;
-const OB_CHART_REFRESH_MS = 30000;
-
 const COLOR_CALL = "#35d399";
 const COLOR_PUT = "#ff5c7c";
 const COLOR_ACCENT = "#f7931a";
@@ -29,7 +27,6 @@ let obWs = null;
 let mainWsRetryDelay = 1000;
 let rpcId = 1;
 let chart, chartSeries;
-let obChart, obCandleSeries, obChartInterval;
 
 const $ = (id) => document.getElementById(id);
 
@@ -50,16 +47,6 @@ function fmtStrike(n) {
 
 async function fetchInstruments() {
   const res = await fetch(`${REST_BASE}/get_instruments?currency=${CURRENCY}&kind=option&expired=false`);
-  const json = await res.json();
-  if (json.error) throw new Error(json.error.message);
-  return json.result;
-}
-
-async function fetchOptionOhlc(instrumentName) {
-  const end = Date.now();
-  const start = end - 2 * 24 * 60 * 60 * 1000; // last 2 days of 30m candles
-  const url = `${REST_BASE}/get_tradingview_chart_data?instrument_name=${instrumentName}&start_timestamp=${start}&end_timestamp=${end}&resolution=30`;
-  const res = await fetch(url);
   const json = await res.json();
   if (json.error) throw new Error(json.error.message);
   return json.result;
@@ -429,62 +416,12 @@ function connectMainWs() {
 
 // ---------- Order book panel (WebSocket, per selected instrument) ----------
 
-function initObChart() {
-  const container = $("obPriceChart");
-  container.innerHTML = "";
-  if (typeof LightweightCharts === "undefined") {
-    container.innerHTML = '<p class="loading">Chart library unavailable</p>';
-    obChart = null;
-    obCandleSeries = null;
-    return;
-  }
-  obChart = LightweightCharts.createChart(container, {
-    layout: { background: { color: "transparent" }, textColor: COLOR_DIM },
-    grid: { vertLines: { color: "#1c2331" }, horzLines: { color: "#1c2331" } },
-    rightPriceScale: { borderColor: COLOR_BORDER },
-    timeScale: { borderColor: COLOR_BORDER, timeVisible: true },
-    handleScroll: false,
-    handleScale: false,
-    autoSize: true,
-  });
-  obCandleSeries = obChart.addBarSeries({
-    upColor: COLOR_CALL,
-    downColor: COLOR_PUT,
-    openVisible: true,
-    thinBars: false,
-  });
-}
-
-async function refreshObChart(instrumentName) {
-  if (!obCandleSeries) return;
-  try {
-    const data = await fetchOptionOhlc(instrumentName);
-    if (data.status !== "ok" || !data.ticks || !data.ticks.length) return;
-    const candles = data.ticks.map((t, i) => ({
-      time: Math.floor(t / 1000),
-      open: data.open[i],
-      high: data.high[i],
-      low: data.low[i],
-      close: data.close[i],
-    }));
-    obCandleSeries.setData(candles);
-  } catch (err) {
-    console.error("get_tradingview_chart_data failed", err);
-  }
-}
-
 function closeOrderBook() {
   if (obWs) {
     obWs.onclose = null;
     obWs.close();
     obWs = null;
   }
-  if (obChartInterval) {
-    clearInterval(obChartInterval);
-    obChartInterval = null;
-  }
-  obChart = null;
-  obCandleSeries = null;
   state.obInstrument = null;
   $("orderBookPanel").classList.add("hidden");
 }
@@ -494,13 +431,10 @@ function openOrderBook(instrumentName) {
   state.obInstrument = instrumentName;
   $("orderBookPanel").classList.remove("hidden");
   $("obInstrument").textContent = instrumentName;
+  $("obChartLink").href = "chart.html?instrument=" + encodeURIComponent(instrumentName);
   setPill("obStatus", "connecting…", "pill-connecting");
   $("obAsks").innerHTML = "";
   $("obBids").innerHTML = "";
-
-  initObChart();
-  refreshObChart(instrumentName);
-  obChartInterval = setInterval(() => refreshObChart(instrumentName), OB_CHART_REFRESH_MS);
 
   obWs = new WebSocket(WS_URL);
   obWs.onopen = () => {

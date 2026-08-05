@@ -34,6 +34,9 @@ body {
   gap: 12px;
 }
 
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 12px; margin-right: 4px; }
+.back-link:hover { color: var(--accent); }
+
 .brand { display: flex; align-items: center; gap: 12px; }
 .brand-mark {
   font-size: 28px;
@@ -75,6 +78,8 @@ body {
   overflow: hidden;
 }
 .chart { height: 220px; }
+.chart-tall { height: 60vh; min-height: 320px; }
+.full-page-chart { margin: 24px 20px; }
 
 .expiry-panel { padding-bottom: 12px; }
 .expiry-panel h2 {
@@ -141,9 +146,17 @@ td.dim { color: var(--text-dim); }
   font-size: 18px; cursor: pointer; line-height: 1;
 }
 .ob-meta { padding: 8px 16px; }
-.ob-price-chart-wrap { padding: 0 16px 8px; }
-.ob-price-chart-title { color: var(--text-dim); font-size: 10px; text-transform: uppercase; margin-bottom: 4px; }
-.ob-price-chart { height: 140px; }
+.ob-chart-link-wrap { padding: 0 16px 8px; }
+.ob-chart-link {
+  display: inline-block;
+  color: var(--accent);
+  font-size: 12px;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px;
+}
+.ob-chart-link:hover { border-color: var(--accent); background: rgba(247, 147, 26, 0.08); }
 .ob-table { display: flex; gap: 8px; padding: 0 16px 16px; }
 .ob-col { flex: 1; }
 .ob-col-title { color: var(--text-dim); font-size: 11px; text-transform: uppercase; margin-bottom: 6px; }

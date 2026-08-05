@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Option Chart — Deribit</title>
+<link rel="stylesheet" href="styles.css" />
+<script src="vendor/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1 id="chartTitle">Option Chart</h1>
+        <p class="subtitle">1-minute OHLC, live from Deribit's free public API</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="chartStatus" class="pill pill-connecting">connecting…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Last update</span>
+        <span id="chartLastUpdate" class="stat-value">—</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="chart-panel full-page-chart">
+    <div class="panel-header">
+      <h2 id="chartInstrument">—</h2>
+      <span class="hint">Resolution: 1 minute · last 6 hours</span>
+    </div>
+    <div id="fullChart" class="chart chart-tall"></div>
+  </section>
+
+  <script src="chart.js"></script>
+</body>
+</html>
