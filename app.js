@@ -192,6 +192,7 @@ function renderLadder() {
     body.appendChild(tr);
   }
 
+  renderPriceByStrikeChart(strikes, bucket, atm);
   renderIvSkewChart(strikes, bucket, atm);
   renderOiChart(strikes, bucket);
 }
@@ -211,12 +212,13 @@ function buildLineChartSvg(xValues, series, opts = {}) {
 
   let svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
 
+  const yDecimals = opts.decimals || 0;
   const ticks = 4;
   for (let i = 0; i <= ticks; i++) {
     const v = (yMax * i) / ticks;
     const y = yScale(v);
     svg += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="${COLOR_BORDER}" stroke-width="1"/>`;
-    svg += `<text x="${padL - 6}" y="${y + 3}" text-anchor="end" font-size="9" fill="${COLOR_DIM}">${v.toFixed(0)}</text>`;
+    svg += `<text x="${padL - 6}" y="${y + 3}" text-anchor="end" font-size="9" fill="${COLOR_DIM}">${v.toFixed(yDecimals)}</text>`;
   }
 
   const labelStep = Math.max(1, Math.ceil(xValues.length / 8));
@@ -282,6 +284,31 @@ function buildOiChartSvg(xValues, callData, putData) {
 
   svg += "</svg>";
   return svg;
+}
+
+function renderPriceByStrikeChart(strikes, bucket, atm) {
+  const el = $("priceByStrikeChart");
+  $("priceByStrikeExpiry").textContent = state.selectedExpiry ? expiryLabel(state.selectedExpiry) : "—";
+  if (!strikes.length) {
+    el.innerHTML = '<p class="loading">No data</p>';
+    return;
+  }
+  const callMark = strikes.map((s) => {
+    const sum = state.summaries.get(bucket.calls.get(s));
+    return sum && sum.mark_price != null ? sum.mark_price : null;
+  });
+  const putMark = strikes.map((s) => {
+    const sum = state.summaries.get(bucket.puts.get(s));
+    return sum && sum.mark_price != null ? sum.mark_price : null;
+  });
+  el.innerHTML = buildLineChartSvg(
+    strikes,
+    [
+      { data: callMark, color: COLOR_CALL },
+      { data: putMark, color: COLOR_PUT },
+    ],
+    { atmX: atm, decimals: 4 }
+  );
 }
 
 function renderIvSkewChart(strikes, bucket, atm) {
