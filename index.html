@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BTC Options Ladder — Live (Deribit)</title>
+<link rel="stylesheet" href="styles.css" />
+<script src="vendor/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">₿</span>
+      <div>
+        <h1>BTC Options Ladder</h1>
+        <p class="subtitle">Live data from Deribit's free public API — no key required</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC Index</span>
+        <span id="indexPrice" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="wsStatus" class="pill pill-connecting">connecting…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Chain refresh</span>
+        <span id="lastUpdate" class="stat-value">—</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="chart-panel">
+    <div class="panel-header">
+      <h2>BTC Index Price (live)</h2>
+      <span class="hint">Streaming via wss://www.deribit.com/ws/api/v2</span>
+    </div>
+    <div id="priceChart" class="chart"></div>
+  </section>
+
+  <section class="expiry-panel">
+    <h2>Expiry</h2>
+    <div id="expiryTabs" class="expiry-tabs"></div>
+  </section>
+
+  <main class="ladder-wrap">
+    <section class="ladder-panel">
+      <div class="panel-header">
+        <h2>Options Chain — <span id="expiryLabel">—</span></h2>
+        <span class="hint">Click any row to open its live order book</span>
+      </div>
+      <div class="ladder-scroll">
+        <table class="ladder">
+          <thead>
+            <tr>
+              <th colspan="6" class="side-header calls">CALLS</th>
+              <th class="strike-header">STRIKE</th>
+              <th colspan="6" class="side-header puts">PUTS</th>
+            </tr>
+            <tr class="col-labels">
+              <th>OI</th><th>Vol</th><th>IV%</th><th>Bid</th><th>Mark</th><th>Ask</th>
+              <th class="strike-col"></th>
+              <th>Bid</th><th>Mark</th><th>Ask</th><th>IV%</th><th>Vol</th><th>OI</th>
+            </tr>
+          </thead>
+          <tbody id="ladderBody">
+            <tr><td colspan="13" class="loading">Loading instruments from Deribit…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <aside id="orderBookPanel" class="orderbook-panel hidden">
+      <div class="panel-header">
+        <h2 id="obInstrument">Order Book</h2>
+        <button id="obClose" class="close-btn" aria-label="Close order book">×</button>
+      </div>
+      <div class="ob-meta">
+        <span id="obStatus" class="pill pill-connecting">connecting…</span>
+      </div>
+      <div class="ob-table">
+        <div class="ob-col ob-asks">
+          <div class="ob-col-title">Asks</div>
+          <div id="obAsks" class="ob-rows"></div>
+        </div>
+        <div class="ob-col ob-bids">
+          <div class="ob-col-title">Bids</div>
+          <div id="obBids" class="ob-rows"></div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="sources-footer">
+    <h2>Where this data comes from (free)</h2>
+    <p>See <code>README.md</code> for a full comparison of free BTC options data sources (Deribit, OKX, Bybit, CoinGlass, Laevitas).
+    This app uses <strong>Deribit's public REST + WebSocket API</strong>, which requires no API key or authentication for market data.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
