@@ -64,11 +64,13 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  gap: 12px;
   padding: 12px 16px;
   border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
 }
 .panel-header h2 { margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; }
-.hint { color: var(--text-dim); font-size: 11px; }
+.hint { color: var(--text-dim); font-size: 11px; margin-right: auto; }
 
 .chart-panel, .expiry-panel, .ladder-panel, .orderbook-panel, .sources-footer {
   background: var(--panel);
@@ -104,6 +106,20 @@ body {
   background: rgba(247, 147, 26, 0.08);
 }
 
+.market-stats { display: flex; flex-wrap: wrap; gap: 16px; margin: 16px 20px; }
+.mstat {
+  flex: 1 1 200px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mstat-label { color: var(--text-dim); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+.mstat-value { font-size: 15px; font-weight: 600; }
+
 .chain-charts { display: flex; flex-wrap: wrap; gap: 16px; margin: 16px 20px; }
 .chart-card { flex: 1 1 300px; min-width: 0; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
 .svg-chart { height: 200px; padding: 8px 12px; box-sizing: border-box; }
@@ -134,6 +150,21 @@ tbody tr.option-row td { border-bottom: 1px solid var(--border); cursor: pointer
 tbody tr.option-row:hover td { background: rgba(255,255,255,0.03); }
 tbody tr.atm-row td { background: var(--atm); }
 td.strike-cell { text-align: center; font-weight: 700; background: var(--panel-alt); }
+.strike-value { font-weight: 700; }
+.strike-actions { display: flex; gap: 4px; justify-content: center; margin-top: 3px; }
+.leg-btn {
+  font: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  cursor: pointer;
+}
+.leg-btn-call { color: var(--call); }
+.leg-btn-put { color: var(--put); }
+.leg-btn:hover { border-color: var(--accent); }
 td.call-cell { color: var(--call); }
 td.put-cell { color: var(--put); }
 td.dim { color: var(--text-dim); }
@@ -168,6 +199,38 @@ td.dim { color: var(--text-dim); }
 .ob-asks .depth-bar { background: var(--put); }
 .ob-bids .depth-bar { background: var(--call); }
 .ob-row span { position: relative; z-index: 1; }
+
+.trades-panel, .strategy-panel { background: var(--panel); margin: 16px 20px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.trades-feed { max-height: 260px; overflow-y: auto; padding: 8px 16px; display: flex; flex-direction: column; gap: 2px; }
+.trade-row { display: grid; grid-template-columns: 90px 1fr 50px 60px 80px 70px; gap: 8px; padding: 4px 6px; border-radius: 4px; font-size: 12px; }
+.trade-row.trade-large { background: rgba(247, 147, 26, 0.08); font-weight: 600; }
+.trade-time { color: var(--text-dim); }
+.trade-instrument { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.strategy-body { display: flex; flex-wrap: wrap; gap: 16px; padding: 16px; }
+.strategy-legs { flex: 1 1 220px; display: flex; flex-direction: column; gap: 6px; }
+.leg-row { display: grid; grid-template-columns: 1fr 70px 56px 24px; gap: 6px; align-items: center; font-size: 12px; }
+.leg-row select, .leg-row input {
+  font: inherit;
+  font-size: 11px;
+  background: var(--panel-alt);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+.leg-remove {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--put);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+.strategy-chart-wrap { flex: 2 1 320px; min-width: 0; }
+.strategy-summary { color: var(--text-dim); font-size: 12px; margin-top: 6px; }
+.strategy-actions { padding: 0 16px 16px; }
 
 .sources-footer { padding: 16px; color: var(--text-dim); }
 .sources-footer h2 { margin: 0 0 8px; font-size: 12px; color: var(--text); text-transform: uppercase; }

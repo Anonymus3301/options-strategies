@@ -40,6 +40,25 @@
     <div id="priceChart" class="chart"></div>
   </section>
 
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Max Pain (selected expiry)</span>
+      <span id="maxPainStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Put/Call Ratio</span>
+      <span id="pcrStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">30D Realized Vol / ATM IV</span>
+      <span id="volStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Perp Funding · Basis</span>
+      <span id="fundingBasisStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
   <section class="expiry-panel">
     <h2>Expiry</h2>
     <div id="expiryTabs" class="expiry-tabs"></div>
@@ -67,30 +86,45 @@
       </div>
       <div id="oiChart" class="svg-chart"></div>
     </div>
+    <div class="chart-card">
+      <div class="panel-header">
+        <h2>Gamma Exposure by Strike</h2>
+        <span class="hint">USD per 1% spot move</span>
+      </div>
+      <div id="gexChart" class="svg-chart"></div>
+    </div>
+    <div class="chart-card">
+      <div class="panel-header">
+        <h2>IV Term Structure</h2>
+        <span class="hint">ATM IV across all expiries</span>
+      </div>
+      <div id="ivTermChart" class="svg-chart"></div>
+    </div>
   </section>
 
   <main class="ladder-wrap">
     <section class="ladder-panel">
       <div class="panel-header">
         <h2>Options Chain — <span id="expiryLabel">—</span></h2>
-        <span class="hint">Click any row to open its live order book</span>
+        <span class="hint">Click a row for its order book · +C/+P adds to Strategy Builder</span>
+        <button id="exportCsv" class="ob-chart-link">Export CSV ↓</button>
       </div>
       <div class="ladder-scroll">
         <table class="ladder">
           <thead>
             <tr>
-              <th colspan="6" class="side-header calls">CALLS</th>
+              <th colspan="7" class="side-header calls">CALLS</th>
               <th class="strike-header">STRIKE</th>
-              <th colspan="6" class="side-header puts">PUTS</th>
+              <th colspan="7" class="side-header puts">PUTS</th>
             </tr>
             <tr class="col-labels">
-              <th>OI</th><th>Vol</th><th>IV%</th><th>Bid</th><th>Mark</th><th>Ask</th>
+              <th>OI</th><th>Vol</th><th>IV%</th><th>Δ</th><th>Bid</th><th>Mark</th><th>Ask</th>
               <th class="strike-col"></th>
-              <th>Bid</th><th>Mark</th><th>Ask</th><th>IV%</th><th>Vol</th><th>OI</th>
+              <th>Bid</th><th>Mark</th><th>Ask</th><th>Δ</th><th>IV%</th><th>Vol</th><th>OI</th>
             </tr>
           </thead>
           <tbody id="ladderBody">
-            <tr><td colspan="13" class="loading">Loading instruments from Deribit…</td></tr>
+            <tr><td colspan="15" class="loading">Loading instruments from Deribit…</td></tr>
           </tbody>
         </table>
       </div>
@@ -119,6 +153,35 @@
       </div>
     </aside>
   </main>
+
+  <section class="trades-panel">
+    <div class="panel-header">
+      <h2>Recent Option Trades</h2>
+      <span class="hint">Live tape · trades ≥ 5 contracts highlighted</span>
+    </div>
+    <div id="tradesFeed" class="trades-feed">
+      <p class="loading">Waiting for trades…</p>
+    </div>
+  </section>
+
+  <section class="strategy-panel">
+    <div class="panel-header">
+      <h2>Strategy Builder</h2>
+      <span class="hint">Illustrative USD payoff · ignores inverse-contract settlement mechanics</span>
+    </div>
+    <div class="strategy-body">
+      <div id="strategyLegs" class="strategy-legs">
+        <p class="loading">Click +C / +P next to a strike in the ladder to add a leg.</p>
+      </div>
+      <div class="strategy-chart-wrap">
+        <div id="strategyChart" class="svg-chart"></div>
+        <div id="strategySummary" class="strategy-summary"></div>
+      </div>
+    </div>
+    <div class="strategy-actions">
+      <button id="strategyClear" class="ob-chart-link">Clear all legs</button>
+    </div>
+  </section>
 
   <footer class="sources-footer">
     <h2>Where this data comes from (free)</h2>
