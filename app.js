@@ -447,12 +447,11 @@ function initObChart() {
     handleScale: false,
     autoSize: true,
   });
-  obCandleSeries = obChart.addCandlestickSeries({
+  obCandleSeries = obChart.addBarSeries({
     upColor: COLOR_CALL,
     downColor: COLOR_PUT,
-    borderVisible: false,
-    wickUpColor: COLOR_CALL,
-    wickDownColor: COLOR_PUT,
+    openVisible: true,
+    thinBars: false,
   });
 }
 
