@@ -8,18 +8,22 @@ const WS_URL = "wss://www.deribit.com/ws/api/v2";
 const CHAIN_POLL_MS = 5000;
 const INSTRUMENTS_REFRESH_MS = 5 * 60 * 1000;
 const REALIZED_VOL_REFRESH_MS = 5 * 60 * 1000;
+const FUTURES_REFRESH_MS = 30 * 1000;
 const LARGE_TRADE_THRESHOLD = 5; // contracts
+const YEAR_MS = 365.25 * 24 * 60 * 60 * 1000;
 const COLOR_CALL = "#35d399";
 const COLOR_PUT = "#ff5c7c";
 const COLOR_ACCENT = "#f7931a";
 const COLOR_BORDER = "#232a3a";
 const COLOR_DIM = "#8892a6";
+const COLOR_PANEL_ALT = "#161c29";
 
 const state = {
   instrumentsByExpiry: new Map(), // expiryTs -> { calls: Map(strike->name), puts: Map(strike->name) }
   expiries: [], // sorted [expiryTs]
   selectedExpiry: null,
   summaries: new Map(), // instrument_name -> summary object
+  prevSummaries: new Map(), // previous poll's summaries, for OI/volume delta
   greeks: new Map(), // instrument_name -> { delta, gamma, theta, vega, rho }
   greeksChannels: [], // currently-subscribed ticker.* channels, so we can unsubscribe on expiry switch
   indexPrice: null,
@@ -27,7 +31,10 @@ const state = {
   perp: { markPrice: null, fundingRate: null },
   realizedVol: null,
   recentTrades: [],
-  strategyLegs: [], // { instrument, strike, type, side, qty, premiumUsd }
+  strategyLegs: [], // { instrument, strike, type, side, qty, premiumUsd, ivPct, expiry }
+  futures: [], // [{ name, expiry, markPrice }]
+  alerts: [], // { id, metric, condition, value, fired, label }
+  watchlist: new Set(), // instrument names, pinned across expiries
 };
 
 let mainWs = null;
@@ -37,6 +44,7 @@ let rpcId = 1;
 let chart, chartSeries;
 let greeksRenderPending = false;
 let tradesRenderPending = false;
+let chainPollTimer = null;
 
 const $ = (id) => document.getElementById(id);
 
@@ -98,6 +106,64 @@ async function refreshRealizedVol() {
   }
 }
 
+async function fetchFuturesInstruments() {
+  const res = await fetch(`${REST_BASE}/get_instruments?currency=${CURRENCY}&kind=future&expired=false`);
+  const json = await res.json();
+  if (json.error) throw new Error(json.error.message);
+  return json.result;
+}
+
+async function fetchFuturesSummary() {
+  const res = await fetch(`${REST_BASE}/get_book_summary_by_currency?currency=${CURRENCY}&kind=future`);
+  const json = await res.json();
+  if (json.error) throw new Error(json.error.message);
+  return json.result;
+}
+
+async function refreshFutures() {
+  try {
+    const [instruments, summaries] = await Promise.all([fetchFuturesInstruments(), fetchFuturesSummary()]);
+    const summaryMap = new Map(summaries.map((s) => [s.instrument_name, s]));
+    state.futures = instruments
+      .filter((i) => i.settlement_period !== "perpetual")
+      .map((i) => ({
+        name: i.instrument_name,
+        expiry: i.expiration_timestamp,
+        markPrice: (summaryMap.get(i.instrument_name) || {}).mark_price,
+      }))
+      .filter((f) => f.markPrice != null)
+      .sort((a, b) => a.expiry - b.expiry);
+    renderFuturesCurve();
+  } catch (err) {
+    console.error("futures fetch failed", err);
+  }
+}
+
+// ---------- Black-Scholes pricer (r=0, matching Deribit's own BTC/ETH options convention) ----------
+
+function erf(x) {
+  // Abramowitz & Stegun 7.1.26 approximation.
+  const sign = x < 0 ? -1 : 1;
+  x = Math.abs(x);
+  const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+  const t = 1 / (1 + p * x);
+  const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+  return sign * y;
+}
+
+function normCdf(x) {
+  return 0.5 * (1 + erf(x / Math.SQRT2));
+}
+
+function bsPrice(type, S, K, T, sigma) {
+  if (T <= 0 || sigma <= 0) {
+    return type === "call" ? Math.max(S - K, 0) : Math.max(K - S, 0);
+  }
+  const d1 = (Math.log(S / K) + (sigma * sigma * 0.5) * T) / (sigma * Math.sqrt(T));
+  const d2 = d1 - sigma * Math.sqrt(T);
+  return type === "call" ? S * normCdf(d1) - K * normCdf(d2) : K * normCdf(-d2) - S * normCdf(-d1);
+}
+
 function indexInstruments(list) {
   state.instrumentsByExpiry.clear();
   for (const inst of list) {
@@ -116,7 +182,9 @@ function indexInstruments(list) {
 }
 
 function indexSummaries(list) {
-  for (const s of list) state.summaries.set(s.instrument_name, s);
+  const map = new Map();
+  for (const s of list) map.set(s.instrument_name, s);
+  return map;
 }
 
 async function refreshInstruments() {
@@ -132,13 +200,15 @@ async function refreshInstruments() {
 
 async function refreshChain() {
   try {
-    indexSummaries(await fetchBookSummary());
+    const fresh = indexSummaries(await fetchBookSummary());
+    state.prevSummaries = state.summaries;
+    state.summaries = fresh;
     $("lastUpdate").textContent = new Date().toLocaleTimeString();
     renderLadder();
   } catch (err) {
     console.error("get_book_summary_by_currency failed", err);
     $("ladderBody").innerHTML =
-      `<tr><td colspan="15" class="loading">Couldn't reach Deribit's REST API (${err.message}). Retrying…</td></tr>`;
+      `<tr><td colspan="17" class="loading">Couldn't reach Deribit's REST API (${err.message}). Retrying…</td></tr>`;
   }
 }
 
@@ -174,18 +244,41 @@ function closestStrike(strikes) {
   );
 }
 
+function oiVolDelta(name) {
+  if (!name) return null;
+  const cur = state.summaries.get(name);
+  const prev = state.prevSummaries.get(name);
+  if (!cur || !prev) return null;
+  return { oiDelta: (cur.open_interest || 0) - (prev.open_interest || 0) };
+}
+
+function fmtWithOiDelta(value, delta) {
+  const base = fmtNum(value, 0);
+  if (!delta || !delta.oiDelta) return base;
+  const cls = delta.oiDelta > 0 ? "delta-up" : "delta-down";
+  const sign = delta.oiDelta > 0 ? "+" : "";
+  return `${base} <span class="${cls}">${sign}${fmtNum(delta.oiDelta, 0)}</span>`;
+}
+
+function edgeCell(pct) {
+  if (pct == null || !Number.isFinite(pct)) return `<td class="dim">—</td>`;
+  const cls = pct >= 0 ? "put-cell" : "call-cell"; // rich (mark>theo) = warning red; cheap = green
+  return `<td class="${cls}">${pct >= 0 ? "+" : ""}${fmtNum(pct, 1)}%</td>`;
+}
+
 function renderLadder() {
   const body = $("ladderBody");
   const bucket = state.instrumentsByExpiry.get(state.selectedExpiry);
   $("expiryLabel").textContent = state.selectedExpiry ? expiryLabel(state.selectedExpiry) : "—";
 
   if (!bucket) {
-    body.innerHTML = `<tr><td colspan="15" class="loading">Loading instruments from Deribit…</td></tr>`;
+    body.innerHTML = `<tr><td colspan="17" class="loading">Loading instruments from Deribit…</td></tr>`;
     return;
   }
 
   const strikes = [...new Set([...bucket.calls.keys(), ...bucket.puts.keys()])].sort((a, b) => a - b);
   const atm = closestStrike(strikes);
+  const edges = computeEdges(strikes, bucket, atm, state.indexPrice);
 
   body.innerHTML = "";
   for (const strike of strikes) {
@@ -195,15 +288,17 @@ function renderLadder() {
     const put = putName ? state.summaries.get(putName) : null;
     const callGreeks = callName ? state.greeks.get(callName) : null;
     const putGreeks = putName ? state.greeks.get(putName) : null;
+    const watched = (callName && state.watchlist.has(callName)) || (putName && state.watchlist.has(putName));
 
     const tr = document.createElement("tr");
     tr.className = "option-row" + (strike === atm ? " atm-row" : "");
 
     tr.innerHTML = `
-      <td class="call-cell">${call ? fmtNum(call.open_interest, 0) : "—"}</td>
+      <td class="call-cell">${call ? fmtWithOiDelta(call.open_interest, oiVolDelta(callName)) : "—"}</td>
       <td class="call-cell">${call ? fmtNum(call.volume, 0) : "—"}</td>
       <td class="call-cell">${call && call.mark_iv != null ? fmtNum(call.mark_iv, 1) : "—"}</td>
       <td class="call-cell">${callGreeks && callGreeks.delta != null ? fmtNum(callGreeks.delta, 3) : "—"}</td>
+      ${edgeCell(edges.call.get(strike))}
       <td class="call-cell">${call ? fmtNum(call.bid_price, 4) : "—"}</td>
       <td class="call-cell">${call ? fmtNum(call.mark_price, 4) : "—"}</td>
       <td class="call-cell">${call ? fmtNum(call.ask_price, 4) : "—"}</td>
@@ -212,15 +307,17 @@ function renderLadder() {
         <div class="strike-actions">
           ${callName ? `<button type="button" class="leg-btn leg-btn-call" data-instrument="${callName}" title="Add ${callName} (long) to strategy">+C</button>` : ""}
           ${putName ? `<button type="button" class="leg-btn leg-btn-put" data-instrument="${putName}" title="Add ${putName} (long) to strategy">+P</button>` : ""}
+          <button type="button" class="leg-btn watch-btn" data-call="${callName || ""}" data-put="${putName || ""}" title="Toggle watchlist">${watched ? "★" : "☆"}</button>
         </div>
       </td>
       <td class="put-cell">${put ? fmtNum(put.bid_price, 4) : "—"}</td>
       <td class="put-cell">${put ? fmtNum(put.mark_price, 4) : "—"}</td>
       <td class="put-cell">${put ? fmtNum(put.ask_price, 4) : "—"}</td>
+      ${edgeCell(edges.put.get(strike))}
       <td class="put-cell">${putGreeks && putGreeks.delta != null ? fmtNum(putGreeks.delta, 3) : "—"}</td>
       <td class="put-cell">${put && put.mark_iv != null ? fmtNum(put.mark_iv, 1) : "—"}</td>
       <td class="put-cell">${put ? fmtNum(put.volume, 0) : "—"}</td>
-      <td class="put-cell">${put ? fmtNum(put.open_interest, 0) : "—"}</td>
+      <td class="put-cell">${put ? fmtWithOiDelta(put.open_interest, oiVolDelta(putName)) : "—"}</td>
     `;
 
     tr.addEventListener("click", () => {
@@ -228,12 +325,19 @@ function renderLadder() {
       const target = callName || putName;
       if (target) openOrderBook(target);
     });
-    tr.querySelectorAll(".leg-btn").forEach((btn) => {
+    tr.querySelectorAll(".leg-btn-call, .leg-btn-put").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
         addStrategyLeg(btn.dataset.instrument);
       });
     });
+    const watchBtn = tr.querySelector(".watch-btn");
+    if (watchBtn) {
+      watchBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleWatchlistPair(watchBtn.dataset.call || null, watchBtn.dataset.put || null);
+      });
+    }
     body.appendChild(tr);
   }
 
@@ -242,7 +346,9 @@ function renderLadder() {
   renderOiChart(strikes, bucket);
   renderGexChart(strikes, bucket);
   renderIvTermChart();
+  renderIvSurface();
   renderMarketStats(strikes, bucket);
+  renderWatchlist();
 }
 
 // ---------- Chain charts: IV skew + open interest by strike (SVG, no extra API calls) ----------
@@ -397,13 +503,7 @@ function quadraticFit(xs, ys) {
   return (x) => a * x * x + b * x + c;
 }
 
-function renderIvSkewChart(strikes, bucket, atm) {
-  const el = $("ivSkewChart");
-  $("ivSkewExpiry").textContent = state.selectedExpiry ? expiryLabel(state.selectedExpiry) : "—";
-  if (!strikes.length) {
-    el.innerHTML = '<p class="loading">No data</p>';
-    return;
-  }
+function ivArraysForExpiry(strikes, bucket) {
   const callIv = strikes.map((s) => {
     const sum = state.summaries.get(bucket.calls.get(s));
     return sum && sum.mark_iv != null ? sum.mark_iv : null;
@@ -412,25 +512,72 @@ function renderIvSkewChart(strikes, bucket, atm) {
     const sum = state.summaries.get(bucket.puts.get(s));
     return sum && sum.mark_iv != null ? sum.mark_iv : null;
   });
+  return { callIv, putIv };
+}
 
+// Smile fit uses OTM points only (OTM calls above ATM, OTM puts below), the
+// conventional way to assemble one smile curve from a call+put chain.
+function computeSmileFit(strikes, callIv, putIv, atm) {
+  if (atm == null) return null;
+  const points = [];
+  strikes.forEach((s, i) => {
+    if (s >= atm && callIv[i] != null) points.push([s, callIv[i]]);
+    else if (s < atm && putIv[i] != null) points.push([s, putIv[i]]);
+  });
+  return quadraticFit(points.map((p) => p[0]), points.map((p) => p[1]));
+}
+
+function renderIvSkewChart(strikes, bucket, atm) {
+  const el = $("ivSkewChart");
+  $("ivSkewExpiry").textContent = state.selectedExpiry ? expiryLabel(state.selectedExpiry) : "—";
+  if (!strikes.length) {
+    el.innerHTML = '<p class="loading">No data</p>';
+    return;
+  }
+  const { callIv, putIv } = ivArraysForExpiry(strikes, bucket);
   const series = [
     { data: callIv, color: COLOR_CALL },
     { data: putIv, color: COLOR_PUT },
   ];
 
-  // Smile fit uses OTM points only (OTM calls above ATM, OTM puts below), the
-  // conventional way to assemble one smile curve from a call+put chain.
-  if (atm != null) {
-    const smilePoints = [];
-    strikes.forEach((s, i) => {
-      if (s >= atm && callIv[i] != null) smilePoints.push([s, callIv[i]]);
-      else if (s < atm && putIv[i] != null) smilePoints.push([s, putIv[i]]);
-    });
-    const fit = quadraticFit(smilePoints.map((p) => p[0]), smilePoints.map((p) => p[1]));
-    if (fit) series.push({ data: strikes.map((s) => fit(s)), color: COLOR_ACCENT, dashed: true });
-  }
+  const fit = computeSmileFit(strikes, callIv, putIv, atm);
+  if (fit) series.push({ data: strikes.map((s) => fit(s)), color: COLOR_ACCENT, dashed: true });
 
   el.innerHTML = buildLineChartSvg(strikes, series, { atmX: atm });
+}
+
+// ---------- Theoretical price / edge finder ----------
+// Compares each contract's mark price to a Black-Scholes price built from the
+// *fitted* smile IV at its strike (not its own mark IV, which would trivially
+// match by construction). A contract trading away from the smooth smile curve
+// shows up as "rich" (mark > theoretical) or "cheap" (mark < theoretical).
+
+function computeEdges(strikes, bucket, atm, spot) {
+  const empty = { call: new Map(), put: new Map() };
+  if (spot == null || !state.selectedExpiry || !strikes.length) return empty;
+  const { callIv, putIv } = ivArraysForExpiry(strikes, bucket);
+  const fit = computeSmileFit(strikes, callIv, putIv, atm);
+  if (!fit) return empty;
+
+  const T = Math.max((state.selectedExpiry - Date.now()) / YEAR_MS, 1 / 365 / 24);
+  const call = new Map(), put = new Map();
+  for (const s of strikes) {
+    const fittedIv = fit(s);
+    if (fittedIv == null || fittedIv <= 0) continue;
+    const sigma = fittedIv / 100;
+
+    const cSum = state.summaries.get(bucket.calls.get(s));
+    if (cSum && cSum.mark_price != null) {
+      const theo = bsPrice("call", spot, s, T, sigma);
+      if (theo > 0) call.set(s, ((cSum.mark_price * spot - theo) / theo) * 100);
+    }
+    const pSum = state.summaries.get(bucket.puts.get(s));
+    if (pSum && pSum.mark_price != null) {
+      const theo = bsPrice("put", spot, s, T, sigma);
+      if (theo > 0) put.set(s, ((pSum.mark_price * spot - theo) / theo) * 100);
+    }
+  }
+  return { call, put };
 }
 
 function renderOiChart(strikes, bucket) {
@@ -570,6 +717,99 @@ function updatePerpStats() {
   $("fundingBasisStat").textContent = parts.length ? parts.join(" · ") : "—";
 }
 
+// ---------- Color helpers for heatmaps ----------
+
+function hexToRgb(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+function blendRgb(base, target, t) {
+  return base.map((b, i) => Math.round(b + (target[i] - b) * t));
+}
+
+// ---------- IV surface: moneyness x expiry heatmap ----------
+
+const MONEYNESS_BINS = [-30, -22.5, -15, -7.5, 0, 7.5, 15, 22.5, 30]; // % relative to spot
+
+function computeIvSurface() {
+  const spot = state.indexPrice;
+  if (spot == null || !state.expiries.length) return null;
+  const matrix = state.expiries.map((ts) => {
+    const bucket = state.instrumentsByExpiry.get(ts);
+    const strikes = [...new Set([...bucket.calls.keys(), ...bucket.puts.keys()])];
+    if (!strikes.length) return MONEYNESS_BINS.map(() => null);
+    return MONEYNESS_BINS.map((pct) => {
+      const target = spot * (1 + pct / 100);
+      const nearest = strikes.reduce((best, s) => (Math.abs(s - target) < Math.abs(best - target) ? s : best));
+      const useCall = nearest >= spot;
+      const name = useCall ? bucket.calls.get(nearest) : bucket.puts.get(nearest);
+      const sum = name ? state.summaries.get(name) : null;
+      return sum && sum.mark_iv != null ? sum.mark_iv : null;
+    });
+  });
+  return { cols: state.expiries, rows: MONEYNESS_BINS, matrix };
+}
+
+function buildIvHeatmapSvg(cols, rows, matrix) {
+  const cellW = 66, cellH = 20, padL = 44, padT = 8, padR = 8, padB = 24;
+  const W = padL + cellW * cols.length + padR;
+  const H = padT + cellH * rows.length + padB;
+  const vals = matrix.flat().filter((v) => v != null);
+  if (!vals.length) return '<p class="loading">No data</p>';
+  const vMin = Math.min(...vals), vMax = Math.max(...vals);
+  const stops = [hexToRgb(COLOR_CALL), hexToRgb(COLOR_ACCENT), hexToRgb(COLOR_PUT)];
+  const colorFor = (v) => {
+    if (v == null) return COLOR_PANEL_ALT;
+    const t = vMax === vMin ? 0.5 : (v - vMin) / (vMax - vMin);
+    const seg = t < 0.5 ? 0 : 1;
+    const localT = t < 0.5 ? t * 2 : (t - 0.5) * 2;
+    const [r, g, b] = blendRgb(stops[seg], stops[seg + 1], localT);
+    return `rgb(${r},${g},${b})`;
+  };
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
+  rows.forEach((r, ri) => {
+    const y = padT + ri * cellH;
+    svg += `<text x="${padL - 6}" y="${y + cellH / 2 + 3}" text-anchor="end" font-size="9" fill="${COLOR_DIM}">${r > 0 ? "+" : ""}${r}%</text>`;
+    cols.forEach((c, ci) => {
+      const x = padL + ci * cellW;
+      const v = matrix[ci][ri];
+      svg += `<rect x="${x}" y="${y}" width="${cellW - 2}" height="${cellH - 2}" fill="${colorFor(v)}"/>`;
+      if (v != null) svg += `<text x="${x + cellW / 2 - 1}" y="${y + cellH / 2 + 3}" text-anchor="middle" font-size="8" fill="#0b0e14">${v.toFixed(0)}</text>`;
+    });
+  });
+  cols.forEach((c, ci) => {
+    const x = padL + ci * cellW + cellW / 2 - 1;
+    svg += `<text x="${x}" y="${H - 6}" text-anchor="middle" font-size="9" fill="${COLOR_DIM}">${new Date(c).toLocaleDateString(undefined, { day: "2-digit", month: "short" })}</text>`;
+  });
+  svg += "</svg>";
+  return svg;
+}
+
+function renderIvSurface() {
+  const el = $("ivSurfaceChart");
+  const surface = computeIvSurface();
+  el.innerHTML = surface ? buildIvHeatmapSvg(surface.cols, surface.rows, surface.matrix) : '<p class="loading">No data</p>';
+}
+
+// ---------- Futures term structure / basis curve ----------
+
+function renderFuturesCurve() {
+  const el = $("futuresCurveChart");
+  if (state.indexPrice == null || !state.futures.length) {
+    el.innerHTML = '<p class="loading">No data</p>';
+    return;
+  }
+  const spot = state.indexPrice;
+  const xValues = state.futures.map((f) => f.expiry);
+  const basis = state.futures.map((f) => ((f.markPrice - spot) / spot) * 100);
+  el.innerHTML = buildLineChartSvg(xValues, [{ data: basis, color: COLOR_ACCENT }], {
+    xLabelFn: (x) => new Date(x).toLocaleDateString(undefined, { day: "2-digit", month: "short" }),
+    decimals: 2,
+  });
+}
+
 function highlightAtmOnly() {
   // Re-render is cheap enough at this table size; keeps ATM marker in sync with live index price.
   renderLadder();
@@ -672,6 +912,142 @@ function renderTradesFeed() {
     .join("");
 }
 
+// ---------- Watchlist: pin instruments across expiries ----------
+
+function toggleWatchlistPair(callName, putName) {
+  const anyWatched = (callName && state.watchlist.has(callName)) || (putName && state.watchlist.has(putName));
+  if (anyWatched) {
+    if (callName) state.watchlist.delete(callName);
+    if (putName) state.watchlist.delete(putName);
+  } else {
+    if (callName) state.watchlist.add(callName);
+    if (putName) state.watchlist.add(putName);
+  }
+  renderLadder();
+}
+
+function renderWatchlist() {
+  const el = $("watchlistPanel");
+  if (!state.watchlist.size) {
+    el.innerHTML = '<p class="loading">Click ☆ next to a strike to pin it here.</p>';
+    return;
+  }
+  el.innerHTML = [...state.watchlist]
+    .map((name) => {
+      const sum = state.summaries.get(name);
+      const isCall = name.endsWith("-C");
+      return `<div class="watch-row">
+        <span class="${isCall ? "call-cell" : "put-cell"}">${name}</span>
+        <span>${sum ? fmtNum(sum.bid_price, 4) : "—"}</span>
+        <span>${sum ? fmtNum(sum.mark_price, 4) : "—"}</span>
+        <span>${sum ? fmtNum(sum.ask_price, 4) : "—"}</span>
+        <span>${sum && sum.mark_iv != null ? fmtNum(sum.mark_iv, 1) + "%" : "—"}</span>
+        <button type="button" data-name="${name}" class="leg-remove" aria-label="Remove from watchlist">×</button>
+      </div>`;
+    })
+    .join("");
+  el.querySelectorAll(".leg-remove").forEach((btn) =>
+    btn.addEventListener("click", (e) => {
+      state.watchlist.delete(e.currentTarget.dataset.name);
+      renderWatchlist();
+      renderLadder();
+    })
+  );
+}
+
+// ---------- In-page threshold alerts (price / ATM IV / chain OI) ----------
+// Client-side only: fires a Notification (with permission) + a short beep.
+// Only works while this tab stays open — there is no server to push from.
+
+function chainOiTotal() {
+  const bucket = state.instrumentsByExpiry.get(state.selectedExpiry);
+  if (!bucket) return null;
+  const strikes = [...new Set([...bucket.calls.keys(), ...bucket.puts.keys()])];
+  let total = 0;
+  for (const s of strikes) {
+    const c = state.summaries.get(bucket.calls.get(s));
+    const p = state.summaries.get(bucket.puts.get(s));
+    total += (c ? c.open_interest || 0 : 0) + (p ? p.open_interest || 0 : 0);
+  }
+  return total;
+}
+
+function beep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g);
+    g.connect(ctx.destination);
+    o.frequency.value = 880;
+    g.gain.setValueAtTime(0.15, ctx.currentTime);
+    o.start();
+    o.stop(ctx.currentTime + 0.2);
+  } catch (err) {
+    // Audio not available in this browser/context; skip silently.
+  }
+}
+
+function fireAlert(alert, current) {
+  const msg = `${alert.label} ${alert.condition} ${fmtNum(alert.value, 2)} — now ${fmtNum(current, 2)}`;
+  if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+    new Notification("BTC Options Dashboard alert", { body: msg });
+  }
+  beep();
+}
+
+function checkAlerts() {
+  if (!state.alerts.length) return;
+  let changed = false;
+  for (const alert of state.alerts) {
+    if (alert.fired) continue;
+    let current = null;
+    if (alert.metric === "price") current = state.indexPrice;
+    else if (alert.metric === "iv") {
+      const front = computeIvTermStructure().find((t) => t.atmIv != null);
+      current = front ? front.atmIv : null;
+    } else if (alert.metric === "oi") current = chainOiTotal();
+    if (current == null) continue;
+    const hit = alert.condition === "above" ? current >= alert.value : current <= alert.value;
+    if (hit) {
+      alert.fired = true;
+      changed = true;
+      fireAlert(alert, current);
+    }
+  }
+  if (changed) renderAlertsList();
+}
+
+function addAlert(metric, condition, value) {
+  const labels = { price: "BTC Index", iv: "ATM IV", oi: "Chain OI (selected expiry)" };
+  state.alerts.push({ id: Date.now() + Math.random(), metric, condition, value, fired: false, label: labels[metric] });
+  renderAlertsList();
+}
+
+function renderAlertsList() {
+  const el = $("alertsList");
+  if (!state.alerts.length) {
+    el.innerHTML = '<p class="loading">No alerts set.</p>';
+    return;
+  }
+  el.innerHTML = state.alerts
+    .map(
+      (a, i) => `
+    <div class="alert-row${a.fired ? " alert-fired" : ""}">
+      <span>${a.label} ${a.condition} ${fmtNum(a.value, 2)}</span>
+      <span class="dim">${a.fired ? "fired" : "armed"}</span>
+      <button type="button" data-idx="${i}" class="leg-remove" aria-label="Remove alert">×</button>
+    </div>`
+    )
+    .join("");
+  el.querySelectorAll(".leg-remove").forEach((btn) =>
+    btn.addEventListener("click", (e) => {
+      state.alerts.splice(+e.currentTarget.dataset.idx, 1);
+      renderAlertsList();
+    })
+  );
+}
+
 function connectMainWs() {
   mainWs = new WebSocket(WS_URL);
 
@@ -697,6 +1073,8 @@ function connectMainWs() {
       $("indexPrice").textContent = "$" + fmtNum(data.price, 2);
       pushChartPoint(data.timestamp, data.price);
       updatePerpStats();
+      renderFuturesCurve();
+      checkAlerts();
       highlightAtmOnly();
     } else if (channel === "ticker.BTC-PERPETUAL.100ms") {
       state.perp.markPrice = data.mark_price;
@@ -799,6 +1177,8 @@ function addStrategyLeg(instrumentName) {
     side: "long",
     qty: 1,
     premiumUsd: premiumBtc * (state.indexPrice || 0),
+    ivPct: sum ? sum.mark_iv || null : null,
+    expiry: state.selectedExpiry,
   });
   renderStrategyPanel();
 }
@@ -815,7 +1195,98 @@ function computePayoff(legs, priceRange) {
   });
 }
 
-function buildPayoffChartSvg(xValues, yValues, currentPrice) {
+function findBreakevens(priceRange, payoff) {
+  const breakevens = [];
+  for (let i = 1; i < payoff.length; i++) {
+    const a = payoff[i - 1], b = payoff[i];
+    if ((a <= 0 && b > 0) || (a >= 0 && b < 0)) {
+      const t = a === b ? 0 : -a / (b - a);
+      breakevens.push(priceRange[i - 1] + t * (priceRange[i] - priceRange[i - 1]));
+    }
+  }
+  return breakevens;
+}
+
+function computeNetGreeks(legs) {
+  const totals = { delta: 0, gamma: 0, theta: 0, vega: 0 };
+  let missing = false;
+  for (const leg of legs) {
+    const g = state.greeks.get(leg.instrument);
+    if (!g) {
+      missing = true;
+      continue;
+    }
+    const sign = leg.side === "long" ? 1 : -1;
+    totals.delta += sign * leg.qty * (g.delta || 0);
+    totals.gamma += sign * leg.qty * (g.gamma || 0);
+    totals.theta += sign * leg.qty * (g.theta || 0);
+    totals.vega += sign * leg.qty * (g.vega || 0);
+  }
+  return { totals, missing };
+}
+
+function computeScenarioGrid(legs) {
+  const spot = state.indexPrice;
+  if (!legs.length || spot == null) return null;
+  const prices = Array.from({ length: 7 }, (_, i) => spot * 0.7 + spot * 0.6 * (i / 6));
+  const maxDays = Math.max(1, ...legs.map((l) => (l.expiry - Date.now()) / 86400000));
+  const dayOffsets = [0, 0.25, 0.5, 0.75, 1].map((f) => f * maxDays);
+  const grid = dayOffsets.map((daysFromNow) => {
+    const atMs = Date.now() + daysFromNow * 86400000;
+    return prices.map((S) => {
+      let total = 0;
+      for (const leg of legs) {
+        const T = Math.max((leg.expiry - atMs) / YEAR_MS, 0);
+        const sigma = (leg.ivPct || 0) / 100;
+        const value =
+          T > 0 && sigma > 0
+            ? bsPrice(leg.type, S, leg.strike, T, sigma)
+            : leg.type === "call"
+              ? Math.max(S - leg.strike, 0)
+              : Math.max(leg.strike - S, 0);
+        const sign = leg.side === "long" ? 1 : -1;
+        total += sign * leg.qty * (value - leg.premiumUsd);
+      }
+      return total;
+    });
+  });
+  return { prices, dayOffsets, grid };
+}
+
+function buildPnlHeatmapSvg(prices, dayOffsets, grid) {
+  const cellW = 76, cellH = 26, padL = 62, padT = 8, padR = 8, padB = 22;
+  const cols = dayOffsets.length, rows = prices.length;
+  const W = padL + cellW * cols + padR;
+  const H = padT + cellH * rows + padB;
+  const allVals = grid.flat();
+  const maxAbs = Math.max(1, ...allVals.map(Math.abs));
+  const base = hexToRgb(COLOR_PANEL_ALT);
+  const cellColor = (v) => {
+    const t = Math.min(1, Math.abs(v) / maxAbs) * 0.85;
+    const [r, g, b] = blendRgb(base, hexToRgb(v >= 0 ? COLOR_CALL : COLOR_PUT), t);
+    return `rgb(${r},${g},${b})`;
+  };
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
+  for (let ri = 0; ri < rows; ri++) {
+    const y = padT + ri * cellH;
+    svg += `<text x="${padL - 6}" y="${y + cellH / 2 + 3}" text-anchor="end" font-size="9" fill="${COLOR_DIM}">$${fmtNum(prices[rows - 1 - ri], 0)}</text>`;
+    for (let ci = 0; ci < cols; ci++) {
+      const v = grid[ci][rows - 1 - ri];
+      const x = padL + ci * cellW;
+      svg += `<rect x="${x}" y="${y}" width="${cellW - 2}" height="${cellH - 2}" fill="${cellColor(v)}"/>`;
+      svg += `<text x="${x + cellW / 2 - 1}" y="${y + cellH / 2 + 3}" text-anchor="middle" font-size="9" fill="${COLOR_DIM}">${v >= 0 ? "+" : ""}${fmtNum(v, 0)}</text>`;
+    }
+  }
+  dayOffsets.forEach((d, ci) => {
+    const x = padL + ci * cellW + cellW / 2 - 1;
+    svg += `<text x="${x}" y="${H - 6}" text-anchor="middle" font-size="9" fill="${COLOR_DIM}">${d === 0 ? "Now" : "+" + d.toFixed(1) + "d"}</text>`;
+  });
+  svg += "</svg>";
+  return svg;
+}
+
+function buildPayoffChartSvg(xValues, yValues, currentPrice, breakevens = []) {
   const W = 600, H = 220, padL = 54, padR = 12, padT = 10, padB = 22;
   const innerW = W - padL - padR, innerH = H - padT - padB;
   const xMin = Math.min(...xValues), xMax = Math.max(...xValues);
@@ -834,6 +1305,12 @@ function buildPayoffChartSvg(xValues, yValues, currentPrice) {
   if (currentPrice >= xMin && currentPrice <= xMax) {
     const cx = xScale(currentPrice);
     svg += `<line x1="${cx}" y1="${padT}" x2="${cx}" y2="${H - padB}" stroke="${COLOR_ACCENT}" stroke-width="1" stroke-dasharray="3,3"/>`;
+  }
+
+  for (const be of breakevens) {
+    if (be < xMin || be > xMax) continue;
+    const bx = xScale(be);
+    svg += `<line x1="${bx}" y1="${padT}" x2="${bx}" y2="${H - padB}" stroke="#5b9dd9" stroke-width="1" stroke-dasharray="2,2"/>`;
   }
 
   const labelStep = Math.max(1, Math.ceil(xValues.length / 6));
@@ -857,11 +1334,15 @@ function renderStrategyPanel() {
   const legsEl = $("strategyLegs");
   const chartEl = $("strategyChart");
   const summaryEl = $("strategySummary");
+  const greeksEl = $("strategyGreeks");
+  const scenarioEl = $("scenarioChart");
 
   if (!state.strategyLegs.length) {
     legsEl.innerHTML = '<p class="loading">Click +C / +P next to a strike in the ladder to add a leg.</p>';
     chartEl.innerHTML = "";
     summaryEl.textContent = "";
+    greeksEl.textContent = "";
+    scenarioEl.innerHTML = "";
     return;
   }
 
@@ -904,9 +1385,21 @@ function renderStrategyPanel() {
   const lo = center * 0.6, hi = center * 1.4;
   const priceRange = Array.from({ length: steps + 1 }, (_, i) => lo + ((hi - lo) * i) / steps);
   const payoff = computePayoff(state.strategyLegs, priceRange);
+  const breakevens = findBreakevens(priceRange, payoff);
 
-  chartEl.innerHTML = buildPayoffChartSvg(priceRange, payoff, center);
-  summaryEl.textContent = `Max profit (in range): $${fmtNum(Math.max(...payoff), 0)} · Max loss (in range): $${fmtNum(Math.min(...payoff), 0)}`;
+  chartEl.innerHTML = buildPayoffChartSvg(priceRange, payoff, center, breakevens);
+  const beText = breakevens.length ? ` · Breakeven: ${breakevens.map((b) => "$" + fmtNum(b, 0)).join(", ")}` : "";
+  summaryEl.textContent = `Max profit (in range): $${fmtNum(Math.max(...payoff), 0)} · Max loss (in range): $${fmtNum(Math.min(...payoff), 0)}${beText}`;
+
+  const { totals, missing } = computeNetGreeks(state.strategyLegs);
+  greeksEl.textContent =
+    `Net Greeks — Δ ${fmtNum(totals.delta, 3)} · Γ ${fmtNum(totals.gamma, 5)} · Θ ${fmtNum(totals.theta, 2)} · V ${fmtNum(totals.vega, 2)}` +
+    (missing ? " (some legs still loading Greeks)" : "");
+
+  const scenario = computeScenarioGrid(state.strategyLegs);
+  scenarioEl.innerHTML = scenario
+    ? buildPnlHeatmapSvg(scenario.prices, scenario.dayOffsets, scenario.grid)
+    : '<p class="loading">Waiting for index price…</p>';
 }
 
 // ---------- CSV export ----------
@@ -946,12 +1439,27 @@ function exportChainCsv() {
 
 // ---------- Wire up ----------
 
+function setChainPollInterval(ms) {
+  if (chainPollTimer) clearInterval(chainPollTimer);
+  chainPollTimer = setInterval(refreshChain, ms);
+}
+
 $("obClose").addEventListener("click", closeOrderBook);
 $("strategyClear").addEventListener("click", () => {
   state.strategyLegs = [];
   renderStrategyPanel();
 });
 $("exportCsv").addEventListener("click", exportChainCsv);
+$("pollRateSelect").addEventListener("change", (e) => setChainPollInterval(parseInt(e.target.value, 10)));
+$("enableNotifications").addEventListener("click", () => {
+  if (typeof Notification !== "undefined") Notification.requestPermission();
+});
+$("alertAdd").addEventListener("click", () => {
+  const value = parseFloat($("alertValue").value);
+  if (!Number.isFinite(value)) return;
+  addAlert($("alertMetric").value, $("alertCondition").value, value);
+  $("alertValue").value = "";
+});
 
 async function init() {
   initChart();
@@ -959,10 +1467,13 @@ async function init() {
   await refreshInstruments();
   await refreshChain();
   refreshRealizedVol();
+  refreshFutures();
   renderStrategyPanel();
-  setInterval(refreshChain, CHAIN_POLL_MS);
+  renderAlertsList();
+  setChainPollInterval(CHAIN_POLL_MS);
   setInterval(refreshInstruments, INSTRUMENTS_REFRESH_MS);
   setInterval(refreshRealizedVol, REALIZED_VOL_REFRESH_MS);
+  setInterval(refreshFutures, FUTURES_REFRESH_MS);
 }
 
 init();

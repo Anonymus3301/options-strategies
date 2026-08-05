@@ -29,6 +29,15 @@
         <span class="stat-label">Chain refresh</span>
         <span id="lastUpdate" class="stat-value">—</span>
       </div>
+      <div class="stat">
+        <span class="stat-label">Poll rate</span>
+        <select id="pollRateSelect" class="poll-rate-select">
+          <option value="2000">2s</option>
+          <option value="5000" selected>5s</option>
+          <option value="10000">10s</option>
+          <option value="30000">30s</option>
+        </select>
+      </div>
     </div>
   </header>
 
@@ -57,6 +66,14 @@
       <span class="mstat-label">Perp Funding · Basis</span>
       <span id="fundingBasisStat" class="mstat-value">—</span>
     </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Futures Term Structure</h2>
+      <span class="hint">Dated futures basis vs. index, % annualized-free</span>
+    </div>
+    <div id="futuresCurveChart" class="svg-chart"></div>
   </section>
 
   <section class="expiry-panel">
@@ -102,29 +119,37 @@
     </div>
   </section>
 
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>IV Surface</h2>
+      <span class="hint">Moneyness (rows, % vs spot) × expiry (columns), nearest-strike OTM IV</span>
+    </div>
+    <div id="ivSurfaceChart" class="svg-chart heatmap-chart"></div>
+  </section>
+
   <main class="ladder-wrap">
     <section class="ladder-panel">
       <div class="panel-header">
         <h2>Options Chain — <span id="expiryLabel">—</span></h2>
-        <span class="hint">Click a row for its order book · +C/+P adds to Strategy Builder</span>
+        <span class="hint">Click a row for its order book · +C/+P adds to Strategy Builder · ☆ pins to Watchlist</span>
         <button id="exportCsv" class="ob-chart-link">Export CSV ↓</button>
       </div>
       <div class="ladder-scroll">
         <table class="ladder">
           <thead>
             <tr>
-              <th colspan="7" class="side-header calls">CALLS</th>
+              <th colspan="8" class="side-header calls">CALLS</th>
               <th class="strike-header">STRIKE</th>
-              <th colspan="7" class="side-header puts">PUTS</th>
+              <th colspan="8" class="side-header puts">PUTS</th>
             </tr>
             <tr class="col-labels">
-              <th>OI</th><th>Vol</th><th>IV%</th><th>Δ</th><th>Bid</th><th>Mark</th><th>Ask</th>
+              <th>OI</th><th>Vol</th><th>IV%</th><th>Δ</th><th>Edge%</th><th>Bid</th><th>Mark</th><th>Ask</th>
               <th class="strike-col"></th>
-              <th>Bid</th><th>Mark</th><th>Ask</th><th>Δ</th><th>IV%</th><th>Vol</th><th>OI</th>
+              <th>Bid</th><th>Mark</th><th>Ask</th><th>Edge%</th><th>Δ</th><th>IV%</th><th>Vol</th><th>OI</th>
             </tr>
           </thead>
           <tbody id="ladderBody">
-            <tr><td colspan="15" class="loading">Loading instruments from Deribit…</td></tr>
+            <tr><td colspan="17" class="loading">Loading instruments from Deribit…</td></tr>
           </tbody>
         </table>
       </div>
@@ -164,6 +189,40 @@
     </div>
   </section>
 
+  <section class="watchlist-panel">
+    <div class="panel-header">
+      <h2>Watchlist</h2>
+      <span class="hint">Pinned instruments, live across all expiries</span>
+    </div>
+    <div id="watchlistPanel" class="watchlist-rows">
+      <p class="loading">Click ☆ next to a strike to pin it here.</p>
+    </div>
+  </section>
+
+  <section class="alerts-panel">
+    <div class="panel-header">
+      <h2>Alerts</h2>
+      <span class="hint">Client-side only — fires while this tab is open</span>
+      <button id="enableNotifications" class="ob-chart-link">Enable notifications</button>
+    </div>
+    <div class="alerts-form">
+      <select id="alertMetric">
+        <option value="price">BTC Index</option>
+        <option value="iv">ATM IV</option>
+        <option value="oi">Chain OI (selected expiry)</option>
+      </select>
+      <select id="alertCondition">
+        <option value="above">Above</option>
+        <option value="below">Below</option>
+      </select>
+      <input id="alertValue" type="number" step="any" placeholder="Value" />
+      <button id="alertAdd" class="ob-chart-link">Add Alert</button>
+    </div>
+    <div id="alertsList" class="alerts-list">
+      <p class="loading">No alerts set.</p>
+    </div>
+  </section>
+
   <section class="strategy-panel">
     <div class="panel-header">
       <h2>Strategy Builder</h2>
@@ -176,7 +235,15 @@
       <div class="strategy-chart-wrap">
         <div id="strategyChart" class="svg-chart"></div>
         <div id="strategySummary" class="strategy-summary"></div>
+        <div id="strategyGreeks" class="strategy-summary"></div>
       </div>
+    </div>
+    <div class="strategy-scenario">
+      <div class="panel-header">
+        <h2>P&amp;L Scenario (price × time)</h2>
+        <span class="hint">Black-Scholes reprice at each leg's snapshot IV — illustrative, not a live quote</span>
+      </div>
+      <div id="scenarioChart" class="svg-chart heatmap-chart"></div>
     </div>
     <div class="strategy-actions">
       <button id="strategyClear" class="ob-chart-link">Clear all legs</button>

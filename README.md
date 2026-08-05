@@ -13,18 +13,32 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Features
 
-- **Options ladder** — full calls/puts chain by expiry: OI, volume, IV, delta, bid/mark/ask.
+- **Options ladder** — full calls/puts chain by expiry: OI (with a live Δ-since-last-poll
+  badge), volume, IV, delta, an **edge %** (mark price vs. a Black-Scholes theoretical
+  price built from the fitted smile IV — flags contracts trading rich/cheap relative to
+  their neighbors), and bid/mark/ask.
 - **Live order book** per instrument, plus a dedicated 1-minute OHLC chart page.
 - **Chain charts** — price by strike, IV skew (with a fitted smile curve), open interest
-  by strike, gamma exposure (GEX) by strike, and IV term structure across expiries.
+  by strike, gamma exposure (GEX) by strike, IV term structure across expiries, a full
+  **IV surface heatmap** (moneyness × expiry), and a **futures term structure / basis
+  curve** from Deribit's dated BTC futures.
 - **Market stats strip** — max pain, put/call ratio (volume & OI), 30-day realized
   volatility vs. front-month ATM IV, BTC-PERPETUAL funding rate and basis.
 - **Recent trades tape** — live feed of BTC option trades, with large prints highlighted.
+- **Watchlist** — pin any strike's call/put (★ button) to a panel that shows live
+  bid/mark/ask/IV regardless of which expiry tab is active.
+- **Alerts** — set a threshold on BTC index price, ATM IV, or chain OI; firing shows a
+  browser Notification (if permitted) and plays a beep. Client-side only — it only fires
+  while this tab stays open, there's no server to push from.
+- **Configurable poll rate** — 2s/5s/10s/30s dropdown for how often the chain refreshes.
 - **Strategy builder** — add legs straight from the ladder (+C/+P) and see an illustrative
-  payoff diagram. This is a simplified USD-equivalent payoff (premiums are converted from
-  Deribit's BTC-denominated mark price at the index price when the leg was added) — it
-  does not model Deribit's actual inverse/BTC-settled contract mechanics, so treat it as
-  directional intuition, not a P&L quote.
+  payoff diagram with breakeven markers and net portfolio Greeks (Δ/Γ/Θ/Vega). This is a
+  simplified USD-equivalent payoff (premiums are converted from Deribit's BTC-denominated
+  mark price at the index price when the leg was added) — it does not model Deribit's
+  actual inverse/BTC-settled contract mechanics, so treat it as directional intuition,
+  not a P&L quote. A **P&L scenario heatmap** (price × time) reprices each leg via
+  Black-Scholes at its snapshot IV to show how the position's value could evolve before
+  expiry — also illustrative, since it holds volatility fixed.
 - **CSV export** of the currently displayed chain.
 
 ## What's deliberately not included
@@ -89,8 +103,12 @@ Data flow:
 8. **Realized volatility** — REST call to `get_tradingview_chart_data` for
    `BTC-PERPETUAL` at daily resolution over the last 30 days, refreshed every 5 minutes;
    annualized from the standard deviation of daily log returns.
-9. **Max pain, put/call ratio, IV term structure, gamma exposure** are all computed
-   client-side from data already being polled above — no extra requests.
+9. **Max pain, put/call ratio, IV term structure, gamma exposure, IV surface, theoretical
+   price/edge, OI deltas** are all computed client-side from data already being polled
+   above — no extra requests.
+10. **Futures term structure** — REST calls to `get_instruments`/`get_book_summary_by_currency`
+    with `kind=future`, polled every 30s (dated futures basis moves slowly, so this
+    doesn't need 5s granularity).
 
 All requests are made directly from the browser — Deribit's public REST and WebSocket
 endpoints allow anonymous, keyless access and are CORS-enabled for market data.
@@ -98,12 +116,20 @@ endpoints allow anonymous, keyless access and are CORS-enabled for market data.
 ## Notes / limitations
 
 - This is display-only (no trading, no auth, no order placement).
-- REST polling for the chain (5s) is a deliberate tradeoff: subscribing to a WebSocket
-  ticker channel per strike would mean hundreds of subscriptions for a single expiry.
-  `get_book_summary_by_currency` returns the whole chain in one lightweight call instead.
+- REST polling for the chain (5s by default, adjustable) is a deliberate tradeoff:
+  subscribing to a WebSocket ticker channel per strike would mean hundreds of
+  subscriptions for a single expiry. `get_book_summary_by_currency` returns the whole
+  chain in one lightweight call instead.
 - Gamma exposure and delta figures depend on the Greeks WebSocket feed, so they only
   populate once `ticker.*` messages start arriving for the selected expiry (a second or
   two after switching tabs), and only cover that expiry — not the full option chain.
+- The edge finder compares mark price to a Black-Scholes price using the fitted smile IV
+  (not the contract's own mark IV, which would trivially match) and assumes a 0% risk-free
+  rate, matching Deribit's own BTC/ETH options convention. It's a relative-value signal
+  against the smoothed smile, not a claim about true fair value.
+- OI/volume delta badges only appear after the second poll of a session (there's no
+  "previous" snapshot on the very first load).
+- Alerts and the poll-rate control are in-memory only — they reset on page reload.
 - If Deribit's API is unreachable from your network (e.g. a restrictive corporate proxy
   or a sandboxed CI environment), the ladder will show a retry message — this was also
   the case in the environment this app was developed in, so it hasn't been exercised
