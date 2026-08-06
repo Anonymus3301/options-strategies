@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Option Chart — Deribit</title>
+<title>Option Chart — Delta Exchange</title>
 <link rel="stylesheet" href="styles.css" />
 <script src="vendor/lightweight-charts.standalone.production.js"></script>
 </head>
@@ -13,7 +13,7 @@
       <a href="index.html" class="back-link">← Ladder</a>
       <div>
         <h1 id="chartTitle">Option Chart</h1>
-        <p class="subtitle">1-minute OHLC, live from Deribit's free public API</p>
+        <p class="subtitle">Mark-price OHLC from Delta Exchange's chart API — mapped from the Deribit contract you clicked</p>
       </div>
     </div>
     <div class="status-cluster">
@@ -31,10 +31,20 @@
   <section class="chart-panel full-page-chart">
     <div class="panel-header">
       <h2 id="chartInstrument">—</h2>
-      <span class="hint">Resolution: 1 minute · last 6 hours</span>
+      <span class="hint" id="deltaSymbolHint">Delta symbol: —</span>
+      <select id="resolutionSelect" class="poll-rate-select" disabled>
+        <option>Loading resolutions…</option>
+      </select>
     </div>
     <div id="fullChart" class="chart chart-tall"></div>
   </section>
+
+  <p class="chart-note">
+    Delta Exchange is a different venue from Deribit (which the rest of this dashboard
+    uses). The symbol above is constructed from the strike/expiry/type you clicked in the
+    ladder — if Delta Exchange doesn't list that exact contract, this page will say so
+    instead of showing data.
+  </p>
 
   <script src="chart.js"></script>
 </body>

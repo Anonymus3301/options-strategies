@@ -1,9 +1,24 @@
-// Standalone 1-minute OHLC chart for a single Deribit option instrument.
-// Opened from the ladder's order book panel via chart.html?instrument=...
+// Standalone option chart, opened from the ladder's order book panel via
+// chart.html?instrument=<deribit-instrument-name>.
+//
+// Data source: Delta Exchange's public TradingView-compatible chart API
+// (https://cdn.india.deltaex.org/v2/chart/{symbols,history}), NOT Deribit.
+// Delta Exchange is a different options venue from the one the rest of this
+// dashboard reads (Deribit) — its strikes/expiries don't necessarily match.
+// The Deribit instrument name is converted into Delta's "MARK:{C|P}-{ASSET}-
+// {STRIKE}-{DDMMYY}" symbol convention; if Delta doesn't list that exact
+// contract, this page says so rather than guessing or showing stale data.
+//
+// This integration could not be verified against live traffic from the
+// environment this was built in (outbound requests to Delta Exchange were
+// blocked by the sandbox's network policy) — the endpoint shapes follow the
+// standard TradingView UDF datafeed convention that Delta's /symbols
+// response (has_intraday, supported_resolutions, pricescale, minmov) implies,
+// but verify in a real browser and report back if the history call 404s or
+// the response shape differs.
 
-const REST_BASE = "https://www.deribit.com/api/v2/public";
+const DELTA_CHART_BASE = "https://cdn.india.deltaex.org/v2/chart";
 const REFRESH_MS = 15000;
-const WINDOW_MS = 6 * 60 * 60 * 1000; // last 6 hours of 1m candles
 
 const COLOR_CALL = "#35d399";
 const COLOR_PUT = "#ff5c7c";
@@ -18,14 +33,64 @@ function setPill(id, text, cls) {
   el.className = "pill " + cls;
 }
 
-async function fetchOhlc1m(instrumentName) {
-  const end = Date.now();
-  const start = end - WINDOW_MS;
-  const url = `${REST_BASE}/get_tradingview_chart_data?instrument_name=${instrumentName}&start_timestamp=${start}&end_timestamp=${end}&resolution=1`;
+// "BTC-29AUG25-60000-C" -> "MARK:C-BTC-60000-290825"
+function deribitToDeltaSymbol(instrumentName) {
+  const parts = instrumentName.split("-");
+  if (parts.length < 4) return null;
+  const [asset, rawDate, strike, typeLetter] = parts;
+  const months = {
+    JAN: "01", FEB: "02", MAR: "03", APR: "04", MAY: "05", JUN: "06",
+    JUL: "07", AUG: "08", SEP: "09", OCT: "10", NOV: "11", DEC: "12",
+  };
+  const day = rawDate.slice(0, 2);
+  const mon = months[rawDate.slice(2, 5).toUpperCase()];
+  const yr = rawDate.slice(5, 7);
+  if (!mon || day.length !== 2 || yr.length !== 2) return null;
+  const side = typeLetter === "C" ? "C" : "P";
+  return `MARK:${side}-${asset}-${strike}-${day}${mon}${yr}`;
+}
+
+async function fetchSymbolInfo(symbol) {
+  const url = `${DELTA_CHART_BASE}/symbols?symbol=${encodeURIComponent(symbol)}`;
   const res = await fetch(url);
-  const json = await res.json();
-  if (json.error) throw new Error(json.error.message);
-  return json.result;
+  return res.json();
+}
+
+async function fetchHistory(symbol, resolution, fromSec, toSec) {
+  const url = `${DELTA_CHART_BASE}/history?symbol=${encodeURIComponent(symbol)}&resolution=${resolution}&from=${fromSec}&to=${toSec}`;
+  const res = await fetch(url);
+  return res.json();
+}
+
+function resolutionSortKey(r) {
+  if (/^\d+$/.test(r)) return parseInt(r, 10);
+  if (/^\d+W$/.test(r)) return 100000 + parseInt(r, 10);
+  if (r === "D") return 90000;
+  if (r === "W") return 100000;
+  if (r === "M") return 200000;
+  return 300000;
+}
+
+function resolutionLabel(r) {
+  if (r === "D") return "1D";
+  if (r === "W") return "1W";
+  if (r === "M") return "1M";
+  if (/^\d+W$/.test(r)) return r;
+  const mins = parseInt(r, 10);
+  if (!Number.isFinite(mins)) return r;
+  if (mins % 1440 === 0) return mins / 1440 + "D";
+  if (mins % 60 === 0) return mins / 60 + "h";
+  return mins + "m";
+}
+
+// Lookback window sized so each resolution shows a reasonable number of bars.
+function windowSecondsFor(resolution) {
+  if (resolution === "M" || /^\d+W$/.test(resolution)) return 3 * 365 * 86400;
+  if (resolution === "W") return 3 * 365 * 86400;
+  if (resolution === "D") return 200 * 86400;
+  const mins = parseInt(resolution, 10);
+  if (!Number.isFinite(mins)) return 86400;
+  return Math.max(mins * 60 * 150, 3600); // ~150 bars, at least 1 hour
 }
 
 function init() {
@@ -39,6 +104,14 @@ function init() {
   document.title = `${instrument} — Option Chart`;
   $("chartTitle").textContent = instrument;
   $("chartInstrument").textContent = instrument;
+
+  const symbol = deribitToDeltaSymbol(instrument);
+  $("deltaSymbolHint").textContent = "Delta symbol: " + (symbol || "could not be constructed");
+  if (!symbol) {
+    setPill("chartStatus", "unavailable", "pill-down");
+    $("fullChart").innerHTML = '<p class="loading">Could not derive a Delta Exchange symbol from this instrument name.</p>';
+    return;
+  }
 
   if (typeof LightweightCharts === "undefined") {
     $("fullChart").innerHTML = '<p class="loading">Chart library failed to load.</p>';
@@ -60,29 +133,76 @@ function init() {
     thinBars: false,
   });
 
+  let resolution = "1";
+  let refreshTimer = null;
+
   async function refresh() {
     try {
-      const data = await fetchOhlc1m(instrument);
-      setPill("chartStatus", "live", "pill-live");
-      if (data.status === "ok" && data.ticks && data.ticks.length) {
-        const candles = data.ticks.map((t, i) => ({
-          time: Math.floor(t / 1000),
-          open: data.open[i],
-          high: data.high[i],
-          low: data.low[i],
-          close: data.close[i],
-        }));
-        series.setData(candles);
+      const end = Math.floor(Date.now() / 1000);
+      const start = end - windowSecondsFor(resolution);
+      const data = await fetchHistory(symbol, resolution, start, end);
+      if (data.s !== "ok" || !data.t || !data.t.length) {
+        setPill("chartStatus", data.s === "no_data" ? "no data" : "no data", "pill-down");
+        $("fullChart").innerHTML = `<p class="loading">Delta Exchange has no ${resolutionLabel(resolution)} history for ${symbol}.</p>`;
+        return;
       }
+      setPill("chartStatus", "live", "pill-live");
+      const bars = data.t.map((t, i) => ({
+        time: t,
+        open: data.o[i],
+        high: data.h[i],
+        low: data.l[i],
+        close: data.c[i],
+      }));
+      series.setData(bars);
       $("chartLastUpdate").textContent = new Date().toLocaleTimeString();
     } catch (err) {
-      console.error("get_tradingview_chart_data failed", err);
+      console.error("Delta Exchange history fetch failed", err);
       setPill("chartStatus", "retrying…", "pill-down");
     }
   }
 
-  refresh();
-  setInterval(refresh, REFRESH_MS);
+  function startPolling() {
+    if (refreshTimer) clearInterval(refreshTimer);
+    refresh();
+    refreshTimer = setInterval(refresh, REFRESH_MS);
+  }
+
+  async function setup() {
+    let info;
+    try {
+      info = await fetchSymbolInfo(symbol);
+    } catch (err) {
+      setPill("chartStatus", "unreachable", "pill-down");
+      $("fullChart").innerHTML =
+        `<p class="loading">Could not reach Delta Exchange's chart API (${err.message}). This may be a network/CORS restriction — check the browser console.</p>`;
+      return;
+    }
+
+    if (!info.success || !info.result) {
+      setPill("chartStatus", "not listed", "pill-down");
+      $("fullChart").innerHTML =
+        `<p class="loading">Delta Exchange doesn't list a contract matching ${symbol}. It likely doesn't offer this exact strike/expiry.</p>`;
+      return;
+    }
+
+    const resolutions = (info.result.supported_resolutions || ["1"]).slice().sort(
+      (a, b) => resolutionSortKey(a) - resolutionSortKey(b)
+    );
+    const select = $("resolutionSelect");
+    select.innerHTML = resolutions.map((r) => `<option value="${r}">${resolutionLabel(r)}</option>`).join("");
+    resolution = resolutions.includes("1") ? "1" : resolutions[0];
+    select.value = resolution;
+    select.disabled = false;
+    select.addEventListener("change", (e) => {
+      resolution = e.target.value;
+      startPolling();
+    });
+
+    startPolling();
+  }
+
+  setup();
 }
 
 init();

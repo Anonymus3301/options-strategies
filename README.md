@@ -17,7 +17,8 @@ python3 -m http.server 8000   # then open http://localhost:8000
   badge), volume, IV, delta, an **edge %** (mark price vs. a Black-Scholes theoretical
   price built from the fitted smile IV — flags contracts trading rich/cheap relative to
   their neighbors), and bid/mark/ask.
-- **Live order book** per instrument, plus a dedicated 1-minute OHLC chart page.
+- **Live order book** per instrument, plus a dedicated OHLC chart page with every
+  resolution Delta Exchange supports (1m through monthly).
 - **Chain charts** — price by strike, IV skew (with a fitted smile curve), open interest
   by strike, gamma exposure (GEX) by strike, IV term structure across expiries, a full
   **IV surface heatmap** (moneyness × expiry), and a **futures term structure / basis
@@ -90,8 +91,18 @@ Data flow:
 4. **Order book** — clicking any row in the ladder opens a WebSocket subscription to
    `book.{instrument_name}.none.10.100ms` (top-10 depth, full snapshot every 100ms) for
    that specific option contract, rendered as a bid/ask depth panel. A separate page
-   (`chart.html`) shows that instrument's 1-minute OHLC history via REST polling of
-   `get_tradingview_chart_data`.
+   (`chart.html`) shows that instrument's OHLC history — sourced from **Delta
+   Exchange's** public chart API (`cdn.india.deltaex.org/v2/chart/{symbols,history}`),
+   not Deribit. The Deribit instrument name is converted into Delta's
+   `MARK:{C|P}-{ASSET}-{STRIKE}-{DDMMYY}` symbol convention (e.g. `BTC-29AUG25-60000-C`
+   → `MARK:C-BTC-60000-290825`); the resolution dropdown is populated from whatever
+   `supported_resolutions` Delta returns for that symbol. Delta Exchange is a different
+   options venue from Deribit — if it doesn't list the exact strike/expiry you clicked,
+   the page says so rather than showing unrelated or stale data. This endpoint could not
+   be verified against live traffic from the sandbox this was built in (outbound requests
+   to Delta Exchange were blocked there); the request/response shapes follow the standard
+   TradingView UDF datafeed convention implied by Delta's own `/symbols` response, but
+   verify in a real browser and report back if `/history` 404s or its shape differs.
 5. **Greeks** — WebSocket subscriptions to `ticker.{instrument_name}.100ms` for every
    instrument in the *currently selected* expiry only (unsubscribed/resubscribed on
    expiry switch), which is where delta/gamma/theta/vega come from. This is bounded to
