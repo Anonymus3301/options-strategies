@@ -113,8 +113,12 @@ Data flow:
    (Deribit only allows one at a time) and groups the dropdown into "Upcoming"/"Expired"
    optgroups, so past dates are browsable too — though Delta Exchange, like most active
    trading venues, may not have chart data for contracts that have already expired, in
-   which case picking one shows the usual "not listed" message. Picking any expiry just
-   re-derives the Delta symbol and reloads that contract's chart in place.
+   which case picking one shows the usual "not listed" message. Note also that the
+   "Expired" group is often genuinely empty: Deribit's listed strikes shift with spot
+   price over time, so an exact strike from today's chain may simply never have existed
+   as a past listing — the dropdown says so explicitly rather than silently omitting the
+   section, which would look identical to a bug. Picking any expiry just re-derives the
+   Delta symbol and reloads that contract's chart in place.
 5. **Greeks** — WebSocket subscriptions to `ticker.{instrument_name}.100ms` for every
    instrument in the *currently selected* expiry only (unsubscribed/resubscribed on
    expiry switch), which is where delta/gamma/theta/vega come from. This is bounded to

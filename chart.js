@@ -91,7 +91,13 @@ function buildExpiryOptionsHtml(expiries) {
   const optionsFor = (list) => list.map((e) => `<option value="${e.name}">${expiryLabel(e.expiry)}</option>`).join("");
   let html = "";
   if (upcoming.length) html += `<optgroup label="Upcoming">${optionsFor(upcoming)}</optgroup>`;
-  if (expired.length) html += `<optgroup label="Expired">${optionsFor(expired)}</optgroup>`;
+  // Always render the group, even empty — Deribit's strike offering shifts with
+  // spot price over time, so an exact strike genuinely may never have expired
+  // before. Saying so explicitly beats silently omitting the section, which
+  // looks identical to the feature being broken.
+  html += expired.length
+    ? `<optgroup label="Expired">${optionsFor(expired)}</optgroup>`
+    : `<optgroup label="Expired"><option disabled>None found at this exact strike</option></optgroup>`;
   return html;
 }
 
@@ -126,10 +132,16 @@ async function fetchExpiriesForContract(asset, strike, type) {
     if (json.error) throw new Error(json.error.message);
     all.push(...json.result);
   }
-  return all
+  const matched = all
     .filter((i) => i.strike === strike && i.option_type === wantType)
     .map((i) => ({ name: i.instrument_name, expiry: i.expiration_timestamp }))
     .sort((a, b) => a.expiry - b.expiry);
+  console.info(
+    `[expiries] ${asset} strike=${strike} type=${wantType}: ` +
+      `${responses[0]?.result?.length ?? 0} active + ${responses[1]?.result?.length ?? 0} expired instruments fetched, ` +
+      `${matched.length} matched this exact strike`
+  );
+  return matched;
 }
 
 function resolutionSortKey(r) {
