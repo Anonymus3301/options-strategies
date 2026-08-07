@@ -127,6 +127,11 @@ endpoints allow anonymous, keyless access and are CORS-enabled for market data.
 ## Notes / limitations
 
 - This is display-only (no trading, no auth, no order placement).
+- `app.js`, `chart.js`, and `styles.css` are loaded with a `?v=N` cache-busting query
+  string, bumped whenever those files change. GitHub Pages doesn't support custom
+  cache-control headers on a static site, so without this a browser can keep serving an
+  old cached copy of the script after a deploy. If something looks stale after an update,
+  hard-refresh (or check that the page's script tags show the latest `v=`).
 - REST polling for the chain (5s by default, adjustable) is a deliberate tradeoff:
   subscribing to a WebSocket ticker channel per strike would mean hundreds of
   subscriptions for a single expiry. `get_book_summary_by_currency` returns the whole
