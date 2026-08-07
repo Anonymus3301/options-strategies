@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Option Chart — Delta Exchange</title>
-<link rel="stylesheet" href="styles.css?v=3" />
+<link rel="stylesheet" href="styles.css?v=4" />
 <script src="vendor/lightweight-charts.standalone.production.js"></script>
 </head>
 <body>
@@ -32,12 +32,16 @@
     <div class="panel-header">
       <h2 id="chartInstrument">—</h2>
       <span class="hint" id="deltaSymbolHint">Delta symbol: —</span>
-      <label class="chart-select-label">
-        Expiry
+      <div class="chart-select-label expiry-select-group">
+        <span>Expiry</span>
+        <div class="expiry-tabs">
+          <button type="button" class="expiry-tab active" data-scope="upcoming">Upcoming</button>
+          <button type="button" class="expiry-tab" data-scope="expired">Expired</button>
+        </div>
         <select id="expirySelect" class="poll-rate-select" disabled>
           <option>Loading expiries…</option>
         </select>
-      </label>
+      </div>
       <label class="chart-select-label">
         Resolution
         <select id="resolutionSelect" class="poll-rate-select" disabled>
@@ -56,6 +60,6 @@
     instead of showing data.
   </p>
 
-  <script src="chart.js?v=7"></script>
+  <script src="chart.js?v=8"></script>
 </body>
 </html>

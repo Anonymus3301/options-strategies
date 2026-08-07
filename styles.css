@@ -102,6 +102,9 @@ body {
   letter-spacing: 0.04em;
 }
 .chart-message { margin: 0; padding: 8px 16px 16px; color: var(--text-dim); font-size: 12px; }
+.expiry-select-group { flex-wrap: wrap; }
+.expiry-select-group .expiry-tabs { padding: 0; gap: 4px; }
+.expiry-select-group .expiry-tab { padding: 3px 10px; font-size: 10px; }
 
 .expiry-panel { padding-bottom: 12px; }
 .expiry-panel h2 {

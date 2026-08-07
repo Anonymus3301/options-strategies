@@ -82,24 +82,6 @@ function expiryLabel(ts) {
   return `${d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "2-digit" })} (${dayLabel})`;
 }
 
-// Groups the dropdown into upcoming (soonest first) and expired (most
-// recent first) so a strike with years of expired contracts stays usable.
-function buildExpiryOptionsHtml(expiries) {
-  const now = Date.now();
-  const upcoming = expiries.filter((e) => e.expiry >= now);
-  const expired = expiries.filter((e) => e.expiry < now).slice().sort((a, b) => b.expiry - a.expiry);
-  const optionsFor = (list) => list.map((e) => `<option value="${e.name}">${expiryLabel(e.expiry)}</option>`).join("");
-  let html = "";
-  if (upcoming.length) html += `<optgroup label="Upcoming">${optionsFor(upcoming)}</optgroup>`;
-  // Always render the group, even empty — Deribit's strike offering shifts with
-  // spot price over time, so an exact strike genuinely may never have expired
-  // before. Saying so explicitly beats silently omitting the section, which
-  // looks identical to the feature being broken.
-  html += expired.length
-    ? `<optgroup label="Expired">${optionsFor(expired)}</optgroup>`
-    : `<optgroup label="Expired"><option disabled>None found at this exact strike</option></optgroup>`;
-  return html;
-}
 
 async function fetchSymbolInfo(symbol) {
   const url = `${DELTA_CHART_BASE}/symbols?symbol=${encodeURIComponent(symbol)}`;
@@ -207,6 +189,9 @@ function init() {
   let refreshTimer = null;
   let allBars = []; // accumulated, deduped by time, sorted ascending
   let currentSymbol = null;
+  let currentInstrument = null;
+  let allExpiries = []; // every { name, expiry } at this strike/type, from Deribit
+  let expiryScope = "upcoming"; // "upcoming" | "expired" — which tab is active
 
   function toBars(data) {
     return data.t.map((t, i) => ({ time: t, open: data.o[i], high: data.h[i], low: data.l[i], close: data.c[i] }));
@@ -292,7 +277,7 @@ function init() {
 
     if (!info.success || !info.result) {
       setPill("chartStatus", "not listed", "pill-down");
-      setMessage(`Delta Exchange doesn't list a contract matching ${currentSymbol}. It likely doesn't offer this exact strike/expiry.`);
+      setMessage(`Delta Exchange doesn't have a symbol matching ${currentSymbol}.`);
       series.setData([]);
       return;
     }
@@ -309,9 +294,39 @@ function init() {
     startPolling();
   }
 
+  // Renders the expiry <select> from whichever scope tab (upcoming/expired)
+  // is currently active, filtering the already-fetched allExpiries client-side
+  // — no refetch needed just to switch tabs.
+  function renderExpirySelect() {
+    const select = $("expirySelect");
+    const now = Date.now();
+    const list =
+      expiryScope === "upcoming"
+        ? allExpiries.filter((e) => e.expiry >= now).sort((a, b) => a.expiry - b.expiry)
+        : allExpiries.filter((e) => e.expiry < now).sort((a, b) => b.expiry - a.expiry);
+
+    if (!list.length) {
+      select.innerHTML = `<option disabled selected>No ${expiryScope} expiries at this exact strike</option>`;
+      select.disabled = true;
+      return;
+    }
+    select.innerHTML = list.map((e) => `<option value="${e.name}">${expiryLabel(e.expiry)}</option>`).join("");
+    select.disabled = false;
+    if (list.some((e) => e.name === currentInstrument)) select.value = currentInstrument;
+  }
+
+  function setExpiryScope(scope) {
+    expiryScope = scope;
+    document.querySelectorAll(".expiry-tab").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.scope === scope);
+    });
+    renderExpirySelect();
+  }
+
   // Switches the chart to a different contract (e.g. a different expiry at
   // the same strike/type) without recreating the chart itself.
   async function loadContract(instrumentName) {
+    currentInstrument = instrumentName;
     document.title = `${instrumentName} — Option Chart`;
     $("chartTitle").textContent = instrumentName;
     $("chartInstrument").textContent = instrumentName;
@@ -344,22 +359,22 @@ function init() {
     const parts = parseInstrumentParts(instrumentName);
     const select = $("expirySelect");
     if (!parts) {
-      select.innerHTML = '<option>—</option>';
+      select.innerHTML = "<option>—</option>";
       return;
     }
     try {
-      const expiries = await fetchExpiriesForContract(parts.asset, parts.strike, parts.type);
-      if (!expiries.length) {
-        select.innerHTML = '<option>No expiries found</option>';
+      allExpiries = await fetchExpiriesForContract(parts.asset, parts.strike, parts.type);
+      if (!allExpiries.length) {
+        select.innerHTML = "<option>No expiries found</option>";
         select.disabled = true;
         return;
       }
-      select.innerHTML = buildExpiryOptionsHtml(expiries);
-      select.value = instrumentName;
-      select.disabled = false;
+      // Default to whichever tab actually contains the contract we're viewing.
+      const viewingUpcoming = allExpiries.some((e) => e.name === instrumentName && e.expiry >= Date.now());
+      setExpiryScope(viewingUpcoming ? "upcoming" : "expired");
     } catch (err) {
       console.error("get_instruments failed", err);
-      select.innerHTML = '<option>Couldn’t load expiries</option>';
+      select.innerHTML = "<option>Couldn’t load expiries</option>";
     }
   }
 
@@ -369,6 +384,9 @@ function init() {
   });
   $("expirySelect").addEventListener("change", (e) => {
     loadContract(e.target.value);
+  });
+  document.querySelectorAll(".expiry-tab").forEach((btn) => {
+    btn.addEventListener("click", () => setExpiryScope(btn.dataset.scope));
   });
 
   loadContract(instrument);
