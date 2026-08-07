@@ -91,14 +91,16 @@ function resolutionLabel(r) {
   return mins + "m";
 }
 
-// Lookback window sized so each resolution shows a reasonable number of bars.
+// Ask for a generously wide window and let Delta's API trim it to whatever
+// data it actually has, rather than us guessing a bar count and potentially
+// cutting off history the exchange would otherwise return. Widened further
+// (see refresh()) if the first response comes back full, in case the API
+// caps a single request below what's actually available.
 function windowSecondsFor(resolution) {
-  if (resolution === "M" || /^\d+W$/.test(resolution)) return 3 * 365 * 86400;
-  if (resolution === "W") return 3 * 365 * 86400;
-  if (resolution === "D") return 200 * 86400;
-  const mins = parseInt(resolution, 10);
-  if (!Number.isFinite(mins)) return 86400;
-  return Math.max(mins * 60 * 150, 3600); // ~150 bars, at least 1 hour
+  if (resolution === "M") return 6 * 365 * 86400;
+  if (resolution === "W" || /^\d+W$/.test(resolution)) return 4 * 365 * 86400;
+  if (resolution === "D") return 3 * 365 * 86400;
+  return 2 * 365 * 86400; // any intraday minute resolution
 }
 
 function init() {
@@ -143,26 +145,64 @@ function init() {
 
   let resolution = "1";
   let refreshTimer = null;
+  let allBars = []; // accumulated, deduped by time, sorted ascending
+
+  function toBars(data) {
+    return data.t.map((t, i) => ({ time: t, open: data.o[i], high: data.h[i], low: data.l[i], close: data.c[i] }));
+  }
+
+  function mergeBars(existing, incoming) {
+    const map = new Map(existing.map((b) => [b.time, b]));
+    for (const b of incoming) map.set(b.time, b);
+    return [...map.values()].sort((a, b) => a.time - b.time);
+  }
+
+  // Keeps paging further back, one window at a time, until Delta returns
+  // nothing more — "take whatever data we can get till we get nothing from
+  // the API" rather than guessing a single window size up front.
+  async function backfill() {
+    const step = windowSecondsFor(resolution);
+    let to = Math.floor(Date.now() / 1000);
+    const MAX_PAGES = 50;
+    for (let page = 0; page < MAX_PAGES; page++) {
+      const from = to - step;
+      let data;
+      try {
+        data = await fetchHistory(symbol, resolution, from, to);
+      } catch (err) {
+        console.error("Delta Exchange history fetch failed", err);
+        break;
+      }
+      if (!data || data.s !== "ok" || !data.t || !data.t.length) break;
+      const pageBars = toBars(data);
+      allBars = mergeBars(allBars, pageBars);
+      const earliest = pageBars[0].time;
+      if (earliest >= to || pageBars.length < 2) break; // no further progress possible
+      to = earliest - 1;
+    }
+  }
 
   async function refresh() {
     try {
-      const end = Math.floor(Date.now() / 1000);
-      const start = end - windowSecondsFor(resolution);
-      const data = await fetchHistory(symbol, resolution, start, end);
-      if (data.s !== "ok" || !data.t || !data.t.length) {
-        setPill("chartStatus", data.s === "no_data" ? "no data" : "no data", "pill-down");
-        $("fullChart").innerHTML = `<p class="loading">Delta Exchange has no ${resolutionLabel(resolution)} history for ${symbol}.</p>`;
+      if (!allBars.length) {
+        await backfill();
+      } else {
+        // Deep history is already in; each tick only needs the recent window.
+        const end = Math.floor(Date.now() / 1000);
+        const start = end - windowSecondsFor(resolution);
+        const data = await fetchHistory(symbol, resolution, start, end);
+        if (data && data.s === "ok" && data.t && data.t.length) {
+          allBars = mergeBars(allBars, toBars(data));
+        }
+      }
+
+      if (!allBars.length) {
+        setPill("chartStatus", "no data", "pill-down");
+        series.setData([]);
         return;
       }
       setPill("chartStatus", "live", "pill-live");
-      const bars = data.t.map((t, i) => ({
-        time: t,
-        open: data.o[i],
-        high: data.h[i],
-        low: data.l[i],
-        close: data.c[i],
-      }));
-      series.setData(bars);
+      series.setData(allBars);
       $("chartLastUpdate").textContent = new Date().toLocaleTimeString();
     } catch (err) {
       console.error("Delta Exchange history fetch failed", err);
@@ -172,6 +212,7 @@ function init() {
 
   function startPolling() {
     if (refreshTimer) clearInterval(refreshTimer);
+    allBars = []; // reset so a resolution switch re-runs the full backfill
     refresh();
     refreshTimer = setInterval(refresh, REFRESH_MS);
   }
