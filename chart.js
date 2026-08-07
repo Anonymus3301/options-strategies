@@ -33,21 +33,30 @@ function setPill(id, text, cls) {
   el.className = "pill " + cls;
 }
 
-// "BTC-29AUG25-60000-C" -> "MARK:C-BTC-60000-290825"
-function deribitToDeltaSymbol(instrumentName) {
-  const parts = instrumentName.split("-");
-  if (parts.length < 4) return null;
-  const [asset, rawDate, strike, typeLetter] = parts;
+// Deribit's instrument-name date is DMMMYY, and the day is NOT always
+// zero-padded (e.g. "7AUG26" as well as "29AUG25") — the day is 1-2 digits,
+// so it can't be sliced at a fixed offset the way the month/year can.
+function parseDeribitDate(rawDate) {
+  const m = /^(\d{1,2})([A-Za-z]{3})(\d{2})$/.exec(rawDate);
+  if (!m) return null;
   const months = {
     JAN: "01", FEB: "02", MAR: "03", APR: "04", MAY: "05", JUN: "06",
     JUL: "07", AUG: "08", SEP: "09", OCT: "10", NOV: "11", DEC: "12",
   };
-  const day = rawDate.slice(0, 2);
-  const mon = months[rawDate.slice(2, 5).toUpperCase()];
-  const yr = rawDate.slice(5, 7);
-  if (!mon || day.length !== 2 || yr.length !== 2) return null;
+  const mon = months[m[2].toUpperCase()];
+  if (!mon) return null;
+  return { day: m[1].padStart(2, "0"), mon, yr: m[3] };
+}
+
+// "BTC-29AUG25-60000-C" -> "MARK:C-BTC-60000-290825"; "BTC-7AUG26-63500-C" -> "MARK:C-BTC-63500-070826"
+function deribitToDeltaSymbol(instrumentName) {
+  const parts = instrumentName.split("-");
+  if (parts.length < 4) return null;
+  const [asset, rawDate, strike, typeLetter] = parts;
+  const date = parseDeribitDate(rawDate);
+  if (!date) return null;
   const side = typeLetter === "C" ? "C" : "P";
-  return `MARK:${side}-${asset}-${strike}-${day}${mon}${yr}`;
+  return `MARK:${side}-${asset}-${strike}-${date.day}${date.mon}${date.yr}`;
 }
 
 async function fetchSymbolInfo(symbol) {
