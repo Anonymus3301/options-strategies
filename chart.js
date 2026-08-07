@@ -9,13 +9,9 @@
 // {STRIKE}-{DDMMYY}" symbol convention; if Delta doesn't list that exact
 // contract, this page says so rather than guessing or showing stale data.
 //
-// This integration could not be verified against live traffic from the
-// environment this was built in (outbound requests to Delta Exchange were
-// blocked by the sandbox's network policy) — the endpoint shapes follow the
-// standard TradingView UDF datafeed convention that Delta's /symbols
-// response (has_intraday, supported_resolutions, pricescale, minmov) implies,
-// but verify in a real browser and report back if the history call 404s or
-// the response shape differs.
+// Confirmed against real /history traffic: unlike the bare {s,t,o,h,l,c,v}
+// TradingView UDF convention, Delta wraps the OHLC payload in the same
+// {success, result: {...}} envelope as /symbols.
 
 const DELTA_CHART_BASE = "https://cdn.india.deltaex.org/v2/chart";
 const REFRESH_MS = 15000;
@@ -68,7 +64,10 @@ async function fetchSymbolInfo(symbol) {
 async function fetchHistory(symbol, resolution, fromSec, toSec) {
   const url = `${DELTA_CHART_BASE}/history?symbol=${encodeURIComponent(symbol)}&resolution=${resolution}&from=${fromSec}&to=${toSec}`;
   const res = await fetch(url);
-  return res.json();
+  const json = await res.json();
+  // Delta wraps the OHLC payload in {success, result: {s, t, o, h, l, c, v}},
+  // the same envelope as /symbols — not the bare {s, t, o, ...} UDF convention.
+  return json && json.result ? json.result : json;
 }
 
 function resolutionSortKey(r) {

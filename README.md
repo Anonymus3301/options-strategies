@@ -98,11 +98,11 @@ Data flow:
    → `MARK:C-BTC-60000-290825`); the resolution dropdown is populated from whatever
    `supported_resolutions` Delta returns for that symbol. Delta Exchange is a different
    options venue from Deribit — if it doesn't list the exact strike/expiry you clicked,
-   the page says so rather than showing unrelated or stale data. This endpoint could not
-   be verified against live traffic from the sandbox this was built in (outbound requests
-   to Delta Exchange were blocked there); the request/response shapes follow the standard
-   TradingView UDF datafeed convention implied by Delta's own `/symbols` response, but
-   verify in a real browser and report back if `/history` 404s or its shape differs.
+   the page says so rather than showing unrelated or stale data. Unlike the bare
+   `{s,t,o,h,l,c,v}` TradingView UDF convention, Delta wraps the `/history` payload in
+   the same `{success, result: {...}}` envelope as `/symbols` — confirmed against real
+   traffic (this sandbox can't reach `cdn.india.deltaex.org` directly, so this was
+   verified from a response captured in a real browser, not by the app fetching it here).
 5. **Greeks** — WebSocket subscriptions to `ticker.{instrument_name}.100ms` for every
    instrument in the *currently selected* expiry only (unsubscribed/resubscribed on
    expiry switch), which is where delta/gamma/theta/vega come from. This is bounded to
