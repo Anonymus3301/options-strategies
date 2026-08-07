@@ -18,7 +18,8 @@ python3 -m http.server 8000   # then open http://localhost:8000
   price built from the fitted smile IV — flags contracts trading rich/cheap relative to
   their neighbors), and bid/mark/ask.
 - **Live order book** per instrument, plus a dedicated OHLC chart page with every
-  resolution Delta Exchange supports (1m through monthly).
+  resolution Delta Exchange supports (1m through monthly) and an **expiry selector**
+  to switch between dates at the same strike/type without going back to the ladder.
 - **Chain charts** — price by strike, IV skew (with a fitted smile curve), open interest
   by strike, gamma exposure (GEX) by strike, IV term structure across expiries, a full
   **IV surface heatmap** (moneyness × expiry), and a **futures term structure / basis
@@ -103,6 +104,13 @@ Data flow:
    the same `{success, result: {...}}` envelope as `/symbols` — confirmed against real
    traffic (this sandbox can't reach `cdn.india.deltaex.org` directly, so this was
    verified from a response captured in a real browser, not by the app fetching it here).
+   The chart page's history fetch pages backward, one window at a time, merging results
+   until Delta returns nothing more, so it shows everything the exchange has rather than
+   an arbitrary slice. Its expiry dropdown is populated separately, from Deribit's
+   `get_instruments` (same source as the ladder) filtered to the same strike and
+   call/put type — Delta has no "list expiries" endpoint, so Deribit is the source of
+   truth for which expiries exist; picking one just re-derives the Delta symbol and
+   reloads that contract's chart in place.
 5. **Greeks** — WebSocket subscriptions to `ticker.{instrument_name}.100ms` for every
    instrument in the *currently selected* expiry only (unsubscribed/resubscribed on
    expiry switch), which is where delta/gamma/theta/vega come from. This is bounded to

@@ -12,8 +12,15 @@
 // Confirmed against real /history traffic: unlike the bare {s,t,o,h,l,c,v}
 // TradingView UDF convention, Delta wraps the OHLC payload in the same
 // {success, result: {...}} envelope as /symbols.
+//
+// The expiry dropdown is populated from Deribit's own instrument list (the
+// same source the ladder uses) — Delta has no "list expiries" endpoint we
+// know of, so Deribit is the authoritative source for which expiries exist
+// for this strike/type; Delta is only ever used for the actual OHLC bars,
+// per contract, once one is selected.
 
 const DELTA_CHART_BASE = "https://cdn.india.deltaex.org/v2/chart";
+const DERIBIT_REST_BASE = "https://www.deribit.com/api/v2/public";
 const REFRESH_MS = 15000;
 
 const COLOR_CALL = "#35d399";
@@ -27,6 +34,11 @@ function setPill(id, text, cls) {
   const el = $(id);
   el.textContent = text;
   el.className = "pill " + cls;
+}
+
+function setMessage(text) {
+  const el = $("chartMessage");
+  if (el) el.textContent = text || "";
 }
 
 // Deribit's instrument-name date is DMMMYY, and the day is NOT always
@@ -44,6 +56,14 @@ function parseDeribitDate(rawDate) {
   return { day: m[1].padStart(2, "0"), mon, yr: m[3] };
 }
 
+function parseInstrumentParts(instrumentName) {
+  const parts = instrumentName.split("-");
+  if (parts.length < 4) return null;
+  const [asset, rawDate, strike, typeLetter] = parts;
+  if (!parseDeribitDate(rawDate) || !Number.isFinite(Number(strike))) return null;
+  return { asset, rawDate, strike: Number(strike), type: typeLetter === "C" ? "C" : "P" };
+}
+
 // "BTC-29AUG25-60000-C" -> "MARK:C-BTC-60000-290825"; "BTC-7AUG26-63500-C" -> "MARK:C-BTC-63500-070826"
 function deribitToDeltaSymbol(instrumentName) {
   const parts = instrumentName.split("-");
@@ -53,6 +73,12 @@ function deribitToDeltaSymbol(instrumentName) {
   if (!date) return null;
   const side = typeLetter === "C" ? "C" : "P";
   return `MARK:${side}-${asset}-${strike}-${date.day}${date.mon}${date.yr}`;
+}
+
+function expiryLabel(ts) {
+  const d = new Date(ts);
+  const days = Math.max(0, Math.round((ts - Date.now()) / 86400000));
+  return `${d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "2-digit" })} (${days}d)`;
 }
 
 async function fetchSymbolInfo(symbol) {
@@ -68,6 +94,20 @@ async function fetchHistory(symbol, resolution, fromSec, toSec) {
   // Delta wraps the OHLC payload in {success, result: {s, t, o, h, l, c, v}},
   // the same envelope as /symbols — not the bare {s, t, o, ...} UDF convention.
   return json && json.result ? json.result : json;
+}
+
+// Every option on Deribit with this strike/type, any expiry — the "same
+// strike, different date" list for the expiry dropdown.
+async function fetchExpiriesForContract(asset, strike, type) {
+  const url = `${DERIBIT_REST_BASE}/get_instruments?currency=${asset}&kind=option&expired=false`;
+  const res = await fetch(url);
+  const json = await res.json();
+  if (json.error) throw new Error(json.error.message);
+  const wantType = type === "C" ? "call" : "put";
+  return json.result
+    .filter((i) => i.strike === strike && i.option_type === wantType)
+    .map((i) => ({ name: i.instrument_name, expiry: i.expiration_timestamp }))
+    .sort((a, b) => a.expiry - b.expiry);
 }
 
 function resolutionSortKey(r) {
@@ -93,9 +133,7 @@ function resolutionLabel(r) {
 
 // Ask for a generously wide window and let Delta's API trim it to whatever
 // data it actually has, rather than us guessing a bar count and potentially
-// cutting off history the exchange would otherwise return. Widened further
-// (see refresh()) if the first response comes back full, in case the API
-// caps a single request below what's actually available.
+// cutting off history the exchange would otherwise return.
 function windowSecondsFor(resolution) {
   if (resolution === "M") return 6 * 365 * 86400;
   if (resolution === "W" || /^\d+W$/.test(resolution)) return 4 * 365 * 86400;
@@ -108,18 +146,6 @@ function init() {
   if (!instrument) {
     $("fullChart").innerHTML =
       '<p class="loading">No instrument specified. Open this page from a ladder row\'s order book panel.</p>';
-    return;
-  }
-
-  document.title = `${instrument} — Option Chart`;
-  $("chartTitle").textContent = instrument;
-  $("chartInstrument").textContent = instrument;
-
-  const symbol = deribitToDeltaSymbol(instrument);
-  $("deltaSymbolHint").textContent = "Delta symbol: " + (symbol || "could not be constructed");
-  if (!symbol) {
-    setPill("chartStatus", "unavailable", "pill-down");
-    $("fullChart").innerHTML = '<p class="loading">Could not derive a Delta Exchange symbol from this instrument name.</p>';
     return;
   }
 
@@ -146,6 +172,7 @@ function init() {
   let resolution = "1";
   let refreshTimer = null;
   let allBars = []; // accumulated, deduped by time, sorted ascending
+  let currentSymbol = null;
 
   function toBars(data) {
     return data.t.map((t, i) => ({ time: t, open: data.o[i], high: data.h[i], low: data.l[i], close: data.c[i] }));
@@ -168,7 +195,7 @@ function init() {
       const from = to - step;
       let data;
       try {
-        data = await fetchHistory(symbol, resolution, from, to);
+        data = await fetchHistory(currentSymbol, resolution, from, to);
       } catch (err) {
         console.error("Delta Exchange history fetch failed", err);
         break;
@@ -190,7 +217,7 @@ function init() {
         // Deep history is already in; each tick only needs the recent window.
         const end = Math.floor(Date.now() / 1000);
         const start = end - windowSecondsFor(resolution);
-        const data = await fetchHistory(symbol, resolution, start, end);
+        const data = await fetchHistory(currentSymbol, resolution, start, end);
         if (data && data.s === "ok" && data.t && data.t.length) {
           allBars = mergeBars(allBars, toBars(data));
         }
@@ -198,10 +225,12 @@ function init() {
 
       if (!allBars.length) {
         setPill("chartStatus", "no data", "pill-down");
+        setMessage(`Delta Exchange has no ${resolutionLabel(resolution)} history for ${currentSymbol}.`);
         series.setData([]);
         return;
       }
       setPill("chartStatus", "live", "pill-live");
+      setMessage("");
       series.setData(allBars);
       $("chartLastUpdate").textContent = new Date().toLocaleTimeString();
     } catch (err) {
@@ -212,26 +241,25 @@ function init() {
 
   function startPolling() {
     if (refreshTimer) clearInterval(refreshTimer);
-    allBars = []; // reset so a resolution switch re-runs the full backfill
+    allBars = []; // reset so a resolution/contract switch re-runs the full backfill
     refresh();
     refreshTimer = setInterval(refresh, REFRESH_MS);
   }
 
-  async function setup() {
+  async function setupSymbol() {
     let info;
     try {
-      info = await fetchSymbolInfo(symbol);
+      info = await fetchSymbolInfo(currentSymbol);
     } catch (err) {
       setPill("chartStatus", "unreachable", "pill-down");
-      $("fullChart").innerHTML =
-        `<p class="loading">Could not reach Delta Exchange's chart API (${err.message}). This may be a network/CORS restriction — check the browser console.</p>`;
+      setMessage(`Could not reach Delta Exchange's chart API (${err.message}). This may be a network/CORS restriction — check the browser console.`);
       return;
     }
 
     if (!info.success || !info.result) {
       setPill("chartStatus", "not listed", "pill-down");
-      $("fullChart").innerHTML =
-        `<p class="loading">Delta Exchange doesn't list a contract matching ${symbol}. It likely doesn't offer this exact strike/expiry.</p>`;
+      setMessage(`Delta Exchange doesn't list a contract matching ${currentSymbol}. It likely doesn't offer this exact strike/expiry.`);
+      series.setData([]);
       return;
     }
 
@@ -240,18 +268,77 @@ function init() {
     );
     const select = $("resolutionSelect");
     select.innerHTML = resolutions.map((r) => `<option value="${r}">${resolutionLabel(r)}</option>`).join("");
-    resolution = resolutions.includes("1") ? "1" : resolutions[0];
+    if (!resolutions.includes(resolution)) resolution = resolutions.includes("1") ? "1" : resolutions[0];
     select.value = resolution;
     select.disabled = false;
-    select.addEventListener("change", (e) => {
-      resolution = e.target.value;
-      startPolling();
-    });
 
     startPolling();
   }
 
-  setup();
+  // Switches the chart to a different contract (e.g. a different expiry at
+  // the same strike/type) without recreating the chart itself.
+  async function loadContract(instrumentName) {
+    document.title = `${instrumentName} — Option Chart`;
+    $("chartTitle").textContent = instrumentName;
+    $("chartInstrument").textContent = instrumentName;
+    history.replaceState(null, "", `?instrument=${encodeURIComponent(instrumentName)}`);
+    if ($("expirySelect").querySelector(`option[value="${CSS.escape(instrumentName)}"]`)) {
+      $("expirySelect").value = instrumentName;
+    }
+
+    if (refreshTimer) {
+      clearInterval(refreshTimer);
+      refreshTimer = null;
+    }
+    allBars = [];
+    series.setData([]);
+    setMessage("");
+
+    currentSymbol = deribitToDeltaSymbol(instrumentName);
+    $("deltaSymbolHint").textContent = "Delta symbol: " + (currentSymbol || "could not be constructed");
+    if (!currentSymbol) {
+      setPill("chartStatus", "unavailable", "pill-down");
+      setMessage("Could not derive a Delta Exchange symbol from this instrument name.");
+      return;
+    }
+
+    setPill("chartStatus", "connecting…", "pill-connecting");
+    await setupSymbol();
+  }
+
+  async function loadExpiryOptions(instrumentName) {
+    const parts = parseInstrumentParts(instrumentName);
+    const select = $("expirySelect");
+    if (!parts) {
+      select.innerHTML = '<option>—</option>';
+      return;
+    }
+    try {
+      const expiries = await fetchExpiriesForContract(parts.asset, parts.strike, parts.type);
+      if (!expiries.length) {
+        select.innerHTML = '<option>No expiries found</option>';
+        select.disabled = true;
+        return;
+      }
+      select.innerHTML = expiries.map((e) => `<option value="${e.name}">${expiryLabel(e.expiry)}</option>`).join("");
+      select.value = instrumentName;
+      select.disabled = false;
+    } catch (err) {
+      console.error("get_instruments failed", err);
+      select.innerHTML = '<option>Couldn’t load expiries</option>';
+    }
+  }
+
+  $("resolutionSelect").addEventListener("change", (e) => {
+    resolution = e.target.value;
+    startPolling();
+  });
+  $("expirySelect").addEventListener("change", (e) => {
+    loadContract(e.target.value);
+  });
+
+  loadContract(instrument);
+  loadExpiryOptions(instrument);
 }
 
 init();

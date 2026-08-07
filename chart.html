@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Option Chart — Delta Exchange</title>
-<link rel="stylesheet" href="styles.css?v=2" />
+<link rel="stylesheet" href="styles.css?v=3" />
 <script src="vendor/lightweight-charts.standalone.production.js"></script>
 </head>
 <body>
@@ -32,11 +32,21 @@
     <div class="panel-header">
       <h2 id="chartInstrument">—</h2>
       <span class="hint" id="deltaSymbolHint">Delta symbol: —</span>
-      <select id="resolutionSelect" class="poll-rate-select" disabled>
-        <option>Loading resolutions…</option>
-      </select>
+      <label class="chart-select-label">
+        Expiry
+        <select id="expirySelect" class="poll-rate-select" disabled>
+          <option>Loading expiries…</option>
+        </select>
+      </label>
+      <label class="chart-select-label">
+        Resolution
+        <select id="resolutionSelect" class="poll-rate-select" disabled>
+          <option>Loading resolutions…</option>
+        </select>
+      </label>
     </div>
     <div id="fullChart" class="chart chart-tall"></div>
+    <p id="chartMessage" class="chart-message"></p>
   </section>
 
   <p class="chart-note">
@@ -46,6 +56,6 @@
     instead of showing data.
   </p>
 
-  <script src="chart.js?v=4"></script>
+  <script src="chart.js?v=5"></script>
 </body>
 </html>
