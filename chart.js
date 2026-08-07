@@ -77,8 +77,22 @@ function deribitToDeltaSymbol(instrumentName) {
 
 function expiryLabel(ts) {
   const d = new Date(ts);
-  const days = Math.max(0, Math.round((ts - Date.now()) / 86400000));
-  return `${d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "2-digit" })} (${days}d)`;
+  const days = Math.round((ts - Date.now()) / 86400000);
+  const dayLabel = days >= 0 ? `${days}d` : `${Math.abs(days)}d ago`;
+  return `${d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "2-digit" })} (${dayLabel})`;
+}
+
+// Groups the dropdown into upcoming (soonest first) and expired (most
+// recent first) so a strike with years of expired contracts stays usable.
+function buildExpiryOptionsHtml(expiries) {
+  const now = Date.now();
+  const upcoming = expiries.filter((e) => e.expiry >= now);
+  const expired = expiries.filter((e) => e.expiry < now).slice().sort((a, b) => b.expiry - a.expiry);
+  const optionsFor = (list) => list.map((e) => `<option value="${e.name}">${expiryLabel(e.expiry)}</option>`).join("");
+  let html = "";
+  if (upcoming.length) html += `<optgroup label="Upcoming">${optionsFor(upcoming)}</optgroup>`;
+  if (expired.length) html += `<optgroup label="Expired">${optionsFor(expired)}</optgroup>`;
+  return html;
 }
 
 async function fetchSymbolInfo(symbol) {
@@ -96,15 +110,23 @@ async function fetchHistory(symbol, resolution, fromSec, toSec) {
   return json && json.result ? json.result : json;
 }
 
-// Every option on Deribit with this strike/type, any expiry — the "same
-// strike, different date" list for the expiry dropdown.
+// Every option on Deribit with this strike/type, any expiry (past and
+// future) — the "same strike, different date" list for the expiry dropdown.
+// Deribit only lets you filter by expired true/false in one call, not both,
+// so this fetches each and merges them.
 async function fetchExpiriesForContract(asset, strike, type) {
-  const url = `${DERIBIT_REST_BASE}/get_instruments?currency=${asset}&kind=option&expired=false`;
-  const res = await fetch(url);
-  const json = await res.json();
-  if (json.error) throw new Error(json.error.message);
   const wantType = type === "C" ? "call" : "put";
-  return json.result
+  const urls = [
+    `${DERIBIT_REST_BASE}/get_instruments?currency=${asset}&kind=option&expired=false`,
+    `${DERIBIT_REST_BASE}/get_instruments?currency=${asset}&kind=option&expired=true`,
+  ];
+  const responses = await Promise.all(urls.map((u) => fetch(u).then((r) => r.json())));
+  const all = [];
+  for (const json of responses) {
+    if (json.error) throw new Error(json.error.message);
+    all.push(...json.result);
+  }
+  return all
     .filter((i) => i.strike === strike && i.option_type === wantType)
     .map((i) => ({ name: i.instrument_name, expiry: i.expiration_timestamp }))
     .sort((a, b) => a.expiry - b.expiry);
@@ -320,7 +342,7 @@ function init() {
         select.disabled = true;
         return;
       }
-      select.innerHTML = expiries.map((e) => `<option value="${e.name}">${expiryLabel(e.expiry)}</option>`).join("");
+      select.innerHTML = buildExpiryOptionsHtml(expiries);
       select.value = instrumentName;
       select.disabled = false;
     } catch (err) {
