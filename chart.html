@@ -5,7 +5,237 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Option Chart — Delta Exchange</title>
 <link rel="stylesheet" href="styles.css?v=4" />
-<script src="vendor/lightweight-charts.standalone.production.js"></script>
+<style>
+  /* ---- Own chart's indicators/drawing-tools UI ----------------------
+     Ported from the deltaExahangeChart project's own chart pages, wired to
+     the same custom charting library (see the import map below) rather than
+     the lightweight-charts vendor script this page used to load — that's
+     what makes indicators/drawing tools possible here at all; lightweight-
+     charts has no equivalent public API for either. Colors reuse this
+     page's own CSS variables instead of copying deltaExahangeChart's
+     hardcoded hex, so this blends into the existing dashboard theme. */
+  #fullChart { position: relative; }
+
+  #btn-indicators {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--panel-alt);
+    color: var(--text-dim);
+    cursor: pointer;
+    font: inherit;
+    font-size: 11px;
+  }
+  #btn-indicators:hover { color: var(--text); background: var(--border); }
+
+  #drawing-toolbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 4;
+    width: 46px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 4px;
+    background: rgba(18, 23, 34, 0.6);
+    border-right: 1px solid var(--border);
+  }
+  #drawing-toolbar button {
+    background: var(--panel-alt);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 2px;
+    font-size: 10px;
+    cursor: pointer;
+  }
+  #drawing-toolbar button:hover { background: var(--border); }
+  #drawing-toolbar button.active {
+    background: #2962ff;
+    border-color: #2962ff;
+    color: #fff;
+  }
+  #drawing-remove-button {
+    position: absolute;
+    top: 50%;
+    right: 76px;
+    transform: translateY(-50%);
+    z-index: 6;
+    background: #ef5350;
+    border: 1px solid #ef5350;
+    color: #fff;
+    border-radius: 4px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+  #drawing-remove-button:hover { background: #d84343; }
+
+  #indicators-dialog {
+    min-width: 340px;
+    max-width: 420px;
+    max-height: 80vh;
+    flex-direction: column;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel);
+    color: var(--text);
+  }
+  /* `display` must only apply while [open] — an unconditional `display: flex`
+     here would outrank the UA's `dialog:not([open]) { display: none }` (an ID
+     selector beats element+pseudo-class), leaving the dialog visibly rendered
+     even after .close() correctly clears the open attribute. */
+  #indicators-dialog[open] { display: flex; }
+  #indicators-dialog::backdrop { background: rgba(0, 0, 0, 0.5); }
+  #indicators-dialog .dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  #indicators-dialog .dialog-header h2 { margin: 0; font-size: 14px; font-weight: 600; }
+  #indicators-dialog .dialog-header button {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px 6px;
+  }
+  #indicators-dialog .dialog-header button:hover { color: var(--text); }
+  #indicators-dialog .catalog { padding: 8px; overflow-y: auto; min-height: 0; }
+  .catalog-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 8px;
+    border-radius: 6px;
+  }
+  .catalog-item:hover { background: var(--panel-alt); }
+  .catalog-item .name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .catalog-item .description { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .catalog-item button {
+    background: #2962ff;
+    border: 1px solid #2962ff;
+    color: #fff;
+    border-radius: 4px;
+    padding: 5px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-left: 12px;
+  }
+  .catalog-item button:hover { background: #1e53e5; }
+
+  #indicator-legend {
+    position: absolute;
+    top: 10px;
+    left: 56px;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    pointer-events: none;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(18, 23, 34, 0.85);
+    border-radius: 4px;
+    padding: 3px 6px;
+    font-size: 12px;
+    color: var(--text);
+    pointer-events: auto;
+  }
+  .legend-item .swatch { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+  .legend-item .label { white-space: nowrap; }
+  .legend-item button {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1;
+    padding: 2px 3px;
+    border-radius: 3px;
+  }
+  .legend-item button:hover { color: var(--text); background: var(--border); }
+
+  #indicator-settings-popover {
+    position: absolute;
+    z-index: 10;
+    width: 200px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    color: var(--text);
+  }
+  #indicator-settings-popover h4 { margin: 0 0 8px; font-size: 12px; font-weight: 600; }
+  #indicator-settings-popover .field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  #indicator-settings-popover .field input,
+  #indicator-settings-popover .field select {
+    width: 90px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    padding: 3px 6px;
+    font-size: 12px;
+  }
+  #indicator-settings-popover .field input[type="color"] { padding: 0; height: 22px; }
+  #indicator-settings-popover .popover-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 4px; }
+  #indicator-settings-popover .popover-actions button {
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  #indicator-settings-popover .popover-actions button.primary {
+    background: #2962ff;
+    border-color: #2962ff;
+    color: #fff;
+  }
+</style>
+<!-- Vendored build of our own charting library (see vendor/charting-library/),
+     so this indicators/drawing-tools system works the same way it does on
+     the sibling deltaExahangeChart project's chart pages, without depending
+     on that sibling repo being present (this repo is published standalone). -->
+<script type="importmap">
+  {
+    "imports": {
+      "@charting-library/core": "./vendor/charting-library/core/index.js",
+      "@charting-library/utils": "./vendor/charting-library/utils/index.js",
+      "@charting-library/events": "./vendor/charting-library/events/index.js",
+      "@charting-library/scales": "./vendor/charting-library/scales/index.js",
+      "@charting-library/series": "./vendor/charting-library/series/index.js",
+      "@charting-library/renderer": "./vendor/charting-library/renderer/index.js",
+      "@charting-library/datafeed": "./vendor/charting-library/datafeed/index.js",
+      "@charting-library/indicators": "./vendor/charting-library/indicators/index.js"
+    }
+  }
+</script>
 </head>
 <body>
   <header class="topbar">
@@ -48,10 +278,19 @@
           <option>Loading resolutions…</option>
         </select>
       </label>
+      <button type="button" id="btn-indicators">Indicators</button>
     </div>
     <div id="fullChart" class="chart chart-tall"></div>
     <p id="chartMessage" class="chart-message"></p>
   </section>
+
+  <dialog id="indicators-dialog">
+    <div class="dialog-header">
+      <h2>Add indicator</h2>
+      <button id="indicators-dialog-close" aria-label="Close">✕</button>
+    </div>
+    <div class="catalog" id="indicators-catalog"></div>
+  </dialog>
 
   <p class="chart-note">
     Delta Exchange is a different venue from Deribit (which the rest of this dashboard
@@ -60,6 +299,6 @@
     instead of showing data.
   </p>
 
-  <script src="chart.js?v=8"></script>
+  <script type="module" src="chart.js?v=9"></script>
 </body>
 </html>

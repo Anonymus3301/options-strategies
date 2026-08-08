@@ -18,15 +18,20 @@
 // know of, so Deribit is the authoritative source for which expiries exist
 // for this strike/type; Delta is only ever used for the actual OHLC bars,
 // per contract, once one is selected.
+//
+// Rendering: our own charting library (vendor/charting-library/, built from
+// the sibling deltaExahangeChart project's chart pages) rather than
+// lightweight-charts — this is what gives this page the same indicators
+// panel + drawing toolbar every deltaExchange chart page has, since
+// lightweight-charts has no equivalent public API for either.
+import { createChart } from "@charting-library/core";
+import { setupIndicatorPanel } from "./indicatorPanel.js";
+import { setupDrawingToolPanel } from "./drawingToolPanel.js";
+import { createSessionStore } from "./sessionStore.js";
 
 const DELTA_CHART_BASE = "https://cdn.india.deltaex.org/v2/chart";
 const DERIBIT_REST_BASE = "https://www.deribit.com/api/v2/public";
 const REFRESH_MS = 15000;
-
-const COLOR_CALL = "#35d399";
-const COLOR_PUT = "#ff5c7c";
-const COLOR_BORDER = "#232a3a";
-const COLOR_DIM = "#8892a6";
 
 const $ = (id) => document.getElementById(id);
 
@@ -165,24 +170,26 @@ function init() {
     return;
   }
 
-  if (typeof LightweightCharts === "undefined") {
-    $("fullChart").innerHTML = '<p class="loading">Chart library failed to load.</p>';
-    setPill("chartStatus", "unavailable", "pill-down");
-    return;
-  }
+  const chart = createChart($("fullChart"));
 
-  const chart = LightweightCharts.createChart($("fullChart"), {
-    layout: { background: { color: "transparent" }, textColor: COLOR_DIM },
-    grid: { vertLines: { color: "#1c2331" }, horzLines: { color: "#1c2331" } },
-    rightPriceScale: { borderColor: COLOR_BORDER },
-    timeScale: { borderColor: COLOR_BORDER, timeVisible: true, secondsVisible: true },
-    autoSize: true,
+  // Same cookie-backed session pattern as every other deltaExchange chart
+  // page: indicators AND manual drawings both persist across reloads. Unlike
+  // tradeReview.html's backtest-drill-down page, nothing here auto-plots
+  // trades that would conflict with saved drawings, so there's no reason to
+  // withhold persistence from shapes the way that page deliberately does.
+  const { load: loadChartSession, save: saveChartSession } = createSessionStore("optionsChartSession");
+  let chartSession = loadChartSession() ?? {};
+  function persistChartSession(partial) {
+    chartSession = { ...chartSession, ...partial };
+    saveChartSession(chartSession);
+  }
+  setupIndicatorPanel(chart, $("fullChart"), {
+    initialIndicators: chartSession.indicators ?? [],
+    onChange: (indicators) => persistChartSession({ indicators }),
   });
-  const series = chart.addBarSeries({
-    upColor: COLOR_CALL,
-    downColor: COLOR_PUT,
-    openVisible: true,
-    thinBars: false,
+  setupDrawingToolPanel(chart, $("fullChart"), {
+    initialShapes: chartSession.shapes ?? [],
+    onChange: (shapes) => persistChartSession({ shapes }),
   });
 
   let resolution = "1";
@@ -230,7 +237,10 @@ function init() {
 
   async function refresh() {
     try {
-      if (!allBars.length) {
+      const hadData = allBars.length > 0;
+      const previousLastTime = hadData ? allBars[allBars.length - 1].time : -Infinity;
+
+      if (!hadData) {
         await backfill();
       } else {
         // Deep history is already in; each tick only needs the recent window.
@@ -245,12 +255,27 @@ function init() {
       if (!allBars.length) {
         setPill("chartStatus", "no data", "pill-down");
         setMessage(`Delta Exchange has no ${resolutionLabel(resolution)} history for ${currentSymbol}.`);
-        series.setData([]);
+        chart.clear();
         return;
       }
       setPill("chartStatus", "live", "pill-live");
       setMessage("");
-      series.setData(allBars);
+
+      if (!hadData) {
+        // First load for this contract/resolution: replace everything and fit
+        // the view to it.
+        chart.setData(allBars);
+        chart.fitContent();
+      } else {
+        // Later polls: push only the tail that could actually be new or
+        // changed (already-closed historical bars never retroactively
+        // change) via update(), which appends-or-replaces-the-last-bar and
+        // preserves the current zoom/pan — setData() always re-fits the
+        // view, which would yank the user's zoom back out on every 15s poll.
+        for (const bar of allBars) {
+          if (bar.time >= previousLastTime) chart.update(bar);
+        }
+      }
       $("chartLastUpdate").textContent = new Date().toLocaleTimeString();
     } catch (err) {
       console.error("Delta Exchange history fetch failed", err);
@@ -278,7 +303,7 @@ function init() {
     if (!info.success || !info.result) {
       setPill("chartStatus", "not listed", "pill-down");
       setMessage(`Delta Exchange doesn't have a symbol matching ${currentSymbol}.`);
-      series.setData([]);
+      chart.clear();
       return;
     }
 
@@ -340,7 +365,7 @@ function init() {
       refreshTimer = null;
     }
     allBars = [];
-    series.setData([]);
+    chart.clear();
     setMessage("");
 
     currentSymbol = deribitToDeltaSymbol(instrumentName);
