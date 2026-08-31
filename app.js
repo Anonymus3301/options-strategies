@@ -686,6 +686,132 @@ function renderIvTermChart() {
   );
 }
 
+// ---------- Expected move, risk reversal / butterfly, probability cone ----------
+
+function computeExpectedMove(bucket, atm, spot) {
+  if (atm == null || spot == null) return null;
+  const call = state.summaries.get(bucket.calls.get(atm));
+  const put = state.summaries.get(bucket.puts.get(atm));
+  if (!call || !put || call.mark_price == null || put.mark_price == null) return null;
+  const usd = (call.mark_price + put.mark_price) * spot;
+  return { usd, pct: (usd / spot) * 100 };
+}
+
+// 25-delta risk reversal (call IV minus put IV at the strikes nearest 25Δ) and
+// butterfly (avg of those two IVs minus ATM IV) — standard skew-quantification
+// metrics. Needs live Greeks, so only works for the currently selected expiry
+// (the only one we subscribe ticker.* for).
+function computeRiskReversalButterfly(strikes, bucket, atm) {
+  if (atm == null) return null;
+  let bestCall = null, bestCallDiff = Infinity;
+  let bestPut = null, bestPutDiff = Infinity;
+  for (const s of strikes) {
+    const cName = bucket.calls.get(s);
+    const cGreeks = cName ? state.greeks.get(cName) : null;
+    if (cGreeks && cGreeks.delta != null) {
+      const diff = Math.abs(cGreeks.delta - 0.25);
+      if (diff < bestCallDiff) {
+        bestCallDiff = diff;
+        bestCall = cName;
+      }
+    }
+    const pName = bucket.puts.get(s);
+    const pGreeks = pName ? state.greeks.get(pName) : null;
+    if (pGreeks && pGreeks.delta != null) {
+      const diff = Math.abs(pGreeks.delta + 0.25);
+      if (diff < bestPutDiff) {
+        bestPutDiff = diff;
+        bestPut = pName;
+      }
+    }
+  }
+  if (!bestCall || !bestPut) return null;
+  const callSum = state.summaries.get(bestCall);
+  const putSum = state.summaries.get(bestPut);
+  if (!callSum || !putSum || callSum.mark_iv == null || putSum.mark_iv == null) return null;
+
+  const atmCall = state.summaries.get(bucket.calls.get(atm));
+  const atmPut = state.summaries.get(bucket.puts.get(atm));
+  const atmIvs = [atmCall && atmCall.mark_iv, atmPut && atmPut.mark_iv].filter((v) => v != null);
+  const atmIv = atmIvs.length ? atmIvs.reduce((a, b) => a + b, 0) / atmIvs.length : null;
+
+  return {
+    rr: callSum.mark_iv - putSum.mark_iv,
+    bf: atmIv != null ? (callSum.mark_iv + putSum.mark_iv) / 2 - atmIv : null,
+  };
+}
+
+function buildConeChartSvg(times, upper, lower, spot) {
+  const W = 600, H = 200, padL = 50, padR = 12, padT = 10, padB = 22;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const xMin = times[0], xMax = times[times.length - 1];
+  const yMin = Math.min(...lower, spot), yMax = Math.max(...upper, spot);
+  const yRange = yMax - yMin || 1;
+  const xScale = (x) => padL + ((x - xMin) / (xMax - xMin || 1)) * innerW;
+  const yScale = (y) => padT + innerH - ((y - yMin) / yRange) * innerH;
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
+
+  const ticks = 4;
+  for (let i = 0; i <= ticks; i++) {
+    const v = yMin + (yRange * i) / ticks;
+    const y = yScale(v);
+    svg += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="${COLOR_BORDER}" stroke-width="1"/>`;
+    svg += `<text x="${padL - 6}" y="${y + 3}" text-anchor="end" font-size="9" fill="${COLOR_DIM}">${fmtNum(v, 0)}</text>`;
+  }
+
+  const labelStep = Math.max(1, Math.ceil(times.length / 6));
+  times.forEach((t, i) => {
+    if (i % labelStep === 0 || i === times.length - 1) {
+      svg += `<text x="${xScale(t).toFixed(1)}" y="${H - 4}" text-anchor="middle" font-size="9" fill="${COLOR_DIM}">${new Date(t).toLocaleDateString(undefined, { day: "2-digit", month: "short" })}</text>`;
+    }
+  });
+
+  let band = "";
+  times.forEach((t, i) => (band += `${i === 0 ? "M" : "L"}${xScale(t).toFixed(1)},${yScale(upper[i]).toFixed(1)} `));
+  for (let i = times.length - 1; i >= 0; i--) band += `L${xScale(times[i]).toFixed(1)},${yScale(lower[i]).toFixed(1)} `;
+  svg += `<path d="${band.trim()}Z" fill="${COLOR_ACCENT}" opacity="0.12" stroke="none"/>`;
+
+  const lineFor = (vals) => times.map((t, i) => `${i === 0 ? "M" : "L"}${xScale(t).toFixed(1)},${yScale(vals[i]).toFixed(1)}`).join(" ");
+  svg += `<path d="${lineFor(upper)}" fill="none" stroke="${COLOR_ACCENT}" stroke-width="1.5"/>`;
+  svg += `<path d="${lineFor(lower)}" fill="none" stroke="${COLOR_ACCENT}" stroke-width="1.5"/>`;
+
+  const spotY = yScale(spot);
+  svg += `<line x1="${padL}" y1="${spotY}" x2="${W - padR}" y2="${spotY}" stroke="${COLOR_DIM}" stroke-width="1" stroke-dasharray="3,3"/>`;
+
+  svg += "</svg>";
+  return svg;
+}
+
+function renderProbabilityCone() {
+  const el = $("probConeChart");
+  if (!el) return;
+  $("probConeExpiry").textContent = state.selectedExpiry ? expiryLabel(state.selectedExpiry) : "—";
+  const spot = state.indexPrice;
+  if (spot == null || !state.selectedExpiry || state.selectedExpiry <= Date.now()) {
+    el.innerHTML = '<p class="loading">No data</p>';
+    return;
+  }
+  const entry = computeIvTermStructure().find((t) => t.expiry === state.selectedExpiry);
+  if (!entry || entry.atmIv == null) {
+    el.innerHTML = '<p class="loading">No data</p>';
+    return;
+  }
+  const sigma = entry.atmIv / 100;
+  const now = Date.now();
+  const steps = 24;
+  const times = [], upper = [], lower = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = now + ((state.selectedExpiry - now) * i) / steps;
+    const T = Math.max((t - now) / YEAR_MS, 0);
+    const band = sigma * Math.sqrt(T);
+    times.push(t);
+    upper.push(spot * Math.exp(band));
+    lower.push(spot * Math.exp(-band));
+  }
+  el.innerHTML = buildConeChartSvg(times, upper, lower, spot);
+}
+
 function updateVolStat() {
   const term = state.expiries.length ? computeIvTermStructure() : [];
   const front = term.find((t) => t.atmIv != null);
@@ -704,7 +830,18 @@ function renderMarketStats(strikes, bucket) {
   $("pcrStat").textContent =
     (pcr.volume != null ? fmtNum(pcr.volume, 2) : "—") + " vol · " + (pcr.oi != null ? fmtNum(pcr.oi, 2) : "—") + " oi";
 
+  const atm = closestStrike(strikes);
+  const move = computeExpectedMove(bucket, atm, state.indexPrice);
+  $("expectedMoveStat").textContent = move != null ? `$${fmtNum(move.usd, 0)} (±${fmtNum(move.pct, 1)}%)` : "—";
+
+  const rrbf = computeRiskReversalButterfly(strikes, bucket, atm);
+  $("skewStat").textContent =
+    rrbf != null
+      ? `RR ${rrbf.rr >= 0 ? "+" : ""}${fmtNum(rrbf.rr, 1)}pp · BF ${rrbf.bf != null ? (rrbf.bf >= 0 ? "+" : "") + fmtNum(rrbf.bf, 1) + "pp" : "—"}`
+      : "—";
+
   updateVolStat();
+  renderProbabilityCone();
 }
 
 function updatePerpStats() {

@@ -66,6 +66,14 @@
       <span class="mstat-label">Perp Funding · Basis</span>
       <span id="fundingBasisStat" class="mstat-value">—</span>
     </div>
+    <div class="mstat">
+      <span class="mstat-label">Expected Move (ATM straddle, selected expiry)</span>
+      <span id="expectedMoveStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">25Δ Risk Reversal · Butterfly</span>
+      <span id="skewStat" class="mstat-value">—</span>
+    </div>
   </section>
 
   <section class="chart-card chart-card-wide">
@@ -116,6 +124,13 @@
         <span class="hint">ATM IV across all expiries</span>
       </div>
       <div id="ivTermChart" class="svg-chart"></div>
+    </div>
+    <div class="chart-card">
+      <div class="panel-header">
+        <h2>Probability Cone — <span id="probConeExpiry">—</span></h2>
+        <span class="hint">±1σ price range to expiry, from ATM IV</span>
+      </div>
+      <div id="probConeChart" class="svg-chart"></div>
     </div>
   </section>
 
@@ -256,6 +271,6 @@
     This app uses <strong>Deribit's public REST + WebSocket API</strong>, which requires no API key or authentication for market data.</p>
   </footer>
 
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

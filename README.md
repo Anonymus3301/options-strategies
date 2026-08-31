@@ -21,11 +21,15 @@ python3 -m http.server 8000   # then open http://localhost:8000
   resolution Delta Exchange supports (1m through monthly) and an **expiry selector**
   to switch between dates at the same strike/type without going back to the ladder.
 - **Chain charts** — price by strike, IV skew (with a fitted smile curve), open interest
-  by strike, gamma exposure (GEX) by strike, IV term structure across expiries, a full
-  **IV surface heatmap** (moneyness × expiry), and a **futures term structure / basis
-  curve** from Deribit's dated BTC futures.
+  by strike, gamma exposure (GEX) by strike, IV term structure across expiries, a
+  **probability cone** (±1σ price fan to expiry, derived from ATM IV via a lognormal
+  band), a full **IV surface heatmap** (moneyness × expiry), and a **futures term
+  structure / basis curve** from Deribit's dated BTC futures.
 - **Market stats strip** — max pain, put/call ratio (volume & OI), 30-day realized
-  volatility vs. front-month ATM IV, BTC-PERPETUAL funding rate and basis.
+  volatility vs. front-month ATM IV, BTC-PERPETUAL funding rate and basis, **expected
+  move** (ATM straddle mark price, in USD and % of spot, for the selected expiry), and
+  **25-delta risk reversal / butterfly** (skew quantification: RR is call IV minus put
+  IV at the strikes nearest ±0.25 delta; BF is their average minus ATM IV).
 - **Recent trades tape** — live feed of BTC option trades, with large prints highlighted.
 - **Watchlist** — pin any strike's call/put (★ button) to a panel that shows live
   bid/mark/ask/IV regardless of which expiry tab is active.
