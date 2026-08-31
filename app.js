@@ -30,11 +30,13 @@ const state = {
   obInstrument: null,
   perp: { markPrice: null, fundingRate: null },
   realizedVol: null,
+  realizedVolWindows: {}, // { 7: pct, 14: pct, 30: pct, 60: pct, 90: pct }
   recentTrades: [],
   strategyLegs: [], // { instrument, strike, type, side, qty, premiumUsd, ivPct, expiry }
   futures: [], // [{ name, expiry, markPrice }]
   alerts: [], // { id, metric, condition, value, fired, label }
   watchlist: new Set(), // instrument names, pinned across expiries
+  orderFlow: { callBuyUsd: 0, callSellUsd: 0, putBuyUsd: 0, putSellUsd: 0 }, // cumulative since page load, from the trades tape
 };
 
 let mainWs = null;
@@ -77,9 +79,11 @@ async function fetchBookSummary() {
   return json.result;
 }
 
+const RVOL_WINDOWS = [7, 14, 30, 60, 90];
+
 async function fetchRealizedVolInput() {
   const end = Date.now();
-  const start = end - 30 * 24 * 60 * 60 * 1000;
+  const start = end - (Math.max(...RVOL_WINDOWS) + 2) * 24 * 60 * 60 * 1000;
   const url = `${REST_BASE}/get_tradingview_chart_data?instrument_name=BTC-PERPETUAL&start_timestamp=${start}&end_timestamp=${end}&resolution=1D`;
   const res = await fetch(url);
   const json = await res.json();
@@ -87,9 +91,8 @@ async function fetchRealizedVolInput() {
   return json.result;
 }
 
-function computeRealizedVol(ohlc) {
-  if (!ohlc || !ohlc.close || ohlc.close.length < 3) return null;
-  const closes = ohlc.close;
+function annualizedVolFromCloses(closes) {
+  if (!closes || closes.length < 3) return null;
   const returns = [];
   for (let i = 1; i < closes.length; i++) returns.push(Math.log(closes[i] / closes[i - 1]));
   const mean = returns.reduce((a, b) => a + b, 0) / returns.length;
@@ -97,9 +100,29 @@ function computeRealizedVol(ohlc) {
   return Math.sqrt(variance) * Math.sqrt(365) * 100;
 }
 
+// Backward-compatible single-window (30D) helper — still used wherever only one number is needed.
+function computeRealizedVol(ohlc) {
+  if (!ohlc || !ohlc.close) return null;
+  return annualizedVolFromCloses(ohlc.close.slice(-31));
+}
+
+// One annualized RVol reading per trailing window in RVOL_WINDOWS, using the most recent
+// `window + 1` daily closes available (fewer than that and the window is skipped as null).
+function computeRealizedVolWindows(ohlc) {
+  if (!ohlc || !ohlc.close) return {};
+  const closes = ohlc.close;
+  const out = {};
+  for (const w of RVOL_WINDOWS) {
+    out[w] = closes.length >= w + 1 ? annualizedVolFromCloses(closes.slice(-(w + 1))) : null;
+  }
+  return out;
+}
+
 async function refreshRealizedVol() {
   try {
-    state.realizedVol = computeRealizedVol(await fetchRealizedVolInput());
+    const ohlc = await fetchRealizedVolInput();
+    state.realizedVol = computeRealizedVol(ohlc);
+    state.realizedVolWindows = computeRealizedVolWindows(ohlc);
     updateVolStat();
   } catch (err) {
     console.error("realized vol fetch failed", err);
@@ -208,7 +231,7 @@ async function refreshChain() {
   } catch (err) {
     console.error("get_book_summary_by_currency failed", err);
     $("ladderBody").innerHTML =
-      `<tr><td colspan="17" class="loading">Couldn't reach Deribit's REST API (${err.message}). Retrying…</td></tr>`;
+      `<tr><td colspan="19" class="loading">Couldn't reach Deribit's REST API (${err.message}). Retrying…</td></tr>`;
   }
 }
 
@@ -266,13 +289,20 @@ function edgeCell(pct) {
   return `<td class="${cls}">${pct >= 0 ? "+" : ""}${fmtNum(pct, 1)}%</td>`;
 }
 
+// Rough probability of finishing ITM, approximated as |delta| — a standard desk shorthand,
+// not an exact risk-neutral probability (which would use N(d2) instead of delta's N(d1)).
+function pItmCell(greeks) {
+  if (!greeks || greeks.delta == null) return "—";
+  return `${fmtNum(Math.abs(greeks.delta) * 100, 0)}%`;
+}
+
 function renderLadder() {
   const body = $("ladderBody");
   const bucket = state.instrumentsByExpiry.get(state.selectedExpiry);
   $("expiryLabel").textContent = state.selectedExpiry ? expiryLabel(state.selectedExpiry) : "—";
 
   if (!bucket) {
-    body.innerHTML = `<tr><td colspan="17" class="loading">Loading instruments from Deribit…</td></tr>`;
+    body.innerHTML = `<tr><td colspan="19" class="loading">Loading instruments from Deribit…</td></tr>`;
     return;
   }
 
@@ -298,6 +328,7 @@ function renderLadder() {
       <td class="call-cell">${call ? fmtNum(call.volume, 0) : "—"}</td>
       <td class="call-cell">${call && call.mark_iv != null ? fmtNum(call.mark_iv, 1) : "—"}</td>
       <td class="call-cell">${callGreeks && callGreeks.delta != null ? fmtNum(callGreeks.delta, 3) : "—"}</td>
+      <td class="call-cell dim">${pItmCell(callGreeks)}</td>
       ${edgeCell(edges.call.get(strike))}
       <td class="call-cell">${call ? fmtNum(call.bid_price, 4) : "—"}</td>
       <td class="call-cell">${call ? fmtNum(call.mark_price, 4) : "—"}</td>
@@ -314,6 +345,7 @@ function renderLadder() {
       <td class="put-cell">${put ? fmtNum(put.mark_price, 4) : "—"}</td>
       <td class="put-cell">${put ? fmtNum(put.ask_price, 4) : "—"}</td>
       ${edgeCell(edges.put.get(strike))}
+      <td class="put-cell dim">${pItmCell(putGreeks)}</td>
       <td class="put-cell">${putGreeks && putGreeks.delta != null ? fmtNum(putGreeks.delta, 3) : "—"}</td>
       <td class="put-cell">${put && put.mark_iv != null ? fmtNum(put.mark_iv, 1) : "—"}</td>
       <td class="put-cell">${put ? fmtNum(put.volume, 0) : "—"}</td>
@@ -815,11 +847,24 @@ function renderProbabilityCone() {
 function updateVolStat() {
   const term = state.expiries.length ? computeIvTermStructure() : [];
   const front = term.find((t) => t.atmIv != null);
-  const parts = [
-    state.realizedVol != null ? `RVol ${fmtNum(state.realizedVol, 1)}%` : "RVol —",
-    front ? `ATM IV ${fmtNum(front.atmIv, 1)}%` : "ATM IV —",
-  ];
+  const rvolParts = RVOL_WINDOWS.map((w) => {
+    const v = state.realizedVolWindows[w];
+    return `${w}D ${v != null ? fmtNum(v, 1) : "—"}`;
+  });
+  const parts = [rvolParts.join(" · "), front ? `ATM IV ${fmtNum(front.atmIv, 1)}%` : "ATM IV —"];
   $("volStat").textContent = parts.join(" / ");
+}
+
+function updateOrderFlowStat() {
+  const { callBuyUsd, callSellUsd, putBuyUsd, putSellUsd } = state.orderFlow;
+  if (!callBuyUsd && !callSellUsd && !putBuyUsd && !putSellUsd) {
+    $("orderFlowStat").textContent = "—";
+    return;
+  }
+  const netCall = callBuyUsd - callSellUsd;
+  const netPut = putBuyUsd - putSellUsd;
+  const fmtSigned = (v) => `${v >= 0 ? "+" : "-"}$${fmtNum(Math.abs(v), 0)}`;
+  $("orderFlowStat").textContent = `Calls ${fmtSigned(netCall)} · Puts ${fmtSigned(netPut)}`;
 }
 
 function renderMarketStats(strikes, bucket) {
@@ -1014,7 +1059,26 @@ function scheduleGreeksRender() {
 function addTrade(t) {
   state.recentTrades.unshift(t);
   if (state.recentTrades.length > 100) state.recentTrades.length = 100;
+  accumulateOrderFlow(t);
   scheduleTradesRender();
+}
+
+// Net call/put premium bought vs sold, accumulated client-side from the live trades tape
+// since this tab was opened — not a historical/server-side figure.
+function accumulateOrderFlow(t) {
+  const spot = state.indexPrice;
+  if (spot == null || t.amount == null || t.price == null) return;
+  const isCall = (t.instrument_name || "").endsWith("-C");
+  const premiumUsd = t.amount * t.price * spot;
+  const isBuy = t.direction === "buy";
+  if (isCall) {
+    if (isBuy) state.orderFlow.callBuyUsd += premiumUsd;
+    else state.orderFlow.callSellUsd += premiumUsd;
+  } else {
+    if (isBuy) state.orderFlow.putBuyUsd += premiumUsd;
+    else state.orderFlow.putSellUsd += premiumUsd;
+  }
+  updateOrderFlowStat();
 }
 
 function scheduleTradesRender() {

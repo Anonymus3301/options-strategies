@@ -14,9 +14,11 @@ python3 -m http.server 8000   # then open http://localhost:8000
 ## Features
 
 - **Options ladder** — full calls/puts chain by expiry: OI (with a live Δ-since-last-poll
-  badge), volume, IV, delta, an **edge %** (mark price vs. a Black-Scholes theoretical
-  price built from the fitted smile IV — flags contracts trading rich/cheap relative to
-  their neighbors), and bid/mark/ask.
+  badge), volume, IV, delta, a **P(ITM)** column (≈ |delta|, the standard desk shorthand
+  for probability of finishing in the money — not an exact risk-neutral probability), an
+  **edge %** (mark price vs. a Black-Scholes theoretical price built from the fitted
+  smile IV — flags contracts trading rich/cheap relative to their neighbors), and
+  bid/mark/ask.
 - **Live order book** per instrument, plus a dedicated OHLC chart page with every
   resolution Delta Exchange supports (1m through monthly) and an **expiry selector**
   to switch between dates at the same strike/type without going back to the ladder.
@@ -25,11 +27,14 @@ python3 -m http.server 8000   # then open http://localhost:8000
   **probability cone** (±1σ price fan to expiry, derived from ATM IV via a lognormal
   band), a full **IV surface heatmap** (moneyness × expiry), and a **futures term
   structure / basis curve** from Deribit's dated BTC futures.
-- **Market stats strip** — max pain, put/call ratio (volume & OI), 30-day realized
-  volatility vs. front-month ATM IV, BTC-PERPETUAL funding rate and basis, **expected
-  move** (ATM straddle mark price, in USD and % of spot, for the selected expiry), and
-  **25-delta risk reversal / butterfly** (skew quantification: RR is call IV minus put
-  IV at the strikes nearest ±0.25 delta; BF is their average minus ATM IV).
+- **Market stats strip** — max pain, put/call ratio (volume & OI), **multi-window
+  realized volatility** (7D/14D/30D/60D/90D annualized, from daily BTC-PERPETUAL closes)
+  vs. front-month ATM IV, BTC-PERPETUAL funding rate and basis, **expected move** (ATM
+  straddle mark price, in USD and % of spot, for the selected expiry), **25-delta risk
+  reversal / butterfly** (skew quantification: RR is call IV minus put IV at the strikes
+  nearest ±0.25 delta; BF is their average minus ATM IV), and **order flow sentiment**
+  (net call vs. put premium bought, accumulated client-side from the live trades tape
+  since the tab was opened — not a historical/server-side figure).
 - **Recent trades tape** — live feed of BTC option trades, with large prints highlighted.
 - **Watchlist** — pin any strike's call/put (★ button) to a panel that shows live
   bid/mark/ask/IV regardless of which expiry tab is active.

@@ -142,6 +142,7 @@ body {
 }
 .mstat-label { color: var(--text-dim); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
 .mstat-value { font-size: 15px; font-weight: 600; }
+.mstat-wide { flex-basis: 420px; }
 
 .chain-charts { display: flex; flex-wrap: wrap; gap: 16px; margin: 16px 20px; }
 .chart-card { flex: 1 1 300px; min-width: 0; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
