@@ -51,14 +51,18 @@ python3 -m http.server 8000   # then open http://localhost:8000
   Black-Scholes at its snapshot IV to show how the position's value could evolve before
   expiry — also illustrative, since it holds volatility fixed.
 - **CSV export** of the currently displayed chain.
+- **IV Rank / Percentile** — where front-month ATM IV currently sits relative to its own
+  recent range. Deribit's free API has no historical-IV endpoint, so this is built from a
+  one-reading-per-day snapshot kept in the browser's own `localStorage` — it only reflects
+  what this specific browser has observed since first loading the page, not an
+  authoritative multi-year rank, and resets if that browser's storage is cleared. Shows
+  "collecting history" until at least 5 days of readings have accumulated.
 
 ## What's deliberately not included
 
 A few items from a "full" advanced dashboard were left out because Deribit's free public
 API doesn't support them without a backend/persistent storage or materially larger scope:
 
-- **IV rank/percentile** — needs a stored history of past IV readings; there's no
-  historical-IV endpoint to reconstruct it from.
 - **Cross-exchange comparison** (OKX, Bybit, etc.) — would need separate integrations
   against different APIs/domains; out of scope for a single-exchange static site.
 - **Historical replay / time-travel** through past chain snapshots — needs a database.

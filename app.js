@@ -844,6 +844,65 @@ function renderProbabilityCone() {
   el.innerHTML = buildConeChartSvg(times, upper, lower, spot);
 }
 
+// ---------- IV Rank / Percentile: client-side history via localStorage ----------
+// Deribit's free API has no historical-IV endpoint, so this can only ever reflect what
+// this browser has personally observed — not an authoritative multi-year rank. One
+// reading (today's ATM IV) is recorded per calendar day (UTC), capped at ~13 months.
+
+const IV_HISTORY_KEY = "btc-options-iv-history-v1";
+const IV_HISTORY_MAX_DAYS = 400;
+const IV_HISTORY_MIN_DAYS = 5;
+
+function loadIvHistory() {
+  try {
+    const raw = localStorage.getItem(IV_HISTORY_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function recordIvHistory(atmIv) {
+  if (atmIv == null) return loadIvHistory();
+  const today = new Date().toISOString().slice(0, 10);
+  const history = loadIvHistory();
+  const last = history[history.length - 1];
+  if (last && last.date === today) {
+    last.atmIv = atmIv;
+  } else {
+    history.push({ date: today, atmIv });
+  }
+  if (history.length > IV_HISTORY_MAX_DAYS) history.splice(0, history.length - IV_HISTORY_MAX_DAYS);
+  try {
+    localStorage.setItem(IV_HISTORY_KEY, JSON.stringify(history));
+  } catch (err) {
+    // Private browsing / quota exceeded — rank just won't persist across reloads.
+  }
+  return history;
+}
+
+function computeIvRankPercentile(currentIv, history) {
+  const values = history.map((h) => h.atmIv).filter((v) => v != null);
+  if (currentIv == null || values.length < IV_HISTORY_MIN_DAYS) return { days: values.length };
+  const min = Math.min(...values), max = Math.max(...values);
+  const rank = max === min ? 50 : ((currentIv - min) / (max - min)) * 100;
+  const percentile = (values.filter((v) => v <= currentIv).length / values.length) * 100;
+  return { rank, percentile, days: values.length };
+}
+
+function updateIvRankStat(currentIv) {
+  const el = $("ivRankStat");
+  if (!el) return;
+  const history = recordIvHistory(currentIv);
+  const res = computeIvRankPercentile(currentIv, history);
+  if (currentIv == null || res.days < IV_HISTORY_MIN_DAYS) {
+    el.textContent = `Collecting history (${res.days}d so far, this browser — need ${IV_HISTORY_MIN_DAYS}+)`;
+    return;
+  }
+  el.textContent = `Rank ${fmtNum(res.rank, 0)} · Pctl ${fmtNum(res.percentile, 0)} (${res.days}d, this browser)`;
+}
+
 function updateVolStat() {
   const term = state.expiries.length ? computeIvTermStructure() : [];
   const front = term.find((t) => t.atmIv != null);
@@ -853,6 +912,7 @@ function updateVolStat() {
   });
   const parts = [rvolParts.join(" · "), front ? `ATM IV ${fmtNum(front.atmIv, 1)}%` : "ATM IV —"];
   $("volStat").textContent = parts.join(" / ");
+  updateIvRankStat(front ? front.atmIv : null);
 }
 
 function updateOrderFlowStat() {
