@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Strap / Strip — Directionally-Biased Long Vol</title>
+<link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Strap / Strip — Directionally-Biased Long Volatility</h1>
+        <p class="subtitle">A weighted ATM straddle: 2 calls + 1 put (Strap, bullish lean) or 1 call + 2 puts (Strip, bearish lean)</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Structure</span>
+        <select id="modeSelect" class="poll-rate-select">
+          <option value="strap" selected>Strap (2 calls + 1 put, bullish lean)</option>
+          <option value="strip">Strip (1 call + 2 puts, bearish lean)</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">ATM Strike</span>
+      <span id="strikeStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Total Cost</span>
+      <span id="costStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Breakevens (down / up)</span>
+      <span id="breakevenStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Payoff at Expiry — <span id="strapExpiry">—</span></h2>
+      <span class="hint">Same idea as the Long Volatility straddle, but weighted 2:1 toward one side</span>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> A Strap/Strip costs more than a plain straddle
+    (three option legs instead of two) and needs a move large enough on the favored side —
+    or a big enough move on the other side — to overcome that extra cost. It's a
+    directional bet wrapped in a long-vol structure, not a pure volatility play.
+  </p>
+
+  <script src="quant.js?v=3"></script>
+  <script src="strategy-nav.js?v=4"></script>
+  <script src="strategy-strap-strip.js?v=1"></script>
+</body>
+</html>
