@@ -1,0 +1,158 @@
+// Strategy Hub — an index/overview page for all 21 standalone strategy pages, plus a
+// small live market snapshot (front-month IV, realized vol, vol risk premium, IV Rank)
+// computed the same way the other pages do, standalone/REST-only.
+
+const CURRENCY = "BTC";
+const IV_HISTORY_KEY = "btc-options-iv-history-v1"; // same key app.js's IV Rank writes
+const IV_HISTORY_MIN_DAYS = 5;
+
+const $ = (id) => document.getElementById(id);
+
+const CATEGORIES = [
+  {
+    title: "Volatility Selling",
+    items: [
+      { href: "strategy-premium-selling.html", title: "Premium Selling", desc: "Short strangle when IV is rich vs. realized vol.", risk: "undefined" },
+      { href: "strategy-iron-condor.html", title: "Iron Condor Builder", desc: "Defined-risk version: short 20Δ strikes + protective wings.", risk: "defined" },
+      { href: "strategy-butterfly.html", title: "Butterfly Spread", desc: "Cheap, defined-risk bet that price pins near a center strike.", risk: "defined" },
+      { href: "strategy-jade-lizard.html", title: "Jade Lizard", desc: "Short put + call credit spread — checks if credit kills upside risk.", risk: "undefined" },
+      { href: "strategy-broken-wing.html", title: "Broken Wing Butterfly", desc: "Asymmetric butterfly, often net credit — checks both flat regions honestly.", risk: "defined" },
+    ],
+  },
+  {
+    title: "Volatility Buying",
+    items: [
+      { href: "strategy-long-vol.html", title: "Long Volatility", desc: "Long ATM straddle when IV looks cheap vs. realized vol.", risk: "defined" },
+      { href: "strategy-strap-strip.html", title: "Strap / Strip", desc: "Weighted straddle with a bullish or bearish lean.", risk: "defined" },
+      { href: "strategy-backspread.html", title: "Call Backspread", desc: "Capped loss, unlimited upside — mirror of the Ratio Spread.", risk: "defined" },
+    ],
+  },
+  {
+    title: "Hedging & Income",
+    items: [
+      { href: "strategy-protective-put.html", title: "Protective Put", desc: "Cost of downside insurance at a selectable floor.", risk: "defined" },
+      { href: "strategy-collar.html", title: "Collar", desc: "Near-zero-cost hedge: sell a call to fund a put.", risk: "defined" },
+      { href: "strategy-income.html", title: "Covered Call / CSP Income", desc: "Scans the chain for the best annualized yield by delta band.", risk: "defined" },
+    ],
+  },
+  {
+    title: "Term Structure & Skew",
+    items: [
+      { href: "strategy-skew-arb.html", title: "Skew Arbitrage", desc: "25Δ risk reversal mean-reversion vs. its own recent range.", risk: "defined" },
+      { href: "strategy-calendar.html", title: "Calendar Spread", desc: "Sell front straddle, buy back straddle, same strike.", risk: "defined" },
+      { href: "strategy-diagonal.html", title: "Diagonal Spread", desc: "Calendar spread with a directional lean via different strikes.", risk: "defined" },
+    ],
+  },
+  {
+    title: "Carry & Arbitrage-Adjacent",
+    items: [
+      { href: "strategy-carry.html", title: "Carry & Funding", desc: "Dated-futures basis and perpetual funding-rate farming.", risk: "defined" },
+      { href: "strategy-box-spread.html", title: "Box Spread", desc: "Fixed-payout structure whose price implies a financing rate.", risk: "defined" },
+      { href: "strategy-synthetic.html", title: "Synthetic Forward", desc: "Options-implied forward vs. the actual dated future.", risk: "defined" },
+    ],
+  },
+  {
+    title: "Cross-Asset & Sentiment",
+    items: [
+      { href: "strategy-cross-asset.html", title: "BTC/ETH Vol Pair", desc: "Relative-value vol read across BTC and ETH.", risk: "defined" },
+      { href: "strategy-maxpain.html", title: "Max Pain / Pin Risk", desc: "OI-implied pinning level — a contested theory, shown as data.", risk: "defined" },
+      { href: "strategy-pcr.html", title: "PCR Contrarian Sentiment", desc: "Whole-chain put/call ratio vs. its own recent range.", risk: "defined" },
+    ],
+  },
+  {
+    title: "Undefined-Risk (flagged)",
+    items: [
+      { href: "strategy-ratio-spread.html", title: "Call Ratio Spread (1×2)", desc: "Often a credit, but genuinely unlimited risk above breakeven.", risk: "undefined" },
+    ],
+  },
+];
+
+function renderHubGrid() {
+  const el = $("hubGrid");
+  el.innerHTML = CATEGORIES.map(
+    (cat) => `
+    <div class="hub-category">
+      <h3>${cat.title}</h3>
+      <div class="hub-links">
+        ${cat.items
+          .map(
+            (item) => `
+          <a class="hub-link" href="${item.href}">
+            <span class="hub-link-title">${item.title}</span>
+            <span class="hub-risk-tag hub-risk-${item.risk}">${item.risk}</span>
+            <span class="hub-link-desc">${item.desc}</span>
+          </a>`
+          )
+          .join("")}
+      </div>
+    </div>`
+  ).join("");
+}
+
+function setStatus(text, cls) {
+  const el = $("feedStatus");
+  el.textContent = text;
+  el.className = "pill " + cls;
+}
+
+async function fetchFrontMonthAtmIv() {
+  const [instruments, summaries] = await Promise.all([
+    qFetchInstruments(CURRENCY, "option", false),
+    qFetchBookSummary(CURRENCY, "option"),
+  ]);
+  const byExpiry = qGroupByExpiry(instruments);
+  const summaryMap = new Map(summaries.map((s) => [s.instrument_name, s]));
+  const expiries = [...byExpiry.keys()].sort((a, b) => a - b);
+  for (const ts of expiries) {
+    const bucket = byExpiry.get(ts);
+    const spot = qImpliedSpot(bucket, summaryMap);
+    if (spot == null) continue;
+    const strikes = [...new Set([...bucket.calls.keys(), ...bucket.puts.keys()])];
+    const atm = qClosestStrike(strikes, spot);
+    if (atm == null) continue;
+    const call = summaryMap.get(bucket.calls.get(atm));
+    const put = summaryMap.get(bucket.puts.get(atm));
+    const ivs = [call && call.mark_iv, put && put.mark_iv].filter((v) => v != null);
+    if (!ivs.length) continue;
+    return { atmIv: ivs.reduce((a, b) => a + b, 0) / ivs.length, spot };
+  }
+  return null;
+}
+
+async function refresh() {
+  try {
+    setStatus("loading…", "pill-connecting");
+    const [front, ohlc] = await Promise.all([fetchFrontMonthAtmIv(), qFetchDailyCloses("BTC-PERPETUAL", 31)]);
+
+    $("spotStat").textContent = front && front.spot != null ? "$" + qFmt(front.spot, 0) : "—";
+    $("ivStat").textContent = front && front.atmIv != null ? qFmt(front.atmIv, 1) + "%" : "—";
+
+    const rvol30 = ohlc && ohlc.close ? qAnnualizedVol(ohlc.close.slice(-31)) : null;
+    $("rvolStat").textContent = rvol30 != null ? qFmt(rvol30, 1) + "%" : "—";
+
+    const atmIv = front ? front.atmIv : null;
+    if (atmIv != null && rvol30 != null) {
+      const premium = atmIv - rvol30;
+      $("premiumStat").textContent = `${qFmtSigned(premium, 1)}pp — ${premium > 5 ? "favors selling (Premium Selling / Iron Condor)" : premium < -5 ? "favors buying (Long Volatility)" : "roughly balanced"}`;
+    } else {
+      $("premiumStat").textContent = "—";
+    }
+
+    const history = qRecordDailyHistory(IV_HISTORY_KEY, "atmIv", atmIv, 400);
+    const values = history.map((h) => h.atmIv).filter((v) => v != null);
+    const res = qComputeRankPercentile(atmIv, values, IV_HISTORY_MIN_DAYS);
+    $("ivRankStat").textContent =
+      atmIv == null || res.days < IV_HISTORY_MIN_DAYS
+        ? `Collecting history (${res.days}d so far, this browser — need ${IV_HISTORY_MIN_DAYS}+)`
+        : `Rank ${qFmt(res.rank, 0)} · Pctl ${qFmt(res.percentile, 0)} (${res.days}d, this browser)`;
+
+    setStatus("live", "pill-live");
+  } catch (err) {
+    console.error("refresh failed", err);
+    setStatus("error", "pill-down");
+  }
+}
+
+renderHubGrid();
+refresh();
+setInterval(refresh, 60000);

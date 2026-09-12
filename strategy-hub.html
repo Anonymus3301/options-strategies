@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Strategy Hub</title>
+<link rel="stylesheet" href="styles.css?v=7" />
+<style>
+  .hub-grid { display: flex; flex-wrap: wrap; gap: 16px; margin: 16px 20px; }
+  .hub-category { flex: 1 1 340px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .hub-category h3 { margin: 0; padding: 12px 16px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid var(--border); color: var(--accent); }
+  .hub-links { display: flex; flex-direction: column; }
+  .hub-link { display: block; padding: 10px 16px; border-bottom: 1px solid var(--border); text-decoration: none; color: var(--text); }
+  .hub-link:last-child { border-bottom: none; }
+  .hub-link:hover { background: var(--panel-alt); }
+  .hub-link-title { font-weight: 700; font-size: 13px; }
+  .hub-link-desc { display: block; margin-top: 2px; color: var(--text-dim); font-size: 11px; }
+  .hub-risk-tag { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 4px; font-size: 9px; text-transform: uppercase; vertical-align: middle; }
+  .hub-risk-defined { background: var(--call-bg); color: var(--call); }
+  .hub-risk-undefined { background: var(--put-bg); color: var(--put); }
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Strategy Hub</h1>
+        <p class="subtitle">An index of all 21 strategy pages, grouped by what they're for</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Front-Month ATM IV</span>
+      <span id="ivStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">30D Realized Vol</span>
+      <span id="rvolStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Vol Risk Premium (IV − RVol) → who's this favor?</span>
+      <span id="premiumStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">IV Rank (shared history with the main ladder)</span>
+      <span id="ivRankStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <div class="hub-grid" id="hubGrid"></div>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> This page is a directory, not a recommendation
+    engine — it doesn't rank strategies against each other or tell you which to use. Every
+    linked page carries its own specific disclaimer; read it before treating any reading as
+    more than informational.
+  </p>
+
+  <script src="quant.js?v=3"></script>
+  <script src="strategy-nav.js?v=4"></script>
+  <script src="strategy-hub.js?v=1"></script>
+</body>
+</html>

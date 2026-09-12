@@ -84,7 +84,8 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Seventeen dedicated pages, each buildable purely from Deribit's free public REST API (no
+Twenty-one dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
 and on each strategy page itself, and built on a shared `quant.js` (fetch helpers,
@@ -148,6 +149,24 @@ its specific limitations.
 - **[Ratio Spread](strategy-ratio-spread.html)** — a 1×2 call ratio spread (buy 1 near-ATM
   call, sell 2 further-OTM calls); the one page in this set with genuinely unlimited risk
   above its upper breakeven, and labeled as such rather than implied to be defined-risk.
+- **[Diagonal Spread](strategy-diagonal.html)** — a bullish call diagonal: buy a back-month
+  call, sell a front-month call at a higher strike. Combines the Calendar Spread's
+  term-structure bet with directional exposure, since the legs sit at different strikes.
+- **[Call Backspread](strategy-backspread.html)** — sell 1 near-ATM call, buy 2
+  further-OTM calls; the mirror image of the Ratio Spread page — capped loss, unlimited
+  profit above the upside breakeven.
+- **[Strap / Strip](strategy-strap-strip.html)** — a weighted ATM straddle (2 calls + 1
+  put, or 1 call + 2 puts) for a directionally-leaning long-vol position.
+- **[Broken Wing Butterfly](strategy-broken-wing.html)** — an asymmetric butterfly with
+  independently selectable inner/outer wing widths; explicitly reports both outside-the-
+  wings flat values rather than assuming a net credit means one side is risk-free.
+
+**[Strategy Hub](strategy-hub.html)** ties the set together: a live market snapshot
+(front-month ATM IV, realized vol, vol risk premium, IV Rank) plus every strategy page
+above, grouped into seven categories (Volatility Selling, Volatility Buying, Hedging &
+Income, Term Structure & Skew, Carry & Arbitrage-Adjacent, Cross-Asset & Sentiment, and
+Undefined-Risk) with a one-line description and a defined/undefined-risk tag for each —
+a directory, not a recommendation engine.
 
 Several pages share `localStorage` keys with the main dashboard's own IV Rank / Skew
 Rank features (same key names), so history accumulates regardless of which page — or how
