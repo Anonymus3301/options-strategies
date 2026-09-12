@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BTC/ETH Vol Pair Trade</title>
+<link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>BTC/ETH Vol Pair Trade</h1>
+        <p class="subtitle">Two-asset relative-value vol read — not true index dispersion, which needs 3+ constituents</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC / ETH (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">BTC Front-Month ATM IV</span>
+      <span id="btcIvStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">ETH Front-Month ATM IV</span>
+      <span id="ethIvStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Vol Spread (BTC − ETH)</span>
+      <span id="spreadStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">30D Realized Correlation</span>
+      <span id="corrStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Spread Rank · Percentile (this browser's history)</span>
+      <span id="spreadRankStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Vol Spread — Recent History (this browser)</h2>
+      <span class="hint">BTC ATM IV minus ETH ATM IV, one reading per refresh, kept in localStorage</span>
+    </div>
+    <div id="spreadSparkline" class="svg-chart"></div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Suggested Pair Trade</h2>
+      <span class="hint">Long vol on the cheaper asset, short vol on the richer one — vega-rough-matched, illustrative</span>
+    </div>
+    <div id="pairInfo" class="scanner-body">
+      <p class="loading">Loading…</p>
+    </div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> ETH's ATM IV/spot here is derived without a
+    live index feed — it backs out an implied spot from put-call parity (same r=0
+    convention as the rest of this app) using ETH's own option chain. "Spread Rank" is
+    relative to this specific browser's own short accumulated history, not a long-run
+    norm. Two assets is not enough for genuine dispersion trading; this is a simpler
+    relative-value pair, and BTC/ETH realized correlation is typically high, which limits
+    how much true diversification this trade offers.
+  </p>
+
+  <script src="quant.js?v=3"></script>
+  <script src="strategy-nav.js?v=1"></script>
+  <script src="strategy-cross-asset.js?v=1"></script>
+</body>
+</html>
