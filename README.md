@@ -172,6 +172,28 @@ Several pages share `localStorage` keys with the main dashboard's own IV Rank / 
 Rank features (same key names), so history accumulates regardless of which page — or how
 many of them — a visitor has open in that browser.
 
+## Tools
+
+Four utility pages that complement the strategy suite rather than adding another
+strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
+`strategy-nav.js`) on every strategy page and the main ladder:
+
+- **[Risk & Position Sizing Calculator](tool-risk-calculator.html)** — pure client-side
+  arithmetic: given an account size, risk-per-trade %, and a max-loss-per-contract figure
+  (read off any strategy page), computes how many contracts fit the risk budget, an
+  optional margin/capital constraint, and which one binds. A separate section gives
+  full/half/quarter-Kelly position sizing from a win probability and win/loss amounts.
+- **[Unusual Options Activity Scanner](tool-unusual-activity.html)** — tracks open
+  interest and volume changes entirely client-side (no historical-OI endpoint exists): a
+  baseline snapshot (reset on load or on demand) and the prior poll's snapshot are diffed
+  against each new chain fetch to surface the biggest OI/volume movers.
+- **[Options Glossary](tool-glossary.html)** — a searchable static reference covering 52
+  terms used across the dashboard and strategy pages, no network calls.
+- **[Trade Journal](tool-journal.html)** — logs real or paper trades (strategy, entry
+  spot, net cost, max profit/loss, notes) and tracks them to close with a realized P&L,
+  entirely in `localStorage`; CSV export for external record-keeping. Not synced anywhere
+  — clearing site data or switching browsers loses it.
+
 ## What's deliberately not included
 
 A few items from a "full" advanced dashboard were left out because Deribit's free public
