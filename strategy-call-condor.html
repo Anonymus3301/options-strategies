@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Call Condor Spread</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Call Condor Spread</h1>
+        <p class="subtitle">Built entirely from calls: buy the outer wings, sell the inner body — a wider, flatter-topped cousin of the Butterfly Spread</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Body half-width</span>
+        <select id="bodySelect" class="poll-rate-select">
+          <option value="5" selected>5% of spot</option>
+          <option value="10">10% of spot</option>
+        </select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Wing width</span>
+        <select id="wingSelect" class="poll-rate-select">
+          <option value="5">5% of spot</option>
+          <option value="10" selected>10% of spot</option>
+          <option value="15">15% of spot</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> buy 1 call at K1 (lowest), sell 1 call at K2, sell 1 call at K3, buy 1 call at K4 (K1 &lt; K2 &lt; K3 &lt; K4), all calls, same expiry — four strikes instead of the Butterfly's three.</p>
+      <p><strong>Market view:</strong> neutral — a bet that price finishes somewhere between K2 and K3, with more tolerance for being "close but not exact" than a Butterfly's single-point peak.</p>
+      <p><strong>Why trade it:</strong> spreading the short strikes apart (K2 to K3) instead of stacking them at one strike trades some of the Butterfly's peak profit for a wider flat-top zone where the max profit is still achieved — a defined-risk bet on a range rather than a point.</p>
+      <p><strong>Max profit:</strong> flat across the whole body (between K2 and K3), equal to (K2 − K1) − net debit. <strong>Max loss:</strong> the net debit paid, identical on both tails (below K1 and above K4) when the wings are equal width, as they are here. <strong>Breakevens:</strong> K1 + net debit, and K4 − net debit.</p>
+      <p><strong>Key risk:</strong> the wider profit zone costs more than a Butterfly's tighter one — check the actual debit against the payoff before assuming "wider is strictly better."</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Strikes (K1 / K2 / K3 / K4)</span>
+      <span id="strikesStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Net Debit (max loss)</span>
+      <span id="debitStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Max Profit (flat, K2–K3)</span>
+      <span id="maxProfitStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Breakevens</span>
+      <span id="breakevenStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat" title="Risk-neutral probability under the body strikes' average IV, not a real-world/objective probability">
+      <span class="mstat-label">Probability of Profit (live)</span>
+      <span id="popStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Payoff at Expiry — <span id="condorExpiry">—</span></h2>
+      <span class="hint">Built from calls throughout — a put condor at the same 4 strikes has the identical payoff shape at expiry</span>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Strike selection rounds to the nearest listed
+    strike on each leg, so the position may not be perfectly symmetric even when the
+    selected widths are equal. Verified that the two flat tail regions match exactly when
+    wing widths are equal, and that a put condor at the same 4 strikes produces an
+    identical payoff — both confirmed numerically before shipping this page.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=10"></script>
+  <script src="strategy-call-condor.js?v=1"></script>
+</body>
+</html>

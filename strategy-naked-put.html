@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Naked Put Writing</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Naked Put Writing</h1>
+        <p class="subtitle">Sell an OTM put on margin, without setting aside the full cash to buy BTC at the strike — more capital-efficient than a cash-secured put, at the cost of leverage risk</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Width</span>
+        <select id="widthSelect" class="poll-rate-select">
+          <option value="5">5% of spot</option>
+          <option value="10" selected>10% of spot</option>
+          <option value="15">15% of spot</option>
+          <option value="20">20% of spot</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> sell 1 OTM put on margin — unlike the Income Scanner's cash-secured put, this doesn't assume the full notional is set aside in cash to cover assignment, so it's more capital-efficient but carries real leverage risk if margin requirements change or price falls hard.</p>
+      <p><strong>Market view:</strong> neutral-to-bullish — profits as long as price stays above the strike, without needing a rally, and (unlike the cash-secured version) without tying up the full purchase price to do it.</p>
+      <p><strong>Why (some) traders use it:</strong> the same premium as a cash-secured put for a fraction of the capital committed — the tradeoff is that a sharp decline can produce a margin call or forced liquidation before the position would otherwise have recovered.</p>
+      <p><strong>Max profit:</strong> the premium collected, kept if price finishes at or above the strike. <strong>Max loss:</strong> large — bounded only by BTC reaching zero, same worst case as a cash-secured put, but reached on less collateral. <strong>Breakeven:</strong> strike − premium collected.</p>
+      <p><strong>Key risk:</strong> margin, not just price — a large enough adverse move can force liquidation at a worse price than simply holding the assignment to expiry would have, a risk the cash-secured version of this trade doesn't carry.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Short Put Strike</span>
+      <span id="strikeStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Premium Collected</span>
+      <span id="premiumStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Breakeven</span>
+      <span id="breakevenStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat" title="Risk-neutral probability under the strike's quoted IV, not a real-world/objective probability">
+      <span class="mstat-label">Probability of Profit (live)</span>
+      <span id="popStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Payoff at Expiry — <span id="putExpiry">—</span></h2>
+      <span class="hint">Illustrative only — ignores fees, margin requirements, and the margin calls that would occur before expiry on a large adverse move</span>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> This page does not model margin requirements,
+    which on a real exchange would force this position closed (or require substantial
+    additional collateral) well before losses reached the scale a payoff-at-expiry chart
+    alone would suggest. See the Covered Call / CSP Income page for the fully cash-backed
+    version of this same short-put idea.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=10"></script>
+  <script src="strategy-naked-put.js?v=1"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-// Strategy Hub — an index/overview page for all 41 standalone strategy pages, plus a
+// Strategy Hub — an index/overview page for all 49 standalone strategy pages, plus a
 // small live market snapshot (front-month IV, realized vol, vol risk premium, IV Rank)
 // computed the same way the other pages do, standalone/REST-only.
 
@@ -10,6 +10,15 @@ const $ = (id) => document.getElementById(id);
 
 const CATEGORIES = [
   {
+    title: "Directional Spreads (Verticals)",
+    items: [
+      { href: "strategy-bull-call-spread.html", title: "Bull Call Spread", desc: "Buy near-ATM call, sell further-OTM call — the most basic bullish debit spread.", risk: "defined" },
+      { href: "strategy-bear-call-spread.html", title: "Bear Call Spread", desc: "Sell near-ATM call, buy further-OTM call — a defined-risk bearish/neutral credit spread.", risk: "defined" },
+      { href: "strategy-bull-put-spread.html", title: "Bull Put Spread", desc: "Sell near-ATM put, buy further-OTM put — a defined-risk bullish/neutral credit spread.", risk: "defined" },
+      { href: "strategy-bear-put-spread.html", title: "Bear Put Spread", desc: "Buy near-ATM put, sell further-OTM put — the most basic bearish debit spread.", risk: "defined" },
+    ],
+  },
+  {
     title: "Volatility Selling",
     items: [
       { href: "strategy-premium-selling.html", title: "Premium Selling", desc: "Short strangle when IV is rich vs. realized vol.", risk: "undefined" },
@@ -19,6 +28,8 @@ const CATEGORIES = [
       { href: "strategy-broken-wing.html", title: "Broken Wing Butterfly", desc: "Asymmetric butterfly, often net credit — checks both flat regions honestly.", risk: "defined" },
       { href: "strategy-iron-butterfly.html", title: "Iron Butterfly", desc: "Short straddle + long wings — a single peak instead of the Condor's flat top.", risk: "defined" },
       { href: "strategy-broken-wing-condor.html", title: "Broken Wing Iron Condor", desc: "Independent put/call wing widths — an intentional lean instead of symmetric risk.", risk: "defined" },
+      { href: "strategy-call-condor.html", title: "Call Condor Spread", desc: "All-calls 4-strike condor — a wider, flatter-topped cousin of the Butterfly.", risk: "defined" },
+      { href: "strategy-put-condor.html", title: "Put Condor Spread", desc: "All-puts version of the Call Condor — identical payoff at the same 4 strikes.", risk: "defined" },
     ],
   },
   {
@@ -75,6 +86,8 @@ const CATEGORIES = [
       { href: "strategy-call-ladder.html", title: "Call Ladder (Christmas Tree)", desc: "Cheaper bull spread that flips into an uncapped short above the top strike.", risk: "undefined" },
       { href: "strategy-put-ratio-spread.html", title: "Put Ratio Spread (1×2)", desc: "Bearish mirror of the Call Ratio Spread — severe risk toward zero below breakeven.", risk: "undefined" },
       { href: "strategy-put-ladder.html", title: "Put Ladder (Christmas Tree)", desc: "Bearish mirror of the Call Ladder — loses its floor below the lowest strike.", risk: "undefined" },
+      { href: "strategy-naked-call.html", title: "Naked Call Writing", desc: "Sell a call with nothing behind it — the highest-risk-per-dollar structure here.", risk: "undefined" },
+      { href: "strategy-naked-put.html", title: "Naked Put Writing", desc: "Sell a put on margin instead of fully cash-secured — capital-efficient, leverage risk.", risk: "undefined" },
     ],
   },
   {

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Put Ratio Spread</title>
+<title>Bull Put Spread</title>
 <link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="brand">
       <a href="index.html" class="back-link">← Ladder</a>
       <div>
-        <h1>Put Ratio Spread (1×2)</h1>
-        <p class="subtitle">Buy 1 near-ATM put, sell 2 further-OTM puts — the bearish mirror of the Call Ratio Spread, with risk that runs down toward zero rather than up without limit</p>
+        <h1>Bull Put Spread</h1>
+        <p class="subtitle">Sell a near-ATM put, buy a further-OTM put for protection — a defined-risk credit bet that price stays above the short strike</p>
       </div>
     </div>
     <div class="status-cluster">
@@ -47,29 +47,29 @@
       <h2>Strategy Explained</h2>
     </div>
     <div class="explainer-body">
-      <p><strong>Construction:</strong> buy 1 near-ATM put, sell 2 puts at a further OTM (lower) strike — the bearish mirror of the Call Ratio Spread.</p>
-      <p><strong>Market view:</strong> mildly bearish down to the short strike, but not expecting a crash past it.</p>
-      <p><strong>Why trade it:</strong> like its call-side counterpart, often enterable for a small debit or credit since the second short put helps finance the long one.</p>
-      <p><strong>Max profit:</strong> (long strike − short strike) − net cost, achieved exactly at the short strike. <strong>Max loss:</strong> severe (though technically floor-bounded at BTC = 0) below the lower breakeven — for any realistic position size, this behaves like unlimited downside risk.</p>
-      <p><strong>Key risk:</strong> the bearish equivalent of the Call Ratio Spread's uncapped risk, just facing the other direction; not a defined-risk strategy.</p>
+      <p><strong>Construction:</strong> sell 1 near-ATM (or slightly OTM) put, buy 1 put at a further OTM strike for protection, same expiry — a defined-risk credit spread, the capped cousin of a naked short (cash-secured) put.</p>
+      <p><strong>Market view:</strong> neutral-to-bullish — profits as long as price stays above the short strike through expiry, without needing a rally.</p>
+      <p><strong>Why trade it:</strong> collects premium from a bullish-to-neutral view while capping the tail risk a naked short put would carry, at the cost of a lower credit than selling the put alone.</p>
+      <p><strong>Max profit:</strong> the net credit, kept if price finishes at or above the short strike. <strong>Max loss:</strong> (short strike − long strike) − net credit, at or below the long strike. <strong>Breakeven:</strong> short strike − net credit.</p>
+      <p><strong>Key risk:</strong> a decline past the long strike hits the full defined max loss — capped, but still a real, sizable loss relative to the credit collected.</p>
     </div>
   </section>
 
   <section class="market-stats">
     <div class="mstat mstat-wide">
-      <span class="mstat-label">Strikes (long / short×2)</span>
+      <span class="mstat-label">Strikes (long / short)</span>
       <span id="strikesStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Net Cost</span>
-      <span id="netCostStat" class="mstat-value">—</span>
+      <span class="mstat-label">Net Credit</span>
+      <span id="creditStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Max Profit (at short strike)</span>
-      <span id="maxProfitStat" class="mstat-value">—</span>
+      <span class="mstat-label">Max Loss</span>
+      <span id="maxLossStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Lower Breakeven (severe risk below)</span>
+      <span class="mstat-label">Breakeven</span>
       <span id="breakevenStat" class="mstat-value">—</span>
     </div>
     <div class="mstat" title="Risk-neutral probability under the legs' average IV, not a real-world/objective probability">
@@ -80,21 +80,20 @@
 
   <section class="chart-card chart-card-wide">
     <div class="panel-header">
-      <h2>Payoff at Expiry — <span id="ratioExpiry">—</span></h2>
+      <h2>Payoff at Expiry — <span id="spreadExpiry">—</span></h2>
       <span class="hint">Illustrative only — ignores fees/margin/early assignment</span>
     </div>
     <div id="payoffChart" class="svg-chart"></div>
   </section>
 
   <p class="chart-note">
-    <strong>Not financial advice.</strong> Below the lower breakeven, losses grow the
-    further price falls — technically capped only by BTC's price floor at zero, which for
-    any realistic position size is not a meaningful limit. This is the bearish equivalent
-    of the Call Ratio Spread page's uncapped upside risk, just facing the other direction.
+    <strong>Not financial advice.</strong> This is the defined-risk version of a cash-secured
+    put — the long put caps the loss well short of BTC going to zero, at the cost of a
+    smaller credit than selling the put alone.
   </p>
 
   <script src="quant.js?v=6"></script>
   <script src="strategy-nav.js?v=10"></script>
-  <script src="strategy-put-ratio-spread.js?v=1"></script>
+  <script src="strategy-bull-put-spread.js?v=1"></script>
 </body>
 </html>

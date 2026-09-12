@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Butterfly Spread — Pinning Play</title>
+<title>Put Condor Spread</title>
 <link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="brand">
       <a href="index.html" class="back-link">← Ladder</a>
       <div>
-        <h1>Butterfly Spread — Low-Volatility Pinning Play</h1>
-        <p class="subtitle">Buy 1 wing, sell 2 middle, buy 1 wing — cheap defined-risk bet that price finishes near the center</p>
+        <h1>Put Condor Spread</h1>
+        <p class="subtitle">Built entirely from puts: buy the outer wings, sell the inner body — the same payoff shape as the Call Condor at the same four strikes</p>
       </div>
     </div>
     <div class="status-cluster">
@@ -29,15 +29,15 @@
         <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
       </div>
       <div class="stat">
-        <span class="stat-label">Center on</span>
-        <select id="centerSelect" class="poll-rate-select">
-          <option value="atm" selected>ATM (spot)</option>
-          <option value="maxpain">Max Pain</option>
+        <span class="stat-label">Body half-width</span>
+        <select id="bodySelect" class="poll-rate-select">
+          <option value="5" selected>5% of spot</option>
+          <option value="10">10% of spot</option>
         </select>
       </div>
       <div class="stat">
         <span class="stat-label">Wing width</span>
-        <select id="widthSelect" class="poll-rate-select">
+        <select id="wingSelect" class="poll-rate-select">
           <option value="5">5% of spot</option>
           <option value="10" selected>10% of spot</option>
           <option value="15">15% of spot</option>
@@ -54,17 +54,17 @@
       <h2>Strategy Explained</h2>
     </div>
     <div class="explainer-body">
-      <p><strong>Construction:</strong> buy 1 lower-strike call, sell 2 center-strike calls, buy 1 upper-strike call, all at the same expiry (a put butterfly at the same strikes has the same payoff shape).</p>
-      <p><strong>Market view:</strong> neutral — a low-volatility "pinning" bet that price finishes very close to the center strike.</p>
-      <p><strong>Why trade it:</strong> a cheap, defined-risk way to bet on low realized volatility, or on a specific pin level such as ATM or the max-pain strike.</p>
-      <p><strong>Max profit:</strong> (center − lower strike) − net debit, achieved only if price finishes exactly at the center strike. <strong>Max loss:</strong> capped at the net debit paid — also the most likely single outcome, which is why butterflies are cheap.</p>
-      <p><strong>Key risk:</strong> low probability of hitting max profit exactly; most outcomes land somewhere between max profit and a full loss of the premium paid.</p>
+      <p><strong>Construction:</strong> buy 1 put at K4 (highest), sell 1 put at K3, sell 1 put at K2, buy 1 put at K1 (lowest) — the same four strikes as the Call Condor, built entirely from puts instead.</p>
+      <p><strong>Market view:</strong> neutral — identical to the Call Condor's view that price finishes between K2 and K3, since the two structures share the exact same payoff shape at expiry.</p>
+      <p><strong>Why trade it:</strong> functionally interchangeable with the Call Condor at the same strikes (verified numerically: the two produce identical payoffs at every price point) — which one is actually cheaper to put on in practice comes down to the specific bid/ask and skew on the day, not the underlying structure.</p>
+      <p><strong>Max profit:</strong> flat across the whole body (between K2 and K3), equal to (K3 − K4) − net debit... same magnitude as the Call Condor's formula, just built from the put side. <strong>Max loss:</strong> the net debit paid, identical on both tails when wings are equal width.</p>
+      <p><strong>Key risk:</strong> same as the Call Condor — the wider profit zone costs more than a tighter Butterfly-style structure would.</p>
     </div>
   </section>
 
   <section class="market-stats">
     <div class="mstat mstat-wide">
-      <span class="mstat-label">Strikes (long / short×2 / long)</span>
+      <span class="mstat-label">Strikes (K1 / K2 / K3 / K4)</span>
       <span id="strikesStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
@@ -72,14 +72,14 @@
       <span id="debitStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Max Profit (at center)</span>
+      <span class="mstat-label">Max Profit (flat, K2–K3)</span>
       <span id="maxProfitStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
       <span class="mstat-label">Breakevens</span>
       <span id="breakevenStat" class="mstat-value">—</span>
     </div>
-    <div class="mstat" title="Risk-neutral probability under center-strike IV, not a real-world/objective probability">
+    <div class="mstat" title="Risk-neutral probability under the body strikes' average IV, not a real-world/objective probability">
       <span class="mstat-label">Probability of Profit (live)</span>
       <span id="popStat" class="mstat-value">—</span>
     </div>
@@ -87,22 +87,20 @@
 
   <section class="chart-card chart-card-wide">
     <div class="panel-header">
-      <h2>Payoff at Expiry — <span id="flyExpiry">—</span></h2>
-      <span class="hint">Built from calls throughout (a put butterfly at the same strikes has the same payoff shape at expiry)</span>
+      <h2>Payoff at Expiry — <span id="condorExpiry">—</span></h2>
+      <span class="hint">Built from puts throughout — a call condor at the same 4 strikes has the identical payoff shape at expiry</span>
     </div>
     <div id="payoffChart" class="svg-chart"></div>
   </section>
 
   <p class="chart-note">
-    <strong>Not financial advice.</strong> Maximum loss is capped at the net debit paid,
-    but that's also the most common outcome if price doesn't land near the center strike —
-    butterflies have a low probability of hitting max profit and are cheap for exactly that
-    reason. Strike selection here rounds to the nearest listed strike on each wing, so the
-    position may not be perfectly symmetric.
+    <strong>Not financial advice.</strong> Strike selection rounds to the nearest listed
+    strike on each leg, so the position may not be perfectly symmetric even when the
+    selected widths are equal.
   </p>
 
   <script src="quant.js?v=6"></script>
   <script src="strategy-nav.js?v=10"></script>
-  <script src="strategy-butterfly.js?v=1"></script>
+  <script src="strategy-put-condor.js?v=1"></script>
 </body>
 </html>

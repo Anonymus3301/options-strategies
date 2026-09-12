@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Naked Call Writing</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Naked Call Writing</h1>
+        <p class="subtitle">Sell an OTM call with no held BTC and no long call behind it — pure premium income, with genuinely unlimited risk if price rallies</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Width</span>
+        <select id="widthSelect" class="poll-rate-select">
+          <option value="5">5% of spot</option>
+          <option value="10" selected>10% of spot</option>
+          <option value="15">15% of spot</option>
+          <option value="20">20% of spot</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> sell 1 OTM call, with nothing behind it — no held BTC (unlike a covered call) and no further-OTM long call for protection (unlike a Bear Call Spread).</p>
+      <p><strong>Market view:</strong> neutral-to-bearish — profits as long as price stays below the strike, without needing a decline.</p>
+      <p><strong>Why (some) traders use it:</strong> collects the largest possible credit for a given strike, since there's no protective leg eating into the premium — the tradeoff is carrying the position's full, uncapped tail risk alone rather than sharing it with a hedge.</p>
+      <p><strong>Max profit:</strong> the premium collected, kept if price finishes at or below the strike. <strong>Max loss:</strong> genuinely unlimited — there is no strike above which losses stop growing. <strong>Breakeven:</strong> strike + premium collected.</p>
+      <p><strong>Key risk:</strong> this is the highest-risk-per-dollar-of-margin structure on this site — a large, fast rally can produce a loss many multiples of the premium collected, with no built-in floor on how bad it can get.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Short Call Strike</span>
+      <span id="strikeStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Premium Collected</span>
+      <span id="premiumStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Breakeven (unlimited risk above)</span>
+      <span id="breakevenStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat" title="Risk-neutral probability under the strike's quoted IV, not a real-world/objective probability">
+      <span class="mstat-label">Probability of Profit (live)</span>
+      <span id="popStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Payoff at Expiry — <span id="callExpiry">—</span></h2>
+      <span class="hint">Illustrative only — ignores fees, margin requirements, and margin calls that would occur long before expiry on a large adverse move</span>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice — this structure has unlimited risk.</strong> This page
+    does not model margin requirements, which on a real exchange would force this position
+    closed (or require substantial additional collateral) well before losses reached the
+    scale a payoff-at-expiry chart alone would suggest.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=10"></script>
+  <script src="strategy-naked-call.js?v=1"></script>
+</body>
+</html>

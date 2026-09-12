@@ -44,6 +44,14 @@ const STRATEGY_PAGES = [
   { href: "strategy-seagull.html", label: "Seagull Spread" },
   { href: "strategy-broken-wing-condor.html", label: "Broken Wing Condor" },
   { href: "strategy-hedged-risk-reversal.html", label: "Delta-Hedged Risk Reversal" },
+  { href: "strategy-bull-call-spread.html", label: "Bull Call Spread" },
+  { href: "strategy-bear-call-spread.html", label: "Bear Call Spread" },
+  { href: "strategy-bull-put-spread.html", label: "Bull Put Spread" },
+  { href: "strategy-bear-put-spread.html", label: "Bear Put Spread" },
+  { href: "strategy-call-condor.html", label: "Call Condor" },
+  { href: "strategy-put-condor.html", label: "Put Condor" },
+  { href: "strategy-naked-call.html", label: "Naked Call" },
+  { href: "strategy-naked-put.html", label: "Naked Put" },
 ];
 
 const TOOL_PAGES = [

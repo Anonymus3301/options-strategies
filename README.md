@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Forty-one dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Forty-nine dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -242,13 +242,34 @@ financial advice, and each page's own disclaimer spells out its specific limitat
   lean; shows the resulting same-day mark-to-market sensitivity (not a payoff-at-expiry
   chart) hedged vs. unhedged, with an explicit caveat that the hedge is a one-time
   snapshot, not continuously maintained.
+- **[Bull Call Spread](strategy-bull-call-spread.html)**, **[Bear Call Spread](strategy-bear-call-spread.html)**,
+  **[Bull Put Spread](strategy-bull-put-spread.html)**, **[Bear Put Spread](strategy-bear-put-spread.html)** —
+  the four basic vertical spreads, oddly absent until now despite being the most commonly
+  traded options structures. Bull Call / Bear Call share identical strikes and are exact
+  portfolio negations of each other (verified: their debit/credit, max profit/loss, and
+  breakeven all match exactly, and their probabilities of profit sum to 100%) — same for
+  Bull Put / Bear Put.
+- **[Call Condor Spread](strategy-call-condor.html)** — buy the outer wings, sell the inner
+  body, all calls, four strikes instead of the Butterfly's three: a wider, flatter-topped
+  profit zone. Verified numerically that both tails are exactly equal (given equal wing
+  widths) and the whole flat top is a single constant.
+- **[Put Condor Spread](strategy-put-condor.html)** — the same structure built from puts;
+  verified to produce an identical payoff to the Call Condor at the same four strikes,
+  point for point.
+- **[Naked Call Writing](strategy-naked-call.html)** — a single short call with nothing
+  behind it: no held BTC, no protective long call. The highest risk-per-dollar-of-margin
+  structure on this site, flagged as such explicitly.
+- **[Naked Put Writing](strategy-naked-put.html)** — a single short put sold on margin
+  rather than fully cash-secured, contrasted directly against the Income Scanner's
+  cash-backed CSP framing.
 
 **[Strategy Hub](strategy-hub.html)** ties the set together: a live market snapshot
 (front-month ATM IV, realized vol, vol risk premium, IV Rank) plus every strategy page
-above, grouped into eight categories (Volatility Selling, Volatility Buying, Hedging &
-Income, Term Structure & Skew, Carry & Arbitrage-Adjacent, Cross-Asset & Sentiment,
-Undefined-Risk, and Advanced/Quant Techniques) with a one-line description and a
-defined/undefined-risk tag for each — a directory, not a recommendation engine.
+above, grouped into nine categories (Directional Spreads/Verticals, Volatility Selling,
+Volatility Buying, Hedging & Income, Term Structure & Skew, Carry & Arbitrage-Adjacent,
+Cross-Asset & Sentiment, Undefined-Risk, and Advanced/Quant Techniques) with a one-line
+description and a defined/undefined-risk tag for each — a directory, not a recommendation
+engine.
 
 Several pages share `localStorage` keys with the main dashboard's own IV Rank / Skew
 Rank features (same key names), so history accumulates regardless of which page — or how
@@ -256,14 +277,16 @@ many of them — a visitor has open in that browser.
 
 ### Live Probability of Profit
 
-Twenty-nine of the pages above show a live **Probability of Profit** stat, recomputed on
+Thirty-seven of the pages above show a live **Probability of Profit** stat, recomputed on
 every refresh from that page's own strikes, premiums, and quoted IV: Premium Selling,
 Skew Arbitrage, Long Volatility, Calendar Spread, Protective Put, Collar, Iron Condor,
 Butterfly, Jade Lizard, Ratio Spread, Diagonal Spread, Call Backspread, Strap/Strip,
 Broken Wing Butterfly, Iron Butterfly, Long Strangle, Guts, Call Ladder, Covered
 Strangle, Put Ratio Spread, Put Backspread, Put Ladder, Reverse Iron Condor, Covered
 Put, Poor Man's Covered Call, Poor Man's Covered Put, Double Calendar Spread, Seagull
-Spread, and Broken Wing Iron Condor.
+Spread, Broken Wing Iron Condor, Bull Call Spread, Bear Call Spread, Bull Put Spread,
+Bear Put Spread, Call Condor Spread, Put Condor Spread, Naked Call Writing, and Naked
+Put Writing.
 
 It's computed by numerically integrating each structure's own PnL-at-expiry function
 against the lognormal price distribution implied by the page's IV and time-to-expiry —
