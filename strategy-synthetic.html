@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Synthetic Forward — Conversion / Reversal</title>
+<link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Synthetic Forward — Conversion / Reversal</h1>
+        <p class="subtitle">Long call + short put ≈ synthetic long forward — compared against the actual dated future for the same expiry</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (options-implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Synthetic Forward (via options)</span>
+      <span id="syntheticStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Actual Dated Future</span>
+      <span id="actualStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Divergence</span>
+      <span id="divergenceStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Structure</h2>
+      <span class="hint">Synthetic forward built at the ATM strike (long call, short put)</span>
+    </div>
+    <div id="structureInfo" class="scanner-body">
+      <p class="loading">Loading…</p>
+    </div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice, and not risk-free in practice.</strong> A real
+    conversion/reversal also needs a matching-expiry dated future to actually exist (not
+    every options expiry has one), and executing all three legs (call, put, future)
+    simultaneously at quoted mark prices is an idealization — real fills, fees, and margin
+    all eat into any apparent edge. This page reports what current mark prices imply, not
+    an executable arbitrage.
+  </p>
+
+  <script src="quant.js?v=3"></script>
+  <script src="strategy-nav.js?v=3"></script>
+  <script src="strategy-synthetic.js?v=1"></script>
+</body>
+</html>
