@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Seven dedicated pages, each buildable purely from Deribit's free public REST API (no
+Twelve dedicated pages, each buildable purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
 and on each strategy page itself, and built on a shared `quant.js` (fetch helpers,
@@ -116,6 +116,22 @@ its specific limitations.
 - **[Max Pain / Pin Risk](strategy-maxpain.html)** — max pain strike and OI-by-strike
   chart per expiry, plus a table across every live expiry. Explicitly flagged as a
   contested theory with weak empirical support, not a forecast.
+- **[Calendar Spread](strategy-calendar.html)** — sell the front-month ATM straddle, buy
+  the back-month ATM straddle at the same strike; independent front/back expiry pickers,
+  an ATM IV term-structure sparkline, and a payoff-at-front-expiry chart that reprices the
+  still-alive back leg via Black-Scholes at its current IV (disclosed as a simplification).
+- **[Protective Put](strategy-protective-put.html)** — for holders, not sellers: cost of
+  downside insurance at a selectable floor (-5%/-10%/-20%/-30%) across every live expiry,
+  annualized so tenors are comparable, with a hedged-vs-unhedged payoff comparison.
+- **[Collar](strategy-collar.html)** — sells an OTM call to fund an OTM put at a
+  selectable floor, picking the call strike whose premium most closely offsets the put's
+  for a near-zero-cost hedge; shows the resulting floor/cap and a payoff comparison.
+- **[Iron Condor Builder](strategy-iron-condor.html)** — defined-risk premium selling:
+  short strikes near 20Δ (Black-Scholes delta from quoted IV), long wings at a selectable
+  width, with net credit, max profit/loss, breakevens, and a 4-leg payoff diagram.
+- **[PCR Contrarian Sentiment](strategy-pcr.html)** — whole-chain put/call ratio (every
+  live expiry combined), tracked vs. its own recent range (this-browser localStorage) and
+  read as a contrarian signal at extremes — flagged explicitly as weak and noisy.
 
 Several pages share `localStorage` keys with the main dashboard's own IV Rank / Skew
 Rank features (same key names), so history accumulates regardless of which page — or how
