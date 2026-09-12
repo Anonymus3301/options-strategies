@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Poor Man's Covered Call</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Poor Man's Covered Call (PMCC)</h1>
+        <p class="subtitle">A deep-ITM, far-dated call stands in for holding BTC; sell a near-dated OTM call against it for a capital-efficient, risk-defined alternative to a real covered call</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Front expiry</span>
+        <select id="frontSelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Long call target Δ</span>
+        <select id="backDeltaSelect" class="poll-rate-select">
+          <option value="0.7">70Δ</option>
+          <option value="0.8" selected>80Δ</option>
+          <option value="0.9">90Δ</option>
+        </select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Short call target Δ</span>
+        <select id="frontDeltaSelect" class="poll-rate-select">
+          <option value="0.2" selected>20Δ</option>
+          <option value="0.3">30Δ</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> buy a deep in-the-money call at the furthest available expiry (a high-delta call stands in for holding the underlying), then sell a near-dated out-of-the-money call against it — the same two-expiry, two-strike shape as the Diagonal Spread page, but with strikes deliberately chosen at the far ends (deep ITM / OTM) rather than near-ATM.</p>
+      <p><strong>Market view:</strong> bullish-to-neutral, same as a real covered call — willing to cap upside above the short strike in exchange for income, but wants the long leg to track BTC's price closely.</p>
+      <p><strong>Why trade it:</strong> the deep ITM call costs a fraction of spot (mostly intrinsic value plus a smaller amount of time value) instead of 100% of spot to actually hold BTC, freeing up capital while still moving roughly delta-for-delta with the underlying. Selling the near-dated call collects income against it, just like a covered call.</p>
+      <p><strong>Max profit:</strong> reached exactly at the short strike at front expiry (the long leg still has some remaining time value there, so it's usually a bit more than the naive "strike width minus debit" estimate). <strong>Max loss:</strong> capped at the net debit paid — a real advantage over an actual covered call, whose downside is only bounded by BTC reaching zero.</p>
+      <p><strong>Key risk:</strong> the long call's remaining value at front expiry is estimated via Black-Scholes at its <em>current</em> IV — a simplification, since IV can move by then — and the long call isn't a perfect substitute for spot: it still has some time value and delta below 1.0, so it won't track price exactly.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Strikes (long ITM call, far expiry / short OTM call, front expiry)</span>
+      <span id="strikesStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Net Debit</span>
+      <span id="debitStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Capital Efficiency (debit ÷ spot)</span>
+      <span id="capitalStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Max Profit (at the short strike)</span>
+      <span id="maxProfitStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Max Loss (capped at net debit)</span>
+      <span id="maxLossStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat" title="Risk-neutral probability at front expiry under front-month IV, not a real-world/objective probability">
+      <span class="mstat-label">Probability of Profit (live)</span>
+      <span id="popStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Payoff at Front Expiry</h2>
+      <span class="hint">Front leg settles at intrinsic; the long-dated back leg is repriced via Black-Scholes at its current IV, since it hasn't expired yet</span>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> "Far expiry" here means the furthest expiry
+    Deribit currently lists, not an actual multi-year LEAPS contract — crypto options don't
+    trade that far out. Capital efficiency is a real advantage (much less paid up front than
+    buying BTC outright), but the long call still expires eventually and needs to be rolled,
+    unlike BTC itself.
+  </p>
+
+  <script src="quant.js?v=5"></script>
+  <script src="strategy-nav.js?v=8"></script>
+  <script src="strategy-pmcc.js?v=1"></script>
+</body>
+</html>

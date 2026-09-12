@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gamma Scalping</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Gamma Scalping — Delta-Hedged Straddle Backtest</h1>
+        <p class="subtitle">What a daily-rehedged long ATM straddle would have earned over a trailing window of actual price history, split into hedge (gamma) P&L and option decay (theta) P&L</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Backtest window</span>
+        <select id="windowSelect" class="poll-rate-select">
+          <option value="14">14 days</option>
+          <option value="21" selected>21 days</option>
+          <option value="30">30 days</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> buy an ATM straddle, then re-hedge its delta with the underlying once a day, buying or selling just enough to stay flat. As price moves, the straddle's delta drifts away from zero (gamma), so each rehedge locks in a small trade — sell into strength, buy into weakness — regardless of which way price ultimately goes.</p>
+      <p><strong>Market view:</strong> direction-agnostic, like the Long Volatility page's straddle — but here the bet isn't "buy and hold," it's "realized volatility (captured via daily rehedging) will exceed the option's time decay."</p>
+      <p><strong>Why trade it:</strong> a delta-hedged long option position isolates a pure volatility bet: the rehedging trades accumulate gains proportional to gamma times the square of each day's move, while theta bleeds a roughly steady cost each day. If realized volatility runs hot enough, the hedge gains outrun the decay.</p>
+      <p><strong>Max profit / max loss:</strong> not fixed the way a static structure's is — both hedge P&L and option decay accumulate day by day over the window, so the outcome here is a backtested result over one specific historical path, not a forward-looking payoff diagram.</p>
+      <p><strong>Key risk:</strong> this needs active, disciplined rehedging (with real trading costs each time) to actually realize the gamma P&L shown — skip a day in a fast market and the whole thesis can break down.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Assumed Straddle (strike / entry spot / assumed IV)</span>
+      <span id="setupStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Entry Cost</span>
+      <span id="entryCostStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Cumulative Hedge P&L (gamma)</span>
+      <span id="hedgePnlStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Option Mark P&L (theta + reval)</span>
+      <span id="optionPnlStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Net P&L</span>
+      <span id="netPnlStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Realized Vol Over Window vs. Assumed IV</span>
+      <span id="volCompareStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Running Net P&L Over the Window</h2>
+      <span class="hint">Cumulative hedge trading gains plus the option's own mark-to-market change, day by day</span>
+    </div>
+    <div id="pnlChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice — and not a live simulation.</strong> This uses today's
+    ATM IV as a constant assumed pricing/hedging volatility across the entire backtest
+    window, because no historical implied-vol time series is available from this free API —
+    it isolates the effect of the realized price path while holding that vol assumption
+    fixed, which is a simplification. Rehedging is discretized to once per day, and no
+    trading fees, slippage, funding, or margin costs on the hedge are modeled. The strike
+    used is the nearest $500 level to the price at the start of the window, not a strike
+    actually listed on Deribit that far back.
+  </p>
+
+  <script src="quant.js?v=5"></script>
+  <script src="strategy-nav.js?v=8"></script>
+  <script src="strategy-gamma-scalping.js?v=1"></script>
+</body>
+</html>

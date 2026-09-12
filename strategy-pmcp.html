@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Poor Man's Covered Put</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Poor Man's Covered Put (PMCP)</h1>
+        <p class="subtitle">A deep-ITM, far-dated put stands in for a short BTC position; sell a near-dated OTM put against it — the bearish mirror of the PMCC</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Front expiry</span>
+        <select id="frontSelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Long put target Δ</span>
+        <select id="backDeltaSelect" class="poll-rate-select">
+          <option value="0.7">−70Δ</option>
+          <option value="0.8" selected>−80Δ</option>
+          <option value="0.9">−90Δ</option>
+        </select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Short put target Δ</span>
+        <select id="frontDeltaSelect" class="poll-rate-select">
+          <option value="0.2" selected>−20Δ</option>
+          <option value="0.3">−30Δ</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> buy a deep in-the-money put at the furthest available expiry (a high-delta put stands in for a short BTC position), then sell a near-dated out-of-the-money put against it — the bearish mirror of the Poor Man's Covered Call.</p>
+      <p><strong>Market view:</strong> bearish-to-neutral, same as a real covered put — willing to cap profit below the short strike in exchange for income, wanting the long leg to track BTC's decline closely.</p>
+      <p><strong>Why trade it:</strong> the deep ITM put costs a fraction of spot instead of the full margin/capital a real short position ties up, while still moving roughly delta-for-delta with the underlying. Selling the near-dated put collects income against it.</p>
+      <p><strong>Max profit:</strong> reached exactly at the short strike at front expiry (the long leg still has some remaining time value there, so it's usually a bit more than the naive "strike width minus debit" estimate). <strong>Max loss:</strong> capped at the net debit paid — a real advantage over an actual short position, whose downside is unlimited if price rises.</p>
+      <p><strong>Key risk:</strong> the long put's remaining value at front expiry is estimated via Black-Scholes at its <em>current</em> IV — a simplification, since IV can move by then — and the long put isn't a perfect substitute for a short position: it still has time value and a delta below 1.0 in magnitude, so it won't track price exactly.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Strikes (short OTM put, front expiry / long ITM put, far expiry)</span>
+      <span id="strikesStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Net Debit</span>
+      <span id="debitStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Capital Efficiency (debit ÷ spot)</span>
+      <span id="capitalStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Max Profit (at the short strike)</span>
+      <span id="maxProfitStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Max Loss (capped at net debit)</span>
+      <span id="maxLossStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat" title="Risk-neutral probability at front expiry under front-month IV, not a real-world/objective probability">
+      <span class="mstat-label">Probability of Profit (live)</span>
+      <span id="popStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Payoff at Front Expiry</h2>
+      <span class="hint">Front leg settles at intrinsic; the long-dated back leg is repriced via Black-Scholes at its current IV, since it hasn't expired yet</span>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> "Far expiry" here means the furthest expiry
+    Deribit currently lists, not a multi-year LEAPS contract — crypto options don't trade
+    that far out. Capital efficiency is real, but the long put still expires eventually and
+    needs to be rolled, unlike an actual short position.
+  </p>
+
+  <script src="quant.js?v=5"></script>
+  <script src="strategy-nav.js?v=8"></script>
+  <script src="strategy-pmcp.js?v=1"></script>
+</body>
+</html>

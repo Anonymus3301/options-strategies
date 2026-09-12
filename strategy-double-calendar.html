@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Double Calendar Spread</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Double Calendar Spread</h1>
+        <p class="subtitle">Two calendar spreads stacked at OTM strikes on both sides — a wider, flatter neutral profit zone than the single ATM Calendar Spread, at a higher cost</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Front expiry</span>
+        <select id="frontSelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Back expiry</span>
+        <select id="backSelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Strike width</span>
+        <select id="widthSelect" class="poll-rate-select">
+          <option value="5">5% of spot</option>
+          <option value="10" selected>10% of spot</option>
+          <option value="15">15% of spot</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> two calendar spreads run side by side — sell a front-month OTM call and buy a back-month call at the same (higher) strike, plus sell a front-month OTM put and buy a back-month put at the same (lower) strike. Four legs, two expiries, two strikes.</p>
+      <p><strong>Market view:</strong> neutral, like the single ATM Calendar Spread, but betting price stays inside a <em>range</em> between the two strikes rather than pinning to one exact point.</p>
+      <p><strong>Why trade it:</strong> a single ATM calendar's profit zone is narrow and peaks at one strike; spreading the two calendars out to OTM strikes on both sides trades some of that peak profit for a much wider zone where the position still works, at the cost of paying for two calendars instead of one.</p>
+      <p><strong>Max loss:</strong> the total net debit paid, if price makes a big enough move that both front legs finish deep ITM before their back-month replacements can offset it. <strong>Max profit:</strong> not a single clean number — it depends on where price sits relative to both strikes at front expiry; see the payoff chart.</p>
+      <p><strong>Key risk:</strong> both back legs' remaining value at front expiry are estimated via Black-Scholes at their <em>current</em> IV — a simplification, since IV can move by then — and this costs more upfront than a single calendar for a wider (not unlimited) range of safety.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Strikes (put side / call side)</span>
+      <span id="strikesStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Front Premium Received</span>
+      <span id="frontPremiumStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Back Premium Paid</span>
+      <span id="backPremiumStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Net Debit</span>
+      <span id="netDebitStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat" title="Risk-neutral probability at front expiry under front-month IV, not a real-world/objective probability">
+      <span class="mstat-label">Probability of Profit (live)</span>
+      <span id="popStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Payoff at Front Expiry</h2>
+      <span class="hint">Both front legs settle at intrinsic; both back legs are repriced via Black-Scholes at their current IV, since neither has expired yet</span>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Requires the same two strikes (one for puts, one
+    for calls) to actually be listed in both the front and back expiry's chains — thin
+    chains may not have a match, in which case this page shows "no data" for that
+    combination rather than guessing a substitute strike.
+  </p>
+
+  <script src="quant.js?v=5"></script>
+  <script src="strategy-nav.js?v=8"></script>
+  <script src="strategy-double-calendar.js?v=1"></script>
+</body>
+</html>

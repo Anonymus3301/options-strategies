@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Variance Swap</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Variance Swap — Model-Free Implied Volatility</h1>
+        <p class="subtitle">The whole-chain, VIX/DVOL-style "fair" volatility, replicated from a portfolio of options weighted 1/K² — a more rigorous read of the vol risk premium than ATM IV alone</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> a variance swap's fair strike can be "replicated" by a static portfolio of out-of-the-money options across every listed strike, each weighted by 1/K² (the "log contract" — the same construction behind the CBOE VIX and Deribit's own DVOL index). This page computes that fair strike from the live chain and reports it as a volatility percentage.</p>
+      <p><strong>Market view:</strong> none by itself — this is a measurement tool, not a position. It's a more rigorous, whole-curve alternative to reading a single ATM IV number when judging whether volatility is "rich" or "cheap."</p>
+      <p><strong>Why it matters:</strong> a single ATM IV ignores the skew and smile entirely. The model-free fair vol aggregates every strike's price, so it moves when skew steepens even if ATM IV itself hasn't — a subtler read on how richly volatility is priced across the whole distribution, not just the center of it.</p>
+      <p><strong>How to use it:</strong> compare fair vol against realized vol the same way the Premium Selling and Long Volatility pages compare ATM IV against realized vol — a large positive gap favors selling volatility broadly (not just ATM), a large negative gap favors buying it.</p>
+      <p><strong>Key risk / caveat:</strong> this is a discretized approximation using whatever strikes are actually listed and quoted — thin chains (few strikes, gaps in quotes) make it less accurate, and it says nothing about which specific strikes or structure to trade.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Fair Vol (variance swap)</span>
+      <span id="fairVolStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">ATM IV (single strike)</span>
+      <span id="atmIvStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Realized Vol (7/14/30D)</span>
+      <span id="rvolStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Variance Risk Premium (Fair Vol − 30D RVol)</span>
+      <span id="premiumStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Skew Contribution (Fair Vol − ATM IV)</span>
+      <span id="skewContribStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Fair Vol vs. ATM IV vs. Realized Vol</h2>
+      <span class="hint">Same units (annualized %), directly comparable</span>
+    </div>
+    <div id="barChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> This uses Deribit's free public chain snapshot,
+    not a curated, arbitrage-free surface — thin or stale quotes at far strikes can pull
+    the fair vol number around more than a real variance swap desk's number would move.
+    Requires at least a handful of quoted strikes on both sides of spot; expiries with a
+    thin chain will show "insufficient data."
+  </p>
+
+  <script src="quant.js?v=5"></script>
+  <script src="strategy-nav.js?v=8"></script>
+  <script src="strategy-variance-swap.js?v=1"></script>
+</body>
+</html>

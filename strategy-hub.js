@@ -1,4 +1,4 @@
-// Strategy Hub — an index/overview page for all 31 standalone strategy pages, plus a
+// Strategy Hub — an index/overview page for all 36 standalone strategy pages, plus a
 // small live market snapshot (front-month IV, realized vol, vol risk premium, IV Rank)
 // computed the same way the other pages do, standalone/REST-only.
 
@@ -73,6 +73,16 @@ const CATEGORIES = [
       { href: "strategy-call-ladder.html", title: "Call Ladder (Christmas Tree)", desc: "Cheaper bull spread that flips into an uncapped short above the top strike.", risk: "undefined" },
       { href: "strategy-put-ratio-spread.html", title: "Put Ratio Spread (1×2)", desc: "Bearish mirror of the Call Ratio Spread — severe risk toward zero below breakeven.", risk: "undefined" },
       { href: "strategy-put-ladder.html", title: "Put Ladder (Christmas Tree)", desc: "Bearish mirror of the Call Ladder — loses its floor below the lowest strike.", risk: "undefined" },
+    ],
+  },
+  {
+    title: "Advanced / Quant Techniques",
+    items: [
+      { href: "strategy-variance-swap.html", title: "Variance Swap", desc: "Model-free implied vol (VIX/DVOL-style) from the whole chain, not just ATM IV.", risk: "defined" },
+      { href: "strategy-gamma-scalping.html", title: "Gamma Scalping", desc: "Backtests a daily-rehedged long straddle over real price history.", risk: "defined" },
+      { href: "strategy-pmcc.html", title: "Poor Man's Covered Call", desc: "Deep-ITM long-dated call stands in for spot — capital-efficient, risk-defined.", risk: "defined" },
+      { href: "strategy-pmcp.html", title: "Poor Man's Covered Put", desc: "Bearish mirror of the PMCC — deep-ITM long-dated put stands in for a short.", risk: "defined" },
+      { href: "strategy-double-calendar.html", title: "Double Calendar Spread", desc: "Two calendars stacked at OTM strikes for a wider neutral profit zone.", risk: "defined" },
     ],
   },
 ];

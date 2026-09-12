@@ -34,6 +34,11 @@ const STRATEGY_PAGES = [
   { href: "strategy-put-ladder.html", label: "Put Ladder" },
   { href: "strategy-reverse-iron-condor.html", label: "Reverse Iron Condor" },
   { href: "strategy-covered-put.html", label: "Covered Put" },
+  { href: "strategy-variance-swap.html", label: "Variance Swap" },
+  { href: "strategy-gamma-scalping.html", label: "Gamma Scalping" },
+  { href: "strategy-pmcc.html", label: "Poor Man's Covered Call" },
+  { href: "strategy-pmcp.html", label: "Poor Man's Covered Put" },
+  { href: "strategy-double-calendar.html", label: "Double Calendar" },
 ];
 
 const TOOL_PAGES = [

@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Thirty-one dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Thirty-six dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -199,13 +199,36 @@ financial advice, and each page's own disclaimer spells out its specific limitat
 - **[Covered Put](strategy-covered-put.html)** — for a short BTC position: sell an OTM put
   for extra income, the bearish mirror of a covered call. Profit caps at the put strike;
   a rally carries unlimited loss, same as any naked short.
+- **[Variance Swap](strategy-variance-swap.html)** — the model-free implied volatility
+  (the same "log contract" replication behind the CBOE VIX and Deribit's own DVOL): a
+  static portfolio of options weighted 1/K² across the whole chain, aggregating skew and
+  smile into one fair volatility number instead of a single ATM IV reading. Verified
+  against a synthetic flat-IV chain (recovers the input IV within ~0.03pp) and against a
+  skewed one (correctly reads richer than ATM IV when puts are bid up).
+- **[Gamma Scalping](strategy-gamma-scalping.html)** — backtests a daily-rehedged long ATM
+  straddle over a trailing window of actual BTC-PERPETUAL closes, decomposing the result
+  into cumulative hedge P&L (gamma) and the option's own mark-to-market change (theta).
+  Uses today's ATM IV as a constant assumed vol throughout, since no historical IV series
+  is available — disclosed as a simplification.
+- **[Poor Man's Covered Call](strategy-pmcc.html)** — a deep-ITM, far-dated call stands in
+  for holding BTC; sell a near-dated OTM call against it. Max profit is computed exactly
+  (verified numerically: the payoff's true peak sits exactly at the short strike, slightly
+  above the naive "strike width minus debit" estimate due to the long leg's remaining time
+  value there) and max loss is capped at the net debit — a real edge over an actual covered
+  call, whose downside is only bounded by BTC reaching zero.
+- **[Poor Man's Covered Put](strategy-pmcp.html)** — the bearish mirror of the PMCC: a
+  deep-ITM, far-dated put stands in for a short position, with a near-dated OTM put sold
+  against it.
+- **[Double Calendar Spread](strategy-double-calendar.html)** — two calendar spreads
+  stacked at OTM strikes on both sides (call side and put side), trading the single ATM
+  Calendar Spread's narrow peak for a wider, flatter neutral profit zone at a higher cost.
 
 **[Strategy Hub](strategy-hub.html)** ties the set together: a live market snapshot
 (front-month ATM IV, realized vol, vol risk premium, IV Rank) plus every strategy page
-above, grouped into seven categories (Volatility Selling, Volatility Buying, Hedging &
-Income, Term Structure & Skew, Carry & Arbitrage-Adjacent, Cross-Asset & Sentiment, and
-Undefined-Risk) with a one-line description and a defined/undefined-risk tag for each —
-a directory, not a recommendation engine.
+above, grouped into eight categories (Volatility Selling, Volatility Buying, Hedging &
+Income, Term Structure & Skew, Carry & Arbitrage-Adjacent, Cross-Asset & Sentiment,
+Undefined-Risk, and Advanced/Quant Techniques) with a one-line description and a
+defined/undefined-risk tag for each — a directory, not a recommendation engine.
 
 Several pages share `localStorage` keys with the main dashboard's own IV Rank / Skew
 Rank features (same key names), so history accumulates regardless of which page — or how
@@ -213,13 +236,13 @@ many of them — a visitor has open in that browser.
 
 ### Live Probability of Profit
 
-Twenty-four of the pages above show a live **Probability of Profit** stat, recomputed on
+Twenty-seven of the pages above show a live **Probability of Profit** stat, recomputed on
 every refresh from that page's own strikes, premiums, and quoted IV: Premium Selling,
 Skew Arbitrage, Long Volatility, Calendar Spread, Protective Put, Collar, Iron Condor,
 Butterfly, Jade Lizard, Ratio Spread, Diagonal Spread, Call Backspread, Strap/Strip,
 Broken Wing Butterfly, Iron Butterfly, Long Strangle, Guts, Call Ladder, Covered
-Strangle, Put Ratio Spread, Put Backspread, Put Ladder, Reverse Iron Condor, and Covered
-Put.
+Strangle, Put Ratio Spread, Put Backspread, Put Ladder, Reverse Iron Condor, Covered
+Put, Poor Man's Covered Call, Poor Man's Covered Put, and Double Calendar Spread.
 
 It's computed by numerically integrating each structure's own PnL-at-expiry function
 against the lognormal price distribution implied by the page's IV and time-to-expiry —
