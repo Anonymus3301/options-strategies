@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Broken Wing Butterfly</title>
+<title>Put Ladder</title>
 <link rel="stylesheet" href="styles.css?v=7" />
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="brand">
       <a href="index.html" class="back-link">← Ladder</a>
       <div>
-        <h1>Broken Wing Butterfly (Call)</h1>
-        <p class="subtitle">An asymmetric butterfly — wider upper wing financed by the short strikes, often for a net credit</p>
+        <h1>Put Ladder (Christmas Tree)</h1>
+        <p class="subtitle">Buy 1 near-ATM put, sell 1 further-OTM put, sell 1 even further-OTM put — the bearish mirror of the Call Ladder</p>
       </div>
     </div>
     <div class="status-cluster">
@@ -29,18 +29,18 @@
         <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
       </div>
       <div class="stat">
-        <span class="stat-label">Inner (lower) wing</span>
+        <span class="stat-label">Inner width (K1→K2)</span>
         <select id="innerSelect" class="poll-rate-select">
           <option value="5" selected>5% of spot</option>
           <option value="10">10% of spot</option>
         </select>
       </div>
       <div class="stat">
-        <span class="stat-label">Outer (upper) wing</span>
+        <span class="stat-label">Outer width (K2→K3)</span>
         <select id="outerSelect" class="poll-rate-select">
-          <option value="10">10% of spot</option>
-          <option value="15" selected>15% of spot</option>
-          <option value="20">20% of spot</option>
+          <option value="5">5% of spot</option>
+          <option value="10" selected>10% of spot</option>
+          <option value="15">15% of spot</option>
         </select>
       </div>
     </div>
@@ -51,7 +51,7 @@
 
   <section class="market-stats">
     <div class="mstat mstat-wide">
-      <span class="mstat-label">Strikes (long / short×2 / long)</span>
+      <span class="mstat-label">Strikes (long K1 / short K2 / short K3)</span>
       <span id="strikesStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
@@ -59,14 +59,14 @@
       <span id="costStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Max Profit (at center)</span>
+      <span class="mstat-label">Max Profit (plateau, K3 to K2)</span>
       <span id="maxProfitStat" class="mstat-value">—</span>
     </div>
     <div class="mstat mstat-wide">
-      <span class="mstat-label">Risk Above Upper Wing?</span>
-      <span id="upsideRiskStat" class="mstat-value">—</span>
+      <span class="mstat-label">Breakevens</span>
+      <span id="breakevenStat" class="mstat-value">—</span>
     </div>
-    <div class="mstat" title="Risk-neutral probability under center-strike IV, not a real-world/objective probability">
+    <div class="mstat" title="Risk-neutral probability under the legs' average IV, not a real-world/objective probability">
       <span class="mstat-label">Probability of Profit (live)</span>
       <span id="popStat" class="mstat-value">—</span>
     </div>
@@ -74,21 +74,21 @@
 
   <section class="chart-card chart-card-wide">
     <div class="panel-header">
-      <h2>Payoff at Expiry — <span id="bwbExpiry">—</span></h2>
-      <span class="hint">Watch the flat region past the upper wing — it can sit above or below zero depending on the credit</span>
+      <h2>Payoff at Expiry — <span id="ladderExpiry">—</span></h2>
+      <span class="hint">Rises like a bear put spread down to K2, plateaus between K3 and K2, then loses $1 per $1 below K3, bounded only by BTC's floor at zero</span>
     </div>
     <div id="payoffChart" class="svg-chart"></div>
   </section>
 
   <p class="chart-note">
-    <strong>Not financial advice.</strong> Unlike a symmetric butterfly, the two flat
-    regions outside the wings are generally different values here — this page reports both
-    explicitly rather than assuming one is safe. Losses below the lower wing are still
-    possible (bounded, not unlimited) if the net cost was a debit.
+    <strong>Not financial advice.</strong> Selling the second put (K3) is what makes this
+    cheaper than a plain bear put spread, but it's also what removes the floor on further
+    losses below K3 — technically capped only at zero, which for most position sizes is not
+    a meaningful limit. This structure is a bet on a moderate decline, not a crash.
   </p>
 
   <script src="quant.js?v=4"></script>
   <script src="strategy-nav.js?v=7"></script>
-  <script src="strategy-broken-wing.js?v=1"></script>
+  <script src="strategy-put-ladder.js?v=1"></script>
 </body>
 </html>

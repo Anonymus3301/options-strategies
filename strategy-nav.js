@@ -29,6 +29,11 @@ const STRATEGY_PAGES = [
   { href: "strategy-guts.html", label: "Guts (ITM Strangle)" },
   { href: "strategy-call-ladder.html", label: "Call Ladder" },
   { href: "strategy-covered-strangle.html", label: "Covered Strangle" },
+  { href: "strategy-put-ratio-spread.html", label: "Put Ratio Spread" },
+  { href: "strategy-put-backspread.html", label: "Put Backspread" },
+  { href: "strategy-put-ladder.html", label: "Put Ladder" },
+  { href: "strategy-reverse-iron-condor.html", label: "Reverse Iron Condor" },
+  { href: "strategy-covered-put.html", label: "Covered Put" },
 ];
 
 const TOOL_PAGES = [

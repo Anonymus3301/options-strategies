@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Guts (ITM Strangle)</title>
+<title>Put Ratio Spread</title>
 <link rel="stylesheet" href="styles.css?v=7" />
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="brand">
       <a href="index.html" class="back-link">← Ladder</a>
       <div>
-        <h1>Guts (In-the-Money Strangle)</h1>
-        <p class="subtitle">Buy an ITM call and an ITM put — same payoff slope as a strangle, but with a guaranteed minimum value locked in between the strikes</p>
+        <h1>Put Ratio Spread (1×2)</h1>
+        <p class="subtitle">Buy 1 near-ATM put, sell 2 further-OTM puts — the bearish mirror of the Call Ratio Spread, with risk that runs down toward zero rather than up without limit</p>
       </div>
     </div>
     <div class="status-cluster">
@@ -29,7 +29,7 @@
         <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
       </div>
       <div class="stat">
-        <span class="stat-label">How far ITM</span>
+        <span class="stat-label">Width</span>
         <select id="widthSelect" class="poll-rate-select">
           <option value="5">5% of spot</option>
           <option value="10" selected>10% of spot</option>
@@ -44,23 +44,19 @@
 
   <section class="market-stats">
     <div class="mstat mstat-wide">
-      <span class="mstat-label">Strikes (long ITM call / long ITM put)</span>
+      <span class="mstat-label">Strikes (long / short×2)</span>
       <span id="strikesStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Total Cost</span>
-      <span id="costStat" class="mstat-value">—</span>
+      <span class="mstat-label">Net Cost</span>
+      <span id="netCostStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Locked-in Minimum Value</span>
-      <span id="lockedStat" class="mstat-value">—</span>
+      <span class="mstat-label">Max Profit (at short strike)</span>
+      <span id="maxProfitStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Cost Above Locked-in Value</span>
-      <span id="excessStat" class="mstat-value">—</span>
-    </div>
-    <div class="mstat mstat-wide">
-      <span class="mstat-label">Breakevens</span>
+      <span class="mstat-label">Lower Breakeven (severe risk below)</span>
       <span id="breakevenStat" class="mstat-value">—</span>
     </div>
     <div class="mstat" title="Risk-neutral probability under the legs' average IV, not a real-world/objective probability">
@@ -71,22 +67,21 @@
 
   <section class="chart-card chart-card-wide">
     <div class="panel-header">
-      <h2>Payoff at Expiry — <span id="gutsExpiry">—</span></h2>
-      <span class="hint">Both legs sit in-the-money, so between the two strikes their intrinsic values sum to a constant — the flat "locked-in" region on the chart</span>
+      <h2>Payoff at Expiry — <span id="ratioExpiry">—</span></h2>
+      <span class="hint">Illustrative only — ignores fees/margin/early assignment</span>
     </div>
     <div id="payoffChart" class="svg-chart"></div>
   </section>
 
   <p class="chart-note">
-    <strong>Not financial advice.</strong> By put-call parity, Guts should cost roughly the
-    same as an equivalent out-of-the-money strangle plus the locked-in minimum value shown
-    above — it is not "extra" insurance, just prepaid intrinsic value returned to you
-    unconditionally at expiry. The "Cost Above Locked-in Value" figure is the true premium
-    genuinely at risk, and is what should be compared against an OTM strangle's cost.
+    <strong>Not financial advice.</strong> Below the lower breakeven, losses grow the
+    further price falls — technically capped only by BTC's price floor at zero, which for
+    any realistic position size is not a meaningful limit. This is the bearish equivalent
+    of the Call Ratio Spread page's uncapped upside risk, just facing the other direction.
   </p>
 
   <script src="quant.js?v=4"></script>
   <script src="strategy-nav.js?v=7"></script>
-  <script src="strategy-guts.js?v=1"></script>
+  <script src="strategy-put-ratio-spread.js?v=1"></script>
 </body>
 </html>

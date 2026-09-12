@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Twenty-six dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Thirty-one dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -179,6 +179,24 @@ its specific limitations.
   and an OTM put against a held position. The call behaves like a covered call; the put
   does not — it doubles the effective downside slope below the put strike, flagged
   explicitly as not a hedge.
+- **[Put Ratio Spread](strategy-put-ratio-spread.html)** — buy 1 near-ATM put, sell 2
+  further-OTM puts; the bearish mirror of the Call Ratio Spread, with severe (though
+  floor-bounded) risk below breakeven instead of literally unlimited risk above it.
+- **[Put Backspread](strategy-put-backspread.html)** — sell 1 near-ATM put, buy 2
+  further-OTM puts; the bearish mirror of the Call Backspread. Cross-checks exactly against
+  Put Ratio Spread at the same strikes: the two portfolios are exact negations of each
+  other, so their costs, breakevens, and probabilities of profit (which sum to 100%) all
+  match algebraically.
+- **[Put Ladder (Christmas Tree)](strategy-put-ladder.html)** — buy 1 near-ATM put, sell 1
+  further-OTM put, sell 1 even further-OTM put; the bearish mirror of the Call Ladder, with
+  a profit plateau that gives way to severe losses toward zero below the lowest strike.
+- **[Reverse Iron Condor](strategy-reverse-iron-condor.html)** — buy an inner strangle,
+  sell an outer strangle to help fund it; the debit mirror of the Iron Condor, with a flat
+  loss zone between the inner strikes instead of a flat profit plateau, and capped gains
+  outside the outer strikes.
+- **[Covered Put](strategy-covered-put.html)** — for a short BTC position: sell an OTM put
+  for extra income, the bearish mirror of a covered call. Profit caps at the put strike;
+  a rally carries unlimited loss, same as any naked short.
 
 **[Strategy Hub](strategy-hub.html)** ties the set together: a live market snapshot
 (front-month ATM IV, realized vol, vol risk premium, IV Rank) plus every strategy page
@@ -193,12 +211,13 @@ many of them — a visitor has open in that browser.
 
 ### Live Probability of Profit
 
-Nineteen of the pages above show a live **Probability of Profit** stat, recomputed on
+Twenty-four of the pages above show a live **Probability of Profit** stat, recomputed on
 every refresh from that page's own strikes, premiums, and quoted IV: Premium Selling,
 Skew Arbitrage, Long Volatility, Calendar Spread, Protective Put, Collar, Iron Condor,
 Butterfly, Jade Lizard, Ratio Spread, Diagonal Spread, Call Backspread, Strap/Strip,
-Broken Wing Butterfly, Iron Butterfly, Long Strangle, Guts, Call Ladder, and Covered
-Strangle.
+Broken Wing Butterfly, Iron Butterfly, Long Strangle, Guts, Call Ladder, Covered
+Strangle, Put Ratio Spread, Put Backspread, Put Ladder, Reverse Iron Condor, and Covered
+Put.
 
 It's computed by numerically integrating each structure's own PnL-at-expiry function
 against the lognormal price distribution implied by the page's IV and time-to-expiry —

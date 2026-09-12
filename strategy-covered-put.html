@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Guts (ITM Strangle)</title>
+<title>Covered Put</title>
 <link rel="stylesheet" href="styles.css?v=7" />
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="brand">
       <a href="index.html" class="back-link">← Ladder</a>
       <div>
-        <h1>Guts (In-the-Money Strangle)</h1>
-        <p class="subtitle">Buy an ITM call and an ITM put — same payoff slope as a strangle, but with a guaranteed minimum value locked in between the strikes</p>
+        <h1>Covered Put (Synthetic Short + Short Put)</h1>
+        <p class="subtitle">For a short BTC position: sell an OTM put for extra income — the bearish mirror of a covered call, with capped profit and unlimited risk if price rises</p>
       </div>
     </div>
     <div class="status-cluster">
@@ -29,7 +29,7 @@
         <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
       </div>
       <div class="stat">
-        <span class="stat-label">How far ITM</span>
+        <span class="stat-label">Put width (below spot)</span>
         <select id="widthSelect" class="poll-rate-select">
           <option value="5">5% of spot</option>
           <option value="10" selected>10% of spot</option>
@@ -43,27 +43,23 @@
   <nav class="strategy-nav" id="toolsNav"></nav>
 
   <section class="market-stats">
-    <div class="mstat mstat-wide">
-      <span class="mstat-label">Strikes (long ITM call / long ITM put)</span>
-      <span id="strikesStat" class="mstat-value">—</span>
+    <div class="mstat">
+      <span class="mstat-label">Short Put Strike</span>
+      <span id="strikeStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Total Cost</span>
-      <span id="costStat" class="mstat-value">—</span>
+      <span class="mstat-label">Premium Received</span>
+      <span id="premiumStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Locked-in Minimum Value</span>
-      <span id="lockedStat" class="mstat-value">—</span>
+      <span class="mstat-label">Max Profit (at or below the put strike)</span>
+      <span id="maxProfitStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Cost Above Locked-in Value</span>
-      <span id="excessStat" class="mstat-value">—</span>
-    </div>
-    <div class="mstat mstat-wide">
-      <span class="mstat-label">Breakevens</span>
+      <span class="mstat-label">Upside Breakeven (unlimited risk above)</span>
       <span id="breakevenStat" class="mstat-value">—</span>
     </div>
-    <div class="mstat" title="Risk-neutral probability under the legs' average IV, not a real-world/objective probability">
+    <div class="mstat" title="Risk-neutral probability under the put's quoted IV, not a real-world/objective probability">
       <span class="mstat-label">Probability of Profit (live)</span>
       <span id="popStat" class="mstat-value">—</span>
     </div>
@@ -71,22 +67,23 @@
 
   <section class="chart-card chart-card-wide">
     <div class="panel-header">
-      <h2>Payoff at Expiry — <span id="gutsExpiry">—</span></h2>
-      <span class="hint">Both legs sit in-the-money, so between the two strikes their intrinsic values sum to a constant — the flat "locked-in" region on the chart</span>
+      <h2>Covered Put vs. Unhedged Short — <span id="payoffExpiry">—</span></h2>
+      <span class="hint">Short 1 BTC (synthetic, e.g. via a future) + short put vs. the short position alone, at expiry</span>
     </div>
     <div id="payoffChart" class="svg-chart"></div>
   </section>
 
   <p class="chart-note">
-    <strong>Not financial advice.</strong> By put-call parity, Guts should cost roughly the
-    same as an equivalent out-of-the-money strangle plus the locked-in minimum value shown
-    above — it is not "extra" insurance, just prepaid intrinsic value returned to you
-    unconditionally at expiry. The "Cost Above Locked-in Value" figure is the true premium
-    genuinely at risk, and is what should be compared against an OTM strangle's cost.
+    <strong>Not financial advice.</strong> This page assumes a short BTC notional (for
+    example via a dated future or the perpetual) the same way the Protective Put and Collar
+    pages assume a held long position — it does not fetch or account for an actual futures
+    position, funding costs, or margin. Profit is capped once price falls to the put
+    strike, since the position is unwound there in effect; if price rises instead, losses
+    are unlimited, same as any naked short.
   </p>
 
   <script src="quant.js?v=4"></script>
   <script src="strategy-nav.js?v=7"></script>
-  <script src="strategy-guts.js?v=1"></script>
+  <script src="strategy-covered-put.js?v=1"></script>
 </body>
 </html>

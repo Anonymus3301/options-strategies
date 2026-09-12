@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Broken Wing Butterfly</title>
+<title>Reverse Iron Condor</title>
 <link rel="stylesheet" href="styles.css?v=7" />
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="brand">
       <a href="index.html" class="back-link">← Ladder</a>
       <div>
-        <h1>Broken Wing Butterfly (Call)</h1>
-        <p class="subtitle">An asymmetric butterfly — wider upper wing financed by the short strikes, often for a net credit</p>
+        <h1>Reverse Iron Condor</h1>
+        <p class="subtitle">Buy an inner strangle, sell an outer strangle to help fund it — a defined-risk, debit bet on a big move in either direction, capped both ways</p>
       </div>
     </div>
     <div class="status-cluster">
@@ -29,14 +29,14 @@
         <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
       </div>
       <div class="stat">
-        <span class="stat-label">Inner (lower) wing</span>
+        <span class="stat-label">Inner width</span>
         <select id="innerSelect" class="poll-rate-select">
           <option value="5" selected>5% of spot</option>
           <option value="10">10% of spot</option>
         </select>
       </div>
       <div class="stat">
-        <span class="stat-label">Outer (upper) wing</span>
+        <span class="stat-label">Outer width</span>
         <select id="outerSelect" class="poll-rate-select">
           <option value="10">10% of spot</option>
           <option value="15" selected>15% of spot</option>
@@ -51,20 +51,20 @@
 
   <section class="market-stats">
     <div class="mstat mstat-wide">
-      <span class="mstat-label">Strikes (long / short×2 / long)</span>
+      <span class="mstat-label">Strikes (short put / long put / long call / short call)</span>
       <span id="strikesStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Net Cost</span>
-      <span id="costStat" class="mstat-value">—</span>
+      <span class="mstat-label">Net Debit (max loss, in the middle band)</span>
+      <span id="debitStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Max Profit (at center)</span>
+      <span class="mstat-label">Max Profit (either side, capped)</span>
       <span id="maxProfitStat" class="mstat-value">—</span>
     </div>
     <div class="mstat mstat-wide">
-      <span class="mstat-label">Risk Above Upper Wing?</span>
-      <span id="upsideRiskStat" class="mstat-value">—</span>
+      <span class="mstat-label">Breakevens</span>
+      <span id="breakevenStat" class="mstat-value">—</span>
     </div>
     <div class="mstat" title="Risk-neutral probability under center-strike IV, not a real-world/objective probability">
       <span class="mstat-label">Probability of Profit (live)</span>
@@ -74,21 +74,22 @@
 
   <section class="chart-card chart-card-wide">
     <div class="panel-header">
-      <h2>Payoff at Expiry — <span id="bwbExpiry">—</span></h2>
-      <span class="hint">Watch the flat region past the upper wing — it can sit above or below zero depending on the credit</span>
+      <h2>Payoff at Expiry — <span id="ricExpiry">—</span></h2>
+      <span class="hint">The debit mirror of the Iron Condor: a flat loss zone in the middle instead of a flat profit plateau, capped gains outside the outer strikes</span>
     </div>
     <div id="payoffChart" class="svg-chart"></div>
   </section>
 
   <p class="chart-note">
-    <strong>Not financial advice.</strong> Unlike a symmetric butterfly, the two flat
-    regions outside the wings are generally different values here — this page reports both
-    explicitly rather than assuming one is safe. Losses below the lower wing are still
-    possible (bounded, not unlimited) if the net cost was a debit.
+    <strong>Not financial advice.</strong> Maximum loss (the full debit paid) happens if
+    price pins anywhere between the two inner strikes at expiry — the most likely single
+    outcome for most assets most of the time, which is exactly why this structure needs a
+    real move to pay off. The outer strikes cap the maximum profit; without them this would
+    just be a long strangle.
   </p>
 
   <script src="quant.js?v=4"></script>
   <script src="strategy-nav.js?v=7"></script>
-  <script src="strategy-broken-wing.js?v=1"></script>
+  <script src="strategy-reverse-iron-condor.js?v=1"></script>
 </body>
 </html>

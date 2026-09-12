@@ -1,4 +1,4 @@
-// Strategy Hub — an index/overview page for all 26 standalone strategy pages, plus a
+// Strategy Hub — an index/overview page for all 31 standalone strategy pages, plus a
 // small live market snapshot (front-month IV, realized vol, vol risk premium, IV Rank)
 // computed the same way the other pages do, standalone/REST-only.
 
@@ -28,6 +28,8 @@ const CATEGORIES = [
       { href: "strategy-guts.html", title: "Guts (ITM Strangle)", desc: "Same shape as a strangle, with a guaranteed value locked in between strikes.", risk: "defined" },
       { href: "strategy-strap-strip.html", title: "Strap / Strip", desc: "Weighted straddle with a bullish or bearish lean.", risk: "defined" },
       { href: "strategy-backspread.html", title: "Call Backspread", desc: "Capped loss, unlimited upside — mirror of the Ratio Spread.", risk: "defined" },
+      { href: "strategy-put-backspread.html", title: "Put Backspread", desc: "Capped loss, large downside profit — the bearish mirror of the Call Backspread.", risk: "defined" },
+      { href: "strategy-reverse-iron-condor.html", title: "Reverse Iron Condor", desc: "Buy an inner strangle, sell an outer one — a capped-both-ways bet on a big move.", risk: "defined" },
     ],
   },
   {
@@ -36,6 +38,7 @@ const CATEGORIES = [
       { href: "strategy-protective-put.html", title: "Protective Put", desc: "Cost of downside insurance at a selectable floor.", risk: "defined" },
       { href: "strategy-collar.html", title: "Collar", desc: "Near-zero-cost hedge: sell a call to fund a put.", risk: "defined" },
       { href: "strategy-covered-strangle.html", title: "Covered Strangle", desc: "Covered call plus a short put — extra income, but doubled downside below the put strike.", risk: "undefined" },
+      { href: "strategy-covered-put.html", title: "Covered Put", desc: "For a short position: sell a put for income — capped profit, unlimited risk if price rises.", risk: "undefined" },
       { href: "strategy-income.html", title: "Covered Call / CSP Income", desc: "Scans the chain for the best annualized yield by delta band.", risk: "defined" },
     ],
   },
@@ -68,6 +71,8 @@ const CATEGORIES = [
     items: [
       { href: "strategy-ratio-spread.html", title: "Call Ratio Spread (1×2)", desc: "Often a credit, but genuinely unlimited risk above breakeven.", risk: "undefined" },
       { href: "strategy-call-ladder.html", title: "Call Ladder (Christmas Tree)", desc: "Cheaper bull spread that flips into an uncapped short above the top strike.", risk: "undefined" },
+      { href: "strategy-put-ratio-spread.html", title: "Put Ratio Spread (1×2)", desc: "Bearish mirror of the Call Ratio Spread — severe risk toward zero below breakeven.", risk: "undefined" },
+      { href: "strategy-put-ladder.html", title: "Put Ladder (Christmas Tree)", desc: "Bearish mirror of the Call Ladder — loses its floor below the lowest strike.", risk: "undefined" },
     ],
   },
 ];
