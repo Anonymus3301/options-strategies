@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Calendar Spread — Term Structure Strategy</title>
+<link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Calendar Spread — Term Structure Trade</h1>
+        <p class="subtitle">Sell the rich expiry, buy the cheap one, same strike — bets on the term structure normalizing</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Front</span>
+        <select id="frontSelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Back</span>
+        <select id="backSelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Front-Month ATM IV</span>
+      <span id="frontIvStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Back-Month ATM IV</span>
+      <span id="backIvStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Term Slope (Back − Front)</span>
+      <span id="slopeStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>ATM IV Term Structure</h2>
+      <span class="hint">Every live expiry's ATM IV · normal curve slopes upward (contango); inverted = front-month event pricing</span>
+    </div>
+    <div id="termChart" class="svg-chart"></div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Suggested Calendar Spread — <span id="calStrike">—</span> strike</h2>
+      <span class="hint">Same strike, two expiries — illustrative, ignores fees/margin/early exercise</span>
+    </div>
+    <div id="calInfo" class="scanner-body">
+      <p class="loading">Loading…</p>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> A calendar spread's payoff genuinely depends on
+    time and on how each leg's IV moves, not just where spot ends up — the chart above
+    approximates the position's value <em>at the front leg's expiry</em> by repricing the
+    still-alive back-month leg with Black-Scholes at its <em>current</em> IV, which is a
+    simplification (that IV could easily be different by then, and skew/vol-of-vol effects
+    are ignored entirely).
+  </p>
+
+  <script src="quant.js?v=3"></script>
+  <script src="strategy-nav.js?v=2"></script>
+  <script src="strategy-calendar.js?v=1"></script>
+</body>
+</html>

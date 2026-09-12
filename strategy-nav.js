@@ -9,6 +9,11 @@ const STRATEGY_PAGES = [
   { href: "strategy-income.html", label: "Covered Call / CSP Income" },
   { href: "strategy-cross-asset.html", label: "BTC/ETH Vol Pair" },
   { href: "strategy-maxpain.html", label: "Max Pain / Pin Risk" },
+  { href: "strategy-calendar.html", label: "Calendar Spread" },
+  { href: "strategy-protective-put.html", label: "Protective Put" },
+  { href: "strategy-collar.html", label: "Collar" },
+  { href: "strategy-iron-condor.html", label: "Iron Condor" },
+  { href: "strategy-pcr.html", label: "PCR Sentiment" },
 ];
 
 (function renderStrategyNav() {
