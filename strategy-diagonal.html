@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Diagonal Spread — Calendar + Directional Bias</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -44,6 +44,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> buy a back-month call at a lower (near-ATM) strike, sell a front-month call at a higher strike.</p>
+      <p><strong>Market view:</strong> bullish with a term-structure lean — wants price to drift up toward the short strike by front expiry while the back leg retains value.</p>
+      <p><strong>Why trade it:</strong> combines the Calendar Spread's time-decay edge with directional exposure, typically cheaper than an outright bull call spread since the short leg sits in a nearer expiry.</p>
+      <p><strong>Max loss:</strong> the net debit paid. <strong>Max profit:</strong> maximized if price finishes right at or near the short strike at front expiry, letting the front leg decay maximally while the back leg keeps most of its value.</p>
+      <p><strong>Key risk:</strong> the back leg's value at front expiry is estimated via Black-Scholes at its <em>current</em> IV — a simplification, since IV can move by then — and no early-assignment or margin costs are modeled.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat mstat-wide">

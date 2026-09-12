@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Synthetic Forward — Conversion / Reversal</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -33,6 +33,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> long a call plus short a put, both at the ATM strike and same expiry — this replicates a long forward position on the underlying.</p>
+      <p><strong>Market view:</strong> directionally long BTC, exactly like owning a forward contract at that strike — this is not a volatility play.</p>
+      <p><strong>Why trade it:</strong> compares the options-implied forward price from this synthetic construction against the actual dated future's mark price for the same expiry, a cross-check for mispricing between the two markets.</p>
+      <p><strong>Max profit / max loss:</strong> same as owning the underlying outright from the strike — unlimited upside, large downside bounded only by BTC reaching zero.</p>
+      <p><strong>Key risk:</strong> this is a fully directional position dressed as an arbitrage-style comparison; acting on a discrepancy found here means taking on the same directional exposure as holding a forward, not a risk-free trade.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat">

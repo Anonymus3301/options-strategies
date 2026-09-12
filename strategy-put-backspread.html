@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Put Backspread</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -41,6 +41,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> sell 1 near-ATM put, buy 2 puts at a further OTM (lower) strike — the bearish mirror of the Call Backspread.</p>
+      <p><strong>Market view:</strong> wants either a sharp decline (max profit territory) or a bounce back above the short strike; the worst outcome is a moderate decline that stalls exactly at the long strike.</p>
+      <p><strong>Why trade it:</strong> usually cheap or a small credit, offering a defined max loss with large (floor-bounded) profit potential on a crash.</p>
+      <p><strong>Max loss:</strong> capped, occurring if price finishes exactly at the long strike. <strong>Max profit:</strong> large, growing the further price falls below the long strike, bounded only by BTC's floor at zero.</p>
+      <p><strong>Key risk:</strong> at identical strikes, this position is the exact portfolio negation of a Put Ratio Spread — every dollar one makes, the other loses — so pick the side matching your actual view: bearish-with-a-floor here, or mildly-bearish-with-tail-risk there.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat mstat-wide">

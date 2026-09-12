@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Max Pain / Pin Risk</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -35,6 +35,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> no position here — this computes the "max pain" strike per expiry, the strike at which total option-holder payout, summed across all open interest, is minimized.</p>
+      <p><strong>Market view:</strong> a theory that price tends to gravitate toward max pain as expiry approaches, on the idea that option writers (often larger, better-capitalized players) have some influence on where price settles.</p>
+      <p><strong>Why shown:</strong> as a data point some traders watch for potential pinning near expiry — not a trade recommendation by itself, and no position is suggested or scored on this page.</p>
+      <p><strong>Max profit / max loss:</strong> not applicable — there is no constructed position here to score.</p>
+      <p><strong>Key risk / caveat:</strong> max pain is explicitly a contested theory with weak empirical support; treat it as one input among many, not a forecast of where price will actually land.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat">

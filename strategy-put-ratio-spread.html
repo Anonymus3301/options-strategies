@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Put Ratio Spread</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -41,6 +41,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> buy 1 near-ATM put, sell 2 puts at a further OTM (lower) strike — the bearish mirror of the Call Ratio Spread.</p>
+      <p><strong>Market view:</strong> mildly bearish down to the short strike, but not expecting a crash past it.</p>
+      <p><strong>Why trade it:</strong> like its call-side counterpart, often enterable for a small debit or credit since the second short put helps finance the long one.</p>
+      <p><strong>Max profit:</strong> (long strike − short strike) − net cost, achieved exactly at the short strike. <strong>Max loss:</strong> severe (though technically floor-bounded at BTC = 0) below the lower breakeven — for any realistic position size, this behaves like unlimited downside risk.</p>
+      <p><strong>Key risk:</strong> the bearish equivalent of the Call Ratio Spread's uncapped risk, just facing the other direction; not a defined-risk strategy.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat mstat-wide">

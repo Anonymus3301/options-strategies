@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Long Strangle</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -42,6 +42,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> buy an OTM call above spot and an OTM put below spot, both at a selectable width.</p>
+      <p><strong>Market view:</strong> same as Long Volatility's straddle — expects a big move either direction — but cheaper and requiring a bigger move to pay off.</p>
+      <p><strong>Why trade it:</strong> costs less than an ATM straddle since both legs start out-of-the-money, useful when a trader wants long-vol exposure at lower cost and accepts lower odds of a payout.</p>
+      <p><strong>Max loss:</strong> total premium paid, if price stays between the two strikes through expiry. <strong>Max profit:</strong> unlimited above, large (bounded at zero) below. <strong>Breakeven:</strong> put strike minus premium, and call strike plus premium.</p>
+      <p><strong>Key risk:</strong> the wider the strikes chosen, the cheaper the trade but the lower the probability of ever reaching breakeven — a direct cost-vs-probability tradeoff.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat mstat-wide">

@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Protective Put — Portfolio Insurance</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -38,6 +38,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> for holders — buy an OTM put below spot as portfolio insurance against a held BTC position.</p>
+      <p><strong>Market view:</strong> still bullish or neutral long-term, but wants to cap downside risk over the option's life.</p>
+      <p><strong>Why trade it:</strong> protects against a crash while retaining full upside above the floor, minus the cost of the put — the options equivalent of buying insurance on an asset you plan to keep holding.</p>
+      <p><strong>Max loss:</strong> capped at (spot − floor strike) + premium paid, no matter how far price falls. <strong>Max profit:</strong> unlimited upside, reduced by the cost of the put. <strong>Breakeven:</strong> spot plus the premium paid, on the upside.</p>
+      <p><strong>Key risk:</strong> the put's cost recurs every time it's rolled to a new expiry — over many periods, that insurance premium is a real, ongoing drag on returns, just like any recurring insurance policy.</p>
+    </div>
+  </section>
 
   <section class="chart-card chart-card-wide">
     <div class="panel-header">

@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Broken Wing Butterfly</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -48,6 +48,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> like a Butterfly Spread, but the inner and outer wing widths are independently selectable, making it asymmetric.</p>
+      <p><strong>Market view:</strong> a neutral-to-directional pinning bet, skewed toward whichever side has the narrower wing.</p>
+      <p><strong>Why trade it:</strong> when the outer wing is wider than the inner one, this is often financed for a net credit — which can (but doesn't automatically) eliminate risk entirely on one side.</p>
+      <p><strong>Max profit:</strong> at the center strike, same formula as a regular butterfly. <strong>Max loss:</strong> reported separately below the lower wing and above the upper wing, since — unlike a symmetric butterfly — these two flat regions are usually different values.</p>
+      <p><strong>Key risk:</strong> a net credit does not automatically mean one side is risk-free; this page checks and reports both flat regions honestly rather than assuming so.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat mstat-wide">

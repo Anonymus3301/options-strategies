@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>BTC/ETH Vol Pair Trade</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -29,6 +29,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> not a fixed options structure — a relative-value read comparing front-month ATM IV in BTC vs. ETH, their realized correlation, and the vol spread's history, with a suggested pair structure (e.g., long options in the cheaper-vol asset, short in the richer one).</p>
+      <p><strong>Market view:</strong> a bet on ETH's IV richening or cheapening relative to BTC's, not on either asset's own direction.</p>
+      <p><strong>Why trade it:</strong> when the vol spread between the two sits at an extreme vs. its own recent history, it may mean-revert toward its typical level.</p>
+      <p><strong>Max profit / max loss:</strong> depends entirely on the specific structure actually built, not calculated on this page — the figures shown here are the spread and its rank only.</p>
+      <p><strong>Key risk:</strong> named a "pair trade," explicitly not true dispersion (that needs 3+ constituents, which doesn't exist in crypto); the correlation between BTC and ETH can itself shift, breaking the relative-value thesis this trade depends on.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat">

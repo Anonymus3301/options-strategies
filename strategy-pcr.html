@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Put/Call Ratio — Contrarian Sentiment</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -29,6 +29,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> no position here — the whole-chain put/call ratio (every live expiry combined) is tracked against its own recent range in this browser's localStorage.</p>
+      <p><strong>Market view:</strong> a contrarian sentiment signal — extremely high PCR (the crowd very bearish or heavily hedged) sometimes precedes a bounce; extremely low PCR (the crowd very bullish or complacent) sometimes precedes a pullback.</p>
+      <p><strong>Why shown:</strong> as one input among many for gauging positioning extremes, not a standalone timing signal.</p>
+      <p><strong>Max profit / max loss:</strong> not applicable — no position is constructed or scored on this page.</p>
+      <p><strong>Key risk / caveat:</strong> flagged explicitly as weak and noisy; PCR extremes can persist for a long time in a trending market, so using it alone as a timing tool has a poor track record.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat">

@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Ratio Spread — Undefined-Risk Structure</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -41,6 +41,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> buy 1 near-ATM call, sell 2 calls at a further OTM strike.</p>
+      <p><strong>Market view:</strong> mildly bullish up to the short strike, but not expecting an explosive move past it.</p>
+      <p><strong>Why trade it:</strong> often enterable for a small debit or even a net credit, since the second short call's premium helps finance (or overfinances) the long call.</p>
+      <p><strong>Max profit:</strong> (short strike − long strike) − net cost, achieved exactly at the short strike. <strong>Max loss:</strong> unlimited above the upper breakeven, since there's a net naked short call once price is past both strikes.</p>
+      <p><strong>Key risk:</strong> explicitly not a defined-risk strategy despite superficially resembling one — a sharp rally causes uncapped losses, unlike the Iron Condor or Butterfly pages.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat mstat-wide">

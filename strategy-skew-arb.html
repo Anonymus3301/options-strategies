@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Skew Arbitrage — Risk Reversal Strategy</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -35,6 +35,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> a 25-delta risk reversal — sell the richer of the 25Δ call/put (by quoted IV) and buy the cheaper one, both found via Black-Scholes delta from each strike's own IV.</p>
+      <p><strong>Market view:</strong> a bet that the current skew (the IV gap between equally-far OTM calls and puts) is stretched relative to its own recent history and will normalize — not a pure directional call. That said, because one leg is short and the other long, the position resembles a scaled-down synthetic forward: selling the call/buying the put leans bearish, selling the put/buying the call leans bullish, so real directional exposure comes along for the ride.</p>
+      <p><strong>Why trade it:</strong> when the risk reversal (RR25) sits at an extreme percentile of its own recent range, selling the rich side and buying the cheap one profits if skew reverts toward its typical level, regardless of which side eventually finishes ITM.</p>
+      <p><strong>Max profit / max loss:</strong> not capped at fixed levels — since this is effectively a leveraged directional position sized by the strike gap, profit and loss scale with how far and which way spot moves, on top of the net premium paid or received at entry.</p>
+      <p><strong>Key risk:</strong> if the underlying makes a big move in the direction of the short leg, losses can be large — this is a directional bet dressed as a skew trade, not a hedged relative-value position.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat">

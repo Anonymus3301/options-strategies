@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Reverse Iron Condor</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -48,6 +48,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> buy an inner strangle (call and put close to ATM), sell an outer strangle further out to help fund it — the same 4 legs as an Iron Condor with long/short flipped.</p>
+      <p><strong>Market view:</strong> expects a big move in either direction past the outer strikes — the debit mirror of the Iron Condor's neutral, range-bound thesis.</p>
+      <p><strong>Why trade it:</strong> cheaper than an outright long strangle since the short outer legs help pay for the long inner ones, at the cost of capping the maximum profit.</p>
+      <p><strong>Max loss:</strong> the full net debit paid, occurring anywhere price finishes between the two inner strikes at expiry. <strong>Max profit:</strong> capped, achieved once price moves beyond either outer strike.</p>
+      <p><strong>Key risk:</strong> the flat loss zone in the middle is the single most likely outcome for most assets most of the time, which is exactly why this needs a real move to pay off; without the short outer legs this would just be a plain long strangle.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat mstat-wide">

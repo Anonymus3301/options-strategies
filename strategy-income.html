@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Covered Call / CSP Income Scanner</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -37,6 +37,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> for holders — sell an OTM call against BTC you already hold (covered call), or sell an OTM cash-secured put if you're willing to buy BTC lower (CSP). This page scans every live expiry and strike in a selectable delta band and ranks both by annualized premium yield.</p>
+      <p><strong>Market view:</strong> neutral-to-mildly-bullish for a covered call; neutral-to-mildly-bearish (willing to buy the dip) for a CSP.</p>
+      <p><strong>Why trade it:</strong> harvest the option's time decay as recurring income against a position you already want to hold, rather than as a standalone directional bet.</p>
+      <p><strong>Max profit:</strong> covered call — (strike − cost basis) + premium, if assigned. CSP — the premium collected, if price stays above the strike. <strong>Max loss:</strong> covered call — the same downside as holding BTC outright, minus the premium cushion. CSP — owning BTC at (strike − premium), even if price has fallen well below that by expiry.</p>
+      <p><strong>Key risk:</strong> a covered call caps upside entirely above the strike if assigned; a CSP obligates a purchase at the strike no matter how far the market has fallen by then.</p>
+    </div>
+  </section>
 
   <section class="chart-card chart-card-wide">
     <div class="panel-header">

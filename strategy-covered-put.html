@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Covered Put</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -41,6 +41,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> for an assumed short BTC position — sell an OTM put for extra income. The bearish mirror of a covered call.</p>
+      <p><strong>Market view:</strong> bearish-to-neutral; comfortable buying back the short position at the put strike if price falls that far.</p>
+      <p><strong>Why trade it:</strong> collects premium against a short position the same way a covered call does against a long one.</p>
+      <p><strong>Max profit:</strong> capped at (spot − put strike) + premium, achieved at or below the put strike. <strong>Max loss:</strong> unlimited if price rises, exactly like any naked short position.</p>
+      <p><strong>Key risk:</strong> this assumes a short notional the same way the Protective Put and Collar pages assume a held long position — it does not fetch or model an actual futures position, funding costs, or margin; the premium only provides a small cushion, not real protection.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat">

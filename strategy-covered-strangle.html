@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Covered Strangle</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -41,6 +41,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> for holders — sell an OTM call and an OTM put against a held BTC position.</p>
+      <p><strong>Market view:</strong> neutral-to-mildly bullish; comfortable both capping upside and buying more BTC lower if it dips.</p>
+      <p><strong>Why trade it:</strong> collects two premiums instead of one compared to a plain covered call, for a higher yield.</p>
+      <p><strong>Max profit:</strong> capped at (call strike − spot) + total credit, the same ceiling as a covered call. <strong>Max loss:</strong> below the put strike, losses grow twice as fast as simply holding BTC, since the short put obligates effectively buying more at that price on top of what's already held.</p>
+      <p><strong>Key risk:</strong> explicitly not a hedge, despite superficially resembling one — the extra premium is compensation for taking on additional downside exposure, not protection from it.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat mstat-wide">

@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Carry &amp; Funding — Basis Trade Strategy</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -29,6 +29,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> two related, non-options trades bundled on one page. Cash-and-carry: hold spot and short a dated future against it, capturing the annualized basis when the future trades above spot. Funding farming: hold whichever side of the perpetual (long or short) receives funding when the rate stays persistently one-signed.</p>
+      <p><strong>Market view:</strong> market-neutral in principle if the spot leg is actually held and hedged — this harvests a financing-rate spread rather than betting on direction.</p>
+      <p><strong>Why trade it:</strong> when dated futures trade at a persistent premium (contango) or funding is consistently one-signed, there's a systematic edge to being on the "paid" side of that spread.</p>
+      <p><strong>Max profit:</strong> the annualized basis or funding rate captured over the holding period. <strong>Max loss:</strong> basis or funding can compress, flip sign, or go into backwardation, eroding or reversing the edge.</p>
+      <p><strong>Key risk:</strong> this page reports the rate, it does not execute or hedge a position — actually running cash-and-carry means real margin, liquidation, and counterparty risk on both legs that isn't modeled here.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat mstat-wide">

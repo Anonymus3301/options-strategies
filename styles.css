@@ -340,6 +340,12 @@ td.dim { color: var(--text-dim); }
 .sources-footer h2 { margin: 0 0 8px; font-size: 12px; color: var(--text); text-transform: uppercase; }
 .sources-footer code { background: var(--panel-alt); padding: 1px 6px; border-radius: 4px; }
 
+.explainer-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.explainer-body p { margin: 0; font-size: 13px; line-height: 1.55; color: var(--text); }
+.explainer-body p strong { color: var(--accent); font-weight: 600; }
+.explainer-stats { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; line-height: 1.55; }
+.explainer-stats span strong { color: var(--accent); font-weight: 600; }
+
 @media (max-width: 900px) {
   .ladder-wrap { flex-direction: column; }
   .orderbook-panel { width: auto; margin-left: 0; margin-top: 16px; }

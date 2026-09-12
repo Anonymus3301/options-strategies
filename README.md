@@ -89,9 +89,11 @@ purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
 and on each strategy page itself, and built on a shared `quant.js` (fetch helpers,
-Black-Scholes, rank/percentile, payoff-diagram SVG). All are explicitly labeled as
-heuristics/informational, not financial advice, and each page's own disclaimer spells out
-its specific limitations.
+Black-Scholes, rank/percentile, payoff-diagram SVG). Every page opens with a "Strategy
+Explained" card (construction, market view, why trade it, max profit/loss/breakeven, and
+the key risk) before its live stats, so a page is understandable on its own without
+already knowing the strategy. All are explicitly labeled as heuristics/informational, not
+financial advice, and each page's own disclaimer spells out its specific limitations.
 
 - **[Premium Selling](strategy-premium-selling.html)** — vol risk premium harvesting: the
   same 4-signal scanner as the main dashboard's widget (recomputed independently here),

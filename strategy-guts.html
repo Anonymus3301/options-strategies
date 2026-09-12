@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Guts (ITM Strangle)</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -41,6 +41,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> buy an ITM call below spot and an ITM put above spot — both legs start in-the-money.</p>
+      <p><strong>Market view:</strong> identical payoff shape to a Long Strangle at expiry, just re-centered — still a pure bet on a big move.</p>
+      <p><strong>Why trade it:</strong> because both options are ITM, their combined intrinsic value between the two strikes sums to a constant, guaranteed amount regardless of exactly where price lands in that range — you're effectively pre-paying for value you're guaranteed to get back.</p>
+      <p><strong>Max loss:</strong> total cost minus the locked-in value (the true premium at risk), if price stays between the strikes. <strong>Max profit:</strong> unlimited above, large below — exactly like a strangle built at the same two strikes.</p>
+      <p><strong>Key risk:</strong> by put-call parity, Guts should cost about the same as an equivalent OTM strangle plus the locked-in value — always compare the "cost above locked-in value" figure to an OTM strangle's cost, not the sticker price, before assuming this is worse.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat mstat-wide">

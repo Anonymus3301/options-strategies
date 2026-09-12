@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Calendar Spread — Term Structure Strategy</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -37,6 +37,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> sell the front-month ATM straddle, buy the back-month ATM straddle at the same strike (a "time spread").</p>
+      <p><strong>Market view:</strong> expects the underlying to stay relatively close to the strike through the front expiry, and/or for the front month's IV to fall faster than the back month's.</p>
+      <p><strong>Why trade it:</strong> profits from the front leg decaying faster than the back leg (the normal case since it has less time value to begin with), and/or from an elevated front-month IV normalizing relative to the back month.</p>
+      <p><strong>Max loss:</strong> the net debit paid. <strong>Max profit:</strong> maximized if price sits near the strike at front expiry, letting the front leg expire worthless while the back leg retains most of its value.</p>
+      <p><strong>Key risk:</strong> the back leg's remaining value at front expiry is estimated via Black-Scholes at its <em>current</em> IV — a simplification, since IV can move by then; a big move away from the strike, or an across-the-board IV drop, hurts both legs at once.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat">

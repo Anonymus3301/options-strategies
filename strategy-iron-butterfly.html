@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Iron Butterfly</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -41,6 +41,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> sell the ATM call and put (the straddle), buy protective wings further out on both sides.</p>
+      <p><strong>Market view:</strong> neutral, same as the Iron Condor, but a tighter, more concentrated bet that price finishes very close to a single strike.</p>
+      <p><strong>Why trade it:</strong> collects more premium than an Iron Condor (since the short strikes are ATM instead of ~20Δ) in exchange for a narrower profit zone.</p>
+      <p><strong>Max profit:</strong> the net credit, achieved only if price finishes exactly at the center strike — a single peak, not a flat plateau like an Iron Condor. <strong>Max loss:</strong> capped at (wing width − net credit) on either side.</p>
+      <p><strong>Key risk:</strong> most outcomes land somewhere between max profit and max loss; hitting the exact center strike at expiry is a low-probability, high-payout outcome.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat mstat-wide">

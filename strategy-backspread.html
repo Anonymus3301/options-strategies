@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Call Backspread — Capped Risk, Unlimited Upside</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -41,6 +41,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> sell 1 near-ATM call, buy 2 calls at a further OTM strike.</p>
+      <p><strong>Market view:</strong> wants either a big rally (max profit territory) or a return to well below the short strike; the worst outcome is a moderate rally that stalls right at the long strike.</p>
+      <p><strong>Why trade it:</strong> usually enterable near zero cost (or a small credit), offering a defined, capped max loss with theoretically unlimited profit if price runs far enough.</p>
+      <p><strong>Max loss:</strong> capped, occurring if price finishes exactly at the long strike. <strong>Max profit:</strong> unlimited above the upside breakeven.</p>
+      <p><strong>Key risk:</strong> the worst-case outcome happens at a specific price level, not from a huge move against you — a backspread can lose money even while being "right" about direction, if the move isn't big enough.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat mstat-wide">

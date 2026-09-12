@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Strap / Strip — Directionally-Biased Long Vol</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -40,6 +40,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> a weighted ATM straddle — Strap: 2 long calls + 1 long put (bullish lean); Strip: 1 long call + 2 long puts (bearish lean).</p>
+      <p><strong>Market view:</strong> long volatility with a directional tilt — expects a big move, and leans toward believing it's more likely in one particular direction.</p>
+      <p><strong>Why trade it:</strong> costs more than a plain straddle (three legs instead of two) but pays off more if the favored direction is the one that actually happens.</p>
+      <p><strong>Max loss:</strong> the total premium paid across all three legs, if price pins at the strike. <strong>Max profit:</strong> larger on the favored side than a plain straddle would give, smaller (but still profitable on a big enough move) on the other side.</p>
+      <p><strong>Key risk:</strong> needs a bigger move to overcome the extra cost vs. a plain straddle; a big move in the "wrong" direction pays off less than a plain straddle would have.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat">

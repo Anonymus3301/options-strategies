@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Jade Lizard — No-Upside-Risk Premium Play</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -40,6 +40,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> sell a ~25Δ put, plus a call credit spread (sell a ~20Δ call, buy a further-OTM call).</p>
+      <p><strong>Market view:</strong> neutral-to-bullish — wants price to stay above the short put and below the short call.</p>
+      <p><strong>Why trade it:</strong> if the total credit collected covers the width of the call spread, there is no risk at all on the upside — a defining feature of this structure — leaving only the downside to manage, much like a naked put.</p>
+      <p><strong>Max profit:</strong> the total credit collected, if price finishes between the short put and short call at expiry. <strong>Max loss:</strong> uncapped on the downside (bounded only by BTC reaching zero); capped on the upside at (call spread width − credit), which is zero or negative — i.e., no risk — if credit ≥ width.</p>
+      <p><strong>Key risk:</strong> "no upside risk" only refers to the call side; the short put remains fully exposed to a crash, just like a standalone naked put.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat mstat-wide">

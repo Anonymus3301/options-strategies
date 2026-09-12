@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Premium Selling — Vol Risk Premium Strategy</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -35,6 +35,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> sell an out-of-the-money call and an out-of-the-money put at the same expiry (a short strangle), collecting two premiums, with strikes placed roughly ±1 expected move from spot.</p>
+      <p><strong>Market view:</strong> neutral — this is a bet that BTC stays inside a range through expiry, not a bet on direction.</p>
+      <p><strong>Why trade it:</strong> implied volatility usually runs a bit above the move that actually materializes (the "volatility risk premium"). Selling premium harvests that gap, and works best when IV Rank is elevated and IV sits well above realized vol.</p>
+      <p><strong>Max profit:</strong> the total premium collected, kept in full if price finishes between the two strikes. <strong>Max loss:</strong> unlimited above the call strike; large but floor-bounded (BTC can't go below zero) below the put strike. <strong>Breakeven:</strong> put strike minus total premium, and call strike plus total premium.</p>
+      <p><strong>Key risk:</strong> a single large move can erase many periods' worth of collected premium — this is a "collect small, risk large" trade unless actively managed or hedged.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat">

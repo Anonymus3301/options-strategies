@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Call Ladder</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -48,6 +48,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> buy 1 near-ATM call (K1), sell 1 further-OTM call (K2), sell 1 even-further-OTM call (K3) — three strikes total.</p>
+      <p><strong>Market view:</strong> bullish, but expecting a moderate rally rather than an explosive one.</p>
+      <p><strong>Why trade it:</strong> selling the second call finances the trade further than a plain bull call spread would, lowering the cost (or even producing a net credit).</p>
+      <p><strong>Max profit:</strong> a plateau between K2 and K3, equal to (K2 − K1) − net cost. <strong>Max loss:</strong> unlimited above K3, since the position becomes a net naked short call there.</p>
+      <p><strong>Key risk:</strong> the very thing that makes this cheap (selling an extra call) is what removes the cap on the upside — this is a bet on a moderate move, not a home run.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat mstat-wide">

@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Butterfly Spread — Pinning Play</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -48,6 +48,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> buy 1 lower-strike call, sell 2 center-strike calls, buy 1 upper-strike call, all at the same expiry (a put butterfly at the same strikes has the same payoff shape).</p>
+      <p><strong>Market view:</strong> neutral — a low-volatility "pinning" bet that price finishes very close to the center strike.</p>
+      <p><strong>Why trade it:</strong> a cheap, defined-risk way to bet on low realized volatility, or on a specific pin level such as ATM or the max-pain strike.</p>
+      <p><strong>Max profit:</strong> (center − lower strike) − net debit, achieved only if price finishes exactly at the center strike. <strong>Max loss:</strong> capped at the net debit paid — also the most likely single outcome, which is why butterflies are cheap.</p>
+      <p><strong>Key risk:</strong> low probability of hitting max profit exactly; most outcomes land somewhere between max profit and a full loss of the premium paid.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat mstat-wide">

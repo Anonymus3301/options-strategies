@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Box Spread — Implied Interest Rate</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -41,6 +41,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> a call spread (long the lower strike, short the higher strike) plus a put spread (short the lower strike, long the higher strike), at the same two strikes and expiry.</p>
+      <p><strong>Market view:</strong> none — direction-agnostic. The combined payoff at expiry is a fixed amount (the strike width) no matter where price ends up, making this a synthetic financing instrument rather than a market bet.</p>
+      <p><strong>Why trade it:</strong> comparing the fixed payout to what the chain's current prices say the position costs today implies an annualized interest rate — if that rate looks attractive vs. other financing options, this is effectively a way to lend or borrow using options.</p>
+      <p><strong>Max profit / max loss:</strong> neither applies in the usual sense — the payoff is fixed by construction; the only real "risk" is execution risk across four legs.</p>
+      <p><strong>Key risk:</strong> assumes all four legs fill near the quoted marks and the position is held to expiry. Deribit's crypto options are European-style, which removes early-assignment risk that would otherwise complicate this on American-style venues.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat">

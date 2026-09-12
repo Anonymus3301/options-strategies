@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Put Ladder</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -48,6 +48,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> buy 1 near-ATM put (K1), sell 1 further-OTM put (K2), sell 1 even-further-OTM put (K3) — the bearish mirror of the Call Ladder.</p>
+      <p><strong>Market view:</strong> bearish, expecting a moderate decline rather than a crash.</p>
+      <p><strong>Why trade it:</strong> selling the second put finances the trade further than a plain bear put spread would, lowering the cost.</p>
+      <p><strong>Max profit:</strong> a plateau between K3 and K2. <strong>Max loss:</strong> severe (floor-bounded at zero) below K3, since the position becomes net short an extra put there.</p>
+      <p><strong>Key risk:</strong> the moderate-decline thesis breaks down badly on a crash — exactly the scenario a plain protective structure would want to be prepared for.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat mstat-wide">

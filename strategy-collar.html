@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Collar Strategy — Zero-Cost Hedge</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -41,6 +41,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> for holders — buy an OTM put (the floor) financed by selling an OTM call (the cap), with strikes picked so the two premiums roughly offset for near-zero net cost.</p>
+      <p><strong>Market view:</strong> neutral-to-mildly-bullish; willing to give up upside beyond the cap in exchange for a floor that costs little or nothing.</p>
+      <p><strong>Why trade it:</strong> a cheaper way to hedge than a naked protective put, at the cost of also capping the upside — useful when protecting a position matters more than preserving unlimited gains.</p>
+      <p><strong>Max loss:</strong> capped at (spot − floor) + net cost. <strong>Max profit:</strong> capped at (cap − spot) − net cost (or plus net credit, if the position was entered for a credit).</p>
+      <p><strong>Key risk:</strong> if BTC rallies hard, all upside past the cap strike is given up entirely, not just reduced, if held through expiry and assigned.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat">

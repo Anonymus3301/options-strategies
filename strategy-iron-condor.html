@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Iron Condor Builder</title>
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="topbar">
@@ -41,6 +41,19 @@
 
   <nav class="strategy-nav" id="strategyNav"></nav>
   <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> sell a call and a put around 20Δ each, then buy further-out call and put wings for protection — 4 legs total.</p>
+      <p><strong>Market view:</strong> neutral — the same range-bound thesis as the Premium Selling page's short strangle, but with the tail risk capped.</p>
+      <p><strong>Why trade it:</strong> collects premium from a range-bound bet while capping the worst case, at the cost of giving up some of the credit a naked short strangle would collect.</p>
+      <p><strong>Max profit:</strong> the net credit, kept if price finishes between the two short strikes. <strong>Max loss:</strong> capped at (wing width − net credit), whichever wing is breached. <strong>Breakeven:</strong> short put strike minus net credit, and short call strike plus net credit.</p>
+      <p><strong>Key risk:</strong> max profit only happens if price stays inside a fairly narrow band; a big move still loses, just by a known, bounded amount instead of an unlimited one.</p>
+    </div>
+  </section>
 
   <section class="market-stats">
     <div class="mstat mstat-wide">
