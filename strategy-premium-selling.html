@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Premium Selling — Vol Risk Premium Strategy</title>
+<link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Premium Selling — Vol Risk Premium</h1>
+        <p class="subtitle">Sell option premium when IV is rich vs. realized moves — standalone page, fetches its own data</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled>
+          <option>Loading…</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">ATM IV (selected expiry)</span>
+      <span id="atmIvStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Realized Vol (7/14/30D)</span>
+      <span id="rvolStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Vol Risk Premium (ATM IV − 30D RVol)</span>
+      <span id="premiumStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">IV Rank · Percentile (shared history with the main ladder)</span>
+      <span id="ivRankStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Expected Move (ATM straddle)</span>
+      <span id="expectedMoveStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide scanner-card">
+    <div class="panel-header">
+      <h2>Conditions</h2>
+      <span class="hint">Same 4-signal heuristic as the main dashboard's Strategy Scanner, computed independently here</span>
+    </div>
+    <div id="scannerBody" class="scanner-body">
+      <p class="loading">Loading…</p>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Suggested Short Strangle — <span id="strangleExpiry">—</span></h2>
+      <span class="hint">Illustrative only — strikes near ±1 expected move, ignores fees/margin/early assignment</span>
+    </div>
+    <div id="strangleInfo" class="scanner-body">
+      <p class="loading">Loading…</p>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> This page is a heuristic read of this
+    dashboard's own free public data (Deribit) — it does not know your risk tolerance,
+    account size, or margin requirements, and vol-selling strategies carry substantial
+    tail risk (large losses on outsized moves) that a green "favorable" reading does not
+    account for. Verify everything independently before trading.
+  </p>
+
+  <script src="quant.js?v=1"></script>
+  <script src="strategy-nav.js?v=1"></script>
+  <script src="strategy-premium-selling.js?v=1"></script>
+</body>
+</html>
