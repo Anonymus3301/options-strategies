@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Seagull Spread</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Seagull Spread</h1>
+        <p class="subtitle">A 3-leg refinement of the Collar for holders: sell a further-OTM put to cheapen the floor, sell a call to finance the rest — full protection in a band, partial protection beyond it</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Floor (K2)</span>
+        <select id="floorSelect" class="poll-rate-select">
+          <option value="5">−5%</option>
+          <option value="10" selected>−10%</option>
+          <option value="20">−20%</option>
+        </select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Extra width to K1</span>
+        <select id="extraSelect" class="poll-rate-select">
+          <option value="10" selected>10% further</option>
+          <option value="15">15% further</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> for holders — buy a put at K2 (the main floor), sell a further-OTM put at K1 &lt; K2 (cheapens the floor, accepting only partial protection below K1), and sell a call at K3 (finances the rest, capping upside) — three legs plus the held position, vs. the Collar's two.</p>
+      <p><strong>Market view:</strong> neutral-to-mildly-bullish, like a Collar, but willing to accept a secondary, weaker floor in exchange for a cheaper (or fully financed) primary one.</p>
+      <p><strong>Why trade it:</strong> a plain Collar's put can be expensive if the floor is close to spot; selling a further-out put funds it further, at the cost of no longer being fully protected in a crash scenario below that second strike — a common trade-off in FX and commodity hedging books when "some protection, cheaply" beats "full protection, expensively."</p>
+      <p><strong>Max profit:</strong> capped at (K3 − spot) + net credit (or minus net debit), above K3. <strong>Max loss:</strong> below K1, losses resume dollar-for-dollar with the held position (minus the flat protected band's value) — this is <em>not</em> full downside protection, unlike a plain Collar or Protective Put.</p>
+      <p><strong>Key risk:</strong> the point of this structure is precisely that protection is not unlimited below K1 — sized wrong, a Seagull can leave a holder exposed in exactly the crash scenario a hedge is meant to cover.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Strikes (K1 short put / K2 long put / K3 short call)</span>
+      <span id="strikesStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Net Cost</span>
+      <span id="netCostStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Full-Protection Band</span>
+      <span id="bandStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat" title="Risk-neutral probability under the legs' average IV, not a real-world/objective probability">
+      <span class="mstat-label">Probability of Profit (live)</span>
+      <span id="popStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Seagull vs. Unhedged — <span id="payoffExpiry">—</span></h2>
+      <span class="hint">Long BTC + long put (K2) + short put (K1) + short call (K3) vs. long BTC alone, at expiry</span>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> This page picks the call strike (K3) to roughly
+    offset the net cost of the put spread (K2 long / K1 short) for a near-zero-cost
+    structure, not to hit any particular cap level. Being short the call means any upside
+    past K3 is given up entirely, not just reduced, if held through expiry and assigned.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=9"></script>
+  <script src="strategy-seagull.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vega-Neutral Calendar</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Vega-Neutral Calendar Spread</h1>
+        <p class="subtitle">Sizes the two legs so net vega ≈ 0 at inception, isolating the theta/gamma bet from the plain Calendar Spread's mixed vega exposure</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Front expiry</span>
+        <select id="frontSelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Back expiry</span>
+        <select id="backSelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> the same ATM straddle calendar as the plain Calendar Spread page (sell front, buy back, same strike) — but instead of a 1:1 ratio, the back-month quantity is scaled so the position's <em>net vega</em> at inception is zero, computed from each leg's Black-Scholes vega.</p>
+      <p><strong>Market view:</strong> neutral on implied vol itself; the bet is purely on time decay (theta) and realized-move convexity (gamma) over the front expiry's life, with the usual "IV might move and change everything" risk of a plain calendar deliberately hedged away at the start.</p>
+      <p><strong>Why trade it:</strong> a plain 1:1 calendar is a mixed bet — it wins if the front decays faster than the back <em>and</em> loses if IV falls, or vice versa, so its P&L conflates two different views. Neutralizing vega isolates the theta/gamma view a calendar is usually intended to express.</p>
+      <p><strong>Max profit / max loss:</strong> not a single fixed number — depends on the realized path, same as the plain Calendar Spread; see the payoff chart.</p>
+      <p><strong>Key risk:</strong> "vega-neutral" holds only at the moment it's computed — vega itself changes as price and time pass (this is a static hedge, not continuously rebalanced), and the exact ratio may require a fractional contract size to implement precisely.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Strike / Front / Back Vega (per straddle)</span>
+      <span id="vegaStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Back:Front Ratio (for vega ≈ 0)</span>
+      <span id="ratioStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Net Cost (at this ratio)</span>
+      <span id="costStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Net Vega Remaining</span>
+      <span id="netVegaStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Payoff at Front Expiry</h2>
+      <span class="hint">Front straddle settles at intrinsic (×1); the back straddle is repriced via Black-Scholes at its current IV (×ratio), since it hasn't expired yet</span>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> The ratio shown is a snapshot computed from
+    today's quoted IVs and today's Black-Scholes vega — it is not rebalanced as the
+    position ages, and real fills at a fractional contract size may not be available on
+    every venue. This does not neutralize gamma or theta, only vega — the position still
+    has real, intentional exposure to both.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=9"></script>
+  <script src="strategy-vega-neutral-calendar.js?v=1"></script>
+</body>
+</html>

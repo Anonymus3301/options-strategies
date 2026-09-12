@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Broken Wing Condor</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Broken Wing Iron Condor</h1>
+        <p class="subtitle">An Iron Condor with independently selectable put-side and call-side wing widths — the same asymmetric idea as the Broken Wing Butterfly, applied to the Condor</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Put wing width</span>
+        <select id="putWidthSelect" class="poll-rate-select">
+          <option value="5">5% of spot</option>
+          <option value="10" selected>10% of spot</option>
+          <option value="15">15% of spot</option>
+        </select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Call wing width</span>
+        <select id="callWidthSelect" class="poll-rate-select">
+          <option value="5">5% of spot</option>
+          <option value="10">10% of spot</option>
+          <option value="15" selected>15% of spot</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> the same 4 legs as the Iron Condor Builder (short ~20Δ put and call, long wings for protection), but the two wing widths are set independently instead of sharing one selector — a narrower wing on one side costs more but caps that side's loss tighter; a wider wing on the other costs less but leaves more risk exposed there.</p>
+      <p><strong>Market view:</strong> neutral, like a regular Iron Condor, but with a deliberate lean — a trader more worried about a crash than a rally (or vice versa) can size the wings to match, rather than treating both tails identically.</p>
+      <p><strong>Why trade it:</strong> a symmetric Iron Condor treats upside and downside risk as equally likely and equally sized, which is rarely anyone's actual view. Sizing wings independently lets the credit collected and the risk taken reflect an actual directional lean, while still collecting premium from both sides.</p>
+      <p><strong>Max profit:</strong> the net credit, kept if price finishes between the two short strikes — same as a regular Iron Condor. <strong>Max loss:</strong> reported separately for the put side and call side, since with unequal wing widths these are no longer the same number.</p>
+      <p><strong>Key risk:</strong> the side with the wider wing carries more uncapped-feeling risk (though still technically capped) — this page reports both max-loss figures honestly rather than quoting only the smaller, more flattering one.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Strikes (long put / short put / short call / long call)</span>
+      <span id="strikesStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Net Credit</span>
+      <span id="creditStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Max Loss (put side)</span>
+      <span id="putLossStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Max Loss (call side)</span>
+      <span id="callLossStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat" title="Risk-neutral probability under the short strikes' average IV, not a real-world/objective probability">
+      <span class="mstat-label">Probability of Profit (live)</span>
+      <span id="popStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Payoff at Expiry — <span id="condorExpiry">—</span></h2>
+      <span class="hint">Short ~20Δ strikes both sides, wing widths set independently — illustrative, ignores fees/margin</span>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Short strikes are chosen via Black-Scholes delta
+    from each strike's own quoted IV, not live greeks. Unequal wing widths mean unequal
+    max-loss figures on each side — both are shown explicitly rather than only the smaller
+    one, the same honesty convention used on the Broken Wing Butterfly page.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=9"></script>
+  <script src="strategy-broken-wing-condor.js?v=1"></script>
+</body>
+</html>

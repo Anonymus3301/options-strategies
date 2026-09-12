@@ -1,4 +1,4 @@
-// Strategy Hub — an index/overview page for all 36 standalone strategy pages, plus a
+// Strategy Hub — an index/overview page for all 41 standalone strategy pages, plus a
 // small live market snapshot (front-month IV, realized vol, vol risk premium, IV Rank)
 // computed the same way the other pages do, standalone/REST-only.
 
@@ -18,6 +18,7 @@ const CATEGORIES = [
       { href: "strategy-jade-lizard.html", title: "Jade Lizard", desc: "Short put + call credit spread — checks if credit kills upside risk.", risk: "undefined" },
       { href: "strategy-broken-wing.html", title: "Broken Wing Butterfly", desc: "Asymmetric butterfly, often net credit — checks both flat regions honestly.", risk: "defined" },
       { href: "strategy-iron-butterfly.html", title: "Iron Butterfly", desc: "Short straddle + long wings — a single peak instead of the Condor's flat top.", risk: "defined" },
+      { href: "strategy-broken-wing-condor.html", title: "Broken Wing Iron Condor", desc: "Independent put/call wing widths — an intentional lean instead of symmetric risk.", risk: "defined" },
     ],
   },
   {
@@ -40,6 +41,7 @@ const CATEGORIES = [
       { href: "strategy-covered-strangle.html", title: "Covered Strangle", desc: "Covered call plus a short put — extra income, but doubled downside below the put strike.", risk: "undefined" },
       { href: "strategy-covered-put.html", title: "Covered Put", desc: "For a short position: sell a put for income — capped profit, unlimited risk if price rises.", risk: "undefined" },
       { href: "strategy-income.html", title: "Covered Call / CSP Income", desc: "Scans the chain for the best annualized yield by delta band.", risk: "defined" },
+      { href: "strategy-seagull.html", title: "Seagull Spread", desc: "3-leg Collar refinement: cheaper floor, but only partial protection below it.", risk: "defined" },
     ],
   },
   {
@@ -83,6 +85,9 @@ const CATEGORIES = [
       { href: "strategy-pmcc.html", title: "Poor Man's Covered Call", desc: "Deep-ITM long-dated call stands in for spot — capital-efficient, risk-defined.", risk: "defined" },
       { href: "strategy-pmcp.html", title: "Poor Man's Covered Put", desc: "Bearish mirror of the PMCC — deep-ITM long-dated put stands in for a short.", risk: "defined" },
       { href: "strategy-double-calendar.html", title: "Double Calendar Spread", desc: "Two calendars stacked at OTM strikes for a wider neutral profit zone.", risk: "defined" },
+      { href: "strategy-forward-variance.html", title: "Forward Variance", desc: "Bootstraps the implied vol for the period between two expiries, not just each endpoint.", risk: "defined" },
+      { href: "strategy-vega-neutral-calendar.html", title: "Vega-Neutral Calendar", desc: "Sizes the back leg so net vega ≈ 0, isolating the theta/gamma bet.", risk: "defined" },
+      { href: "strategy-hedged-risk-reversal.html", title: "Delta-Hedged Risk Reversal", desc: "Skew Arbitrage plus a hedge sized to null the initial directional lean.", risk: "defined" },
     ],
   },
 ];

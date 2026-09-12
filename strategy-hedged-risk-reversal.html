@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Delta-Hedged Risk Reversal</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Delta-Hedged Risk Reversal</h1>
+        <p class="subtitle">The Skew Arbitrage page's 25Δ risk reversal, plus a spot hedge sized to null the initial directional lean — showing how much flatter that makes the position's immediate price sensitivity</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> the exact same 25Δ risk reversal as the Skew Arbitrage page (sell the richer 25Δ option, buy the cheaper one), plus a position in the underlying sized to exactly offset the combined position's net delta at inception — computed the same way a market maker would size a hedge for a skew trade.</p>
+      <p><strong>Market view:</strong> the same skew-normalization view as the plain risk reversal, but with the incidental directional lean the Skew Arbitrage page explicitly flags (selling the put/buying the call leans bullish, and vice versa) removed at entry.</p>
+      <p><strong>Why it matters:</strong> a plain risk reversal is a leveraged directional bet with a skew-driven entry cost, not a pure skew trade — this page shows exactly how much flatter (or not) the position's immediate mark-to-market sensitivity becomes once that initial delta is hedged out.</p>
+      <p><strong>How to read the chart:</strong> for small hypothetical moves, the hedged line should sit much closer to zero than the unhedged line — that's the delta hedge doing its job. For large moves, both lines diverge from zero again, since a one-time delta hedge only cancels the <em>linear</em> (first-order) sensitivity, not gamma.</p>
+      <p><strong>Key risk / caveat:</strong> this hedge is sized once, at inception, from today's snapshot — it is <em>not</em> rebalanced as spot moves or time passes. By the time the position reaches expiry, it has long since reacquired real directional exposure unless actively rehedged, the same caveat as the Gamma Scalping and Vega-Neutral Calendar pages.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Structure</span>
+      <span id="structureStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Net Option Delta (unhedged)</span>
+      <span id="netDeltaStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Hedge Size</span>
+      <span id="hedgeStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Mark-to-Market P&L for a Hypothetical Instant Move</h2>
+      <span class="hint">Same-day Black-Scholes reprice at each leg's current IV — not a payoff-at-expiry chart</span>
+    </div>
+    <div id="barChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> This chart shows an instantaneous, same-day
+    repricing sensitivity — it says nothing about what happens to the position over time as
+    theta decays and IV moves, which the plain Skew Arbitrage page's own framing already
+    covers. The two are complements: this page isolates the pure spot-sensitivity question,
+    the other covers the full position.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=9"></script>
+  <script src="strategy-hedged-risk-reversal.js?v=1"></script>
+</body>
+</html>

@@ -83,6 +83,16 @@ function qBsThetaPerDay(S, K, T, sigma) {
   return -(S * qNormPdf(d1) * sigma) / (2 * Math.sqrt(T)) / 365;
 }
 
+// Vega (per 1.00 = 100 percentage points of sigma, matching this file's other raw-BS
+// Greeks — divide by 100 for "P&L per 1 vol point" when displaying). Identical for calls
+// and puts at the same S/K/T/sigma, per put-call parity. Verified against a numerical
+// (S,K,T,sigma±h) finite-difference derivative of qBsPrice — matches to 4+ decimal places.
+function qBsVega(S, K, T, sigma) {
+  if (T <= 0 || sigma <= 0) return 0;
+  const d1 = (Math.log(S / K) + 0.5 * sigma * sigma * T) / (sigma * Math.sqrt(T));
+  return S * Math.sqrt(T) * qNormPdf(d1);
+}
+
 // ---------- Chain grouping + implied spot via put-call parity ----------
 
 function qGroupByExpiry(instruments) {

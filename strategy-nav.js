@@ -39,6 +39,11 @@ const STRATEGY_PAGES = [
   { href: "strategy-pmcc.html", label: "Poor Man's Covered Call" },
   { href: "strategy-pmcp.html", label: "Poor Man's Covered Put" },
   { href: "strategy-double-calendar.html", label: "Double Calendar" },
+  { href: "strategy-forward-variance.html", label: "Forward Variance" },
+  { href: "strategy-vega-neutral-calendar.html", label: "Vega-Neutral Calendar" },
+  { href: "strategy-seagull.html", label: "Seagull Spread" },
+  { href: "strategy-broken-wing-condor.html", label: "Broken Wing Condor" },
+  { href: "strategy-hedged-risk-reversal.html", label: "Delta-Hedged Risk Reversal" },
 ];
 
 const TOOL_PAGES = [

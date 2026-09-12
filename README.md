@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Thirty-six dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Forty-one dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -222,6 +222,26 @@ financial advice, and each page's own disclaimer spells out its specific limitat
 - **[Double Calendar Spread](strategy-double-calendar.html)** — two calendar spreads
   stacked at OTM strikes on both sides (call side and put side), trading the single ATM
   Calendar Spread's narrow peak for a wider, flatter neutral profit zone at a higher cost.
+- **[Forward Variance](strategy-forward-variance.html)** — bootstraps the model-free
+  implied vol for the period *between* two expiries from their own individual fair
+  variances, the same way a forward interest rate is bootstrapped from two zero rates —
+  the actual vol exposure a Calendar Spread between those two dates is really a bet on.
+- **[Vega-Neutral Calendar Spread](strategy-vega-neutral-calendar.html)** — sizes the
+  back-month quantity via each leg's Black-Scholes vega so net vega ≈ 0 at inception,
+  isolating the theta/gamma bet from the plain Calendar Spread's mixed vega exposure.
+- **[Seagull Spread](strategy-seagull.html)** — a 3-leg refinement of the Collar for
+  holders: sell a further-OTM put to cheapen the floor, sell a call to finance the rest —
+  full protection only in a band, partial protection beyond it, an intentional trade-off
+  common in FX/commodity hedging books.
+- **[Broken Wing Iron Condor](strategy-broken-wing-condor.html)** — the same 4-leg Iron
+  Condor with put-side and call-side wing widths set independently, reporting both
+  (now-unequal) max-loss figures honestly, the same idea as the Broken Wing Butterfly
+  applied to a Condor.
+- **[Delta-Hedged Risk Reversal](strategy-hedged-risk-reversal.html)** — the Skew
+  Arbitrage page's risk reversal plus a spot hedge sized to null its initial directional
+  lean; shows the resulting same-day mark-to-market sensitivity (not a payoff-at-expiry
+  chart) hedged vs. unhedged, with an explicit caveat that the hedge is a one-time
+  snapshot, not continuously maintained.
 
 **[Strategy Hub](strategy-hub.html)** ties the set together: a live market snapshot
 (front-month ATM IV, realized vol, vol risk premium, IV Rank) plus every strategy page
@@ -236,13 +256,14 @@ many of them — a visitor has open in that browser.
 
 ### Live Probability of Profit
 
-Twenty-seven of the pages above show a live **Probability of Profit** stat, recomputed on
+Twenty-nine of the pages above show a live **Probability of Profit** stat, recomputed on
 every refresh from that page's own strikes, premiums, and quoted IV: Premium Selling,
 Skew Arbitrage, Long Volatility, Calendar Spread, Protective Put, Collar, Iron Condor,
 Butterfly, Jade Lizard, Ratio Spread, Diagonal Spread, Call Backspread, Strap/Strip,
 Broken Wing Butterfly, Iron Butterfly, Long Strangle, Guts, Call Ladder, Covered
 Strangle, Put Ratio Spread, Put Backspread, Put Ladder, Reverse Iron Condor, Covered
-Put, Poor Man's Covered Call, Poor Man's Covered Put, and Double Calendar Spread.
+Put, Poor Man's Covered Call, Poor Man's Covered Put, Double Calendar Spread, Seagull
+Spread, and Broken Wing Iron Condor.
 
 It's computed by numerically integrating each structure's own PnL-at-expiry function
 against the lognormal price distribution implied by the page's IV and time-to-expiry —

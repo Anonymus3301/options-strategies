@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Forward Variance</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Forward Variance — Term Structure of Model-Free Vol</h1>
+        <p class="subtitle">Bootstraps the market's implied volatility for the period *between* two expiries — the actual vol exposure a Calendar Spread between them is really a bet on</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Front expiry</span>
+        <select id="frontSelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Back expiry</span>
+        <select id="backSelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> no options position — this bootstraps the "forward variance" between two expiries from their own model-free implied variances (see the Variance Swap page), the same way a forward interest rate is bootstrapped from two zero rates: Forward Var = (T₂·Var₂ − T₁·Var₁) / (T₂ − T₁).</p>
+      <p><strong>Market view:</strong> none by itself — a measurement, not a position. It answers "what volatility is actually priced in for the period after the front expiry and before the back expiry," which single-point IV numbers at each expiry don't directly tell you.</p>
+      <p><strong>Why it matters:</strong> a Calendar Spread's real economic bet is on this forward-period vol vs. what actually realizes in that window — comparing front IV to back IV directly, as the plain Calendar Spread page does, only shows the two endpoints, not the rate priced in between them.</p>
+      <p><strong>How to use it:</strong> if forward vol looks rich vs. your own realized-vol expectation for that future window, a calendar-type structure (selling the front, buying the back) is set up to profit from it normalizing lower — and vice versa if it looks cheap.</p>
+      <p><strong>Key risk / caveat:</strong> inherits the Variance Swap page's discretization approximation twice over (once per expiry), and a thin chain at either expiry can make the bootstrapped number unstable — flagged as "insufficient data" when either side doesn't have enough listed strikes.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Front Fair Vol</span>
+      <span id="frontVolStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Back Fair Vol</span>
+      <span id="backVolStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Forward Vol (between the two)</span>
+      <span id="forwardVolStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Term Structure Read</span>
+      <span id="readStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Front vs. Back vs. Forward Vol</h2>
+      <span class="hint">Same units (annualized %), directly comparable</span>
+    </div>
+    <div id="barChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Forward variance can come out negative (an
+    arithmetic impossibility for real variance) when the two expiries' fair vols are
+    inconsistent with each other — usually a sign of thin or stale quotes at one of them
+    rather than a genuine market signal. This page reports "insufficient data" rather than
+    showing a nonsensical negative volatility in that case.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=9"></script>
+  <script src="strategy-forward-variance.js?v=1"></script>
+</body>
+</html>
