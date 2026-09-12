@@ -259,6 +259,33 @@ function qBuildPayoffSvg(legs, spot, opts = {}) {
   return svg;
 }
 
+// ---------- Simple signed bar chart (category labels, not numeric x-axis) ----------
+
+function qBuildBarChart(categories, values, opts = {}) {
+  const W = opts.width || 640, H = opts.height || 200, padL = 46, padR = 12, padT = 14, padB = 34;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const maxAbs = Math.max(...values.map((v) => Math.abs(v || 0)), 1) * 1.15;
+  const zeroY = padT + innerH / 2;
+  const scale = innerH / 2 / maxAbs;
+  const n = categories.length;
+  const bandW = innerW / n;
+  const barW = Math.max(1, bandW * 0.55);
+  let svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
+  svg += `<line x1="${padL}" y1="${zeroY}" x2="${W - padR}" y2="${zeroY}" stroke="#232a3a" stroke-width="1"/>`;
+  categories.forEach((label, i) => {
+    const v = values[i] || 0;
+    const cx = padL + bandW * i + bandW / 2;
+    const h = Math.abs(v) * scale;
+    const color = v >= 0 ? opts.posColor || "#35d399" : opts.negColor || "#ff5c7c";
+    const y = v >= 0 ? zeroY - h : zeroY;
+    svg += `<rect x="${(cx - barW / 2).toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" fill="${color}" opacity="0.85"/>`;
+    svg += `<text x="${cx.toFixed(1)}" y="${H - padB + 14}" font-size="9" fill="#8892a6" text-anchor="middle">${label}</text>`;
+    svg += `<text x="${cx.toFixed(1)}" y="${(v >= 0 ? y - 4 : y + h + 12).toFixed(1)}" font-size="9" fill="#8892a6" text-anchor="middle">${qFmt(v, 1)}</text>`;
+  });
+  svg += "</svg>";
+  return svg;
+}
+
 // ---------- Minimal shared line-chart SVG (sparkline / history charts) ----------
 
 function qBuildSparkline(values, opts = {}) {
