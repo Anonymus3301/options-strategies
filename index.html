@@ -74,13 +74,21 @@
       <span class="mstat-label">Expected Move (ATM straddle, selected expiry)</span>
       <span id="expectedMoveStat" class="mstat-value">—</span>
     </div>
-    <div class="mstat">
-      <span class="mstat-label">25Δ Risk Reversal · Butterfly</span>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">25Δ Risk Reversal · Butterfly (selected expiry)</span>
       <span id="skewStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Skew Rank · Percentile (front-month RR25, this browser's history)</span>
+      <span id="skewRankStat" class="mstat-value">—</span>
     </div>
     <div class="mstat mstat-wide">
       <span class="mstat-label">Order Flow — net premium bought (session, this tab)</span>
       <span id="orderFlowStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">BTC/ETH Vol Spread &amp; Realized Correlation (30D)</span>
+      <span id="crossAssetStat" class="mstat-value">—</span>
     </div>
   </section>
 
@@ -289,6 +297,6 @@
     This app uses <strong>Deribit's public REST + WebSocket API</strong>, which requires no API key or authentication for market data.</p>
   </footer>
 
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>

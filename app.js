@@ -9,6 +9,7 @@ const CHAIN_POLL_MS = 5000;
 const INSTRUMENTS_REFRESH_MS = 5 * 60 * 1000;
 const REALIZED_VOL_REFRESH_MS = 5 * 60 * 1000;
 const FUTURES_REFRESH_MS = 30 * 1000;
+const CROSS_ASSET_REFRESH_MS = 60 * 1000;
 const LARGE_TRADE_THRESHOLD = 5; // contracts
 const YEAR_MS = 365.25 * 24 * 60 * 60 * 1000;
 const COLOR_CALL = "#35d399";
@@ -32,6 +33,8 @@ const state = {
   realizedVol: null,
   realizedVolWindows: {}, // { 7: pct, 14: pct, 30: pct, 60: pct, 90: pct }
   ivRank: null, // { rank, percentile, days } from computeIvRankPercentile, or { days } while collecting
+  skewRank: null, // same shape, for front-month RR25 history
+  crossAsset: { ethAtmIv: null, btcAtmIv: null, ethRvol30: null, corr30: null }, // BTC/ETH vol-spread panel
   recentTrades: [],
   strategyLegs: [], // { instrument, strike, type, side, qty, premiumUsd, ivPct, expiry }
   futures: [], // [{ name, expiry, markPrice }]
@@ -853,10 +856,15 @@ function renderProbabilityCone() {
 const IV_HISTORY_KEY = "btc-options-iv-history-v1";
 const IV_HISTORY_MAX_DAYS = 400;
 const IV_HISTORY_MIN_DAYS = 5;
+const SKEW_HISTORY_KEY = "btc-options-skew-history-v1";
+const SKEW_HISTORY_MAX_DAYS = 400;
+const SKEW_HISTORY_MIN_DAYS = 5;
 
-function loadIvHistory() {
+// Generic one-reading-per-calendar-day history, kept in localStorage. `field` names the
+// value being tracked inside each {date, [field]: value} record.
+function loadDailyHistory(key) {
   try {
-    const raw = localStorage.getItem(IV_HISTORY_KEY);
+    const raw = localStorage.getItem(key);
     const parsed = raw ? JSON.parse(raw) : [];
     return Array.isArray(parsed) ? parsed : [];
   } catch (err) {
@@ -864,37 +872,41 @@ function loadIvHistory() {
   }
 }
 
-function recordIvHistory(atmIv) {
-  if (atmIv == null) return loadIvHistory();
+function recordDailyHistory(key, field, value, maxDays) {
+  if (value == null) return loadDailyHistory(key);
   const today = new Date().toISOString().slice(0, 10);
-  const history = loadIvHistory();
+  const history = loadDailyHistory(key);
   const last = history[history.length - 1];
   if (last && last.date === today) {
-    last.atmIv = atmIv;
+    last[field] = value;
   } else {
-    history.push({ date: today, atmIv });
+    history.push({ date: today, [field]: value });
   }
-  if (history.length > IV_HISTORY_MAX_DAYS) history.splice(0, history.length - IV_HISTORY_MAX_DAYS);
+  if (history.length > maxDays) history.splice(0, history.length - maxDays);
   try {
-    localStorage.setItem(IV_HISTORY_KEY, JSON.stringify(history));
+    localStorage.setItem(key, JSON.stringify(history));
   } catch (err) {
     // Private browsing / quota exceeded — rank just won't persist across reloads.
   }
   return history;
 }
 
+function computeRankPercentile(currentVal, values, minDays) {
+  if (currentVal == null || values.length < minDays) return { days: values.length };
+  const min = Math.min(...values), max = Math.max(...values);
+  const rank = max === min ? 50 : ((currentVal - min) / (max - min)) * 100;
+  const percentile = (values.filter((v) => v <= currentVal).length / values.length) * 100;
+  return { rank, percentile, days: values.length };
+}
+
 function computeIvRankPercentile(currentIv, history) {
   const values = history.map((h) => h.atmIv).filter((v) => v != null);
-  if (currentIv == null || values.length < IV_HISTORY_MIN_DAYS) return { days: values.length };
-  const min = Math.min(...values), max = Math.max(...values);
-  const rank = max === min ? 50 : ((currentIv - min) / (max - min)) * 100;
-  const percentile = (values.filter((v) => v <= currentIv).length / values.length) * 100;
-  return { rank, percentile, days: values.length };
+  return computeRankPercentile(currentIv, values, IV_HISTORY_MIN_DAYS);
 }
 
 function updateIvRankStat(currentIv) {
   const el = $("ivRankStat");
-  const history = recordIvHistory(currentIv);
+  const history = recordDailyHistory(IV_HISTORY_KEY, "atmIv", currentIv, IV_HISTORY_MAX_DAYS);
   const res = computeIvRankPercentile(currentIv, history);
   state.ivRank = res;
   if (!el) return;
@@ -903,6 +915,172 @@ function updateIvRankStat(currentIv) {
     return;
   }
   el.textContent = `Rank ${fmtNum(res.rank, 0)} · Pctl ${fmtNum(res.percentile, 0)} (${res.days}d, this browser)`;
+}
+
+// ---------- Skew Rank: same idea as IV Rank, tracking the front-month 25Δ risk reversal ----------
+// Anchored to the front-month expiry regardless of which expiry is selected in the ladder,
+// so switching expiries in the UI doesn't pollute the daily history with unrelated readings.
+
+function computeFrontMonthSkew() {
+  const term = state.expiries.length ? computeIvTermStructure() : [];
+  const front = term.find((t) => t.atmIv != null);
+  if (!front) return null;
+  const bucket = state.instrumentsByExpiry.get(front.expiry);
+  if (!bucket) return null;
+  const strikes = [...new Set([...bucket.calls.keys(), ...bucket.puts.keys()])].sort((a, b) => a - b);
+  const atm = closestStrike(strikes);
+  return computeRiskReversalButterfly(strikes, bucket, atm);
+}
+
+function updateSkewRankStat() {
+  const el = $("skewRankStat");
+  const skew = computeFrontMonthSkew();
+  const rr = skew ? skew.rr : null;
+  const history = recordDailyHistory(SKEW_HISTORY_KEY, "rr", rr, SKEW_HISTORY_MAX_DAYS);
+  const values = history.map((h) => h.rr).filter((v) => v != null);
+  const res = computeRankPercentile(rr, values, SKEW_HISTORY_MIN_DAYS);
+  state.skewRank = res;
+  if (!el) return;
+  if (rr == null || res.days < SKEW_HISTORY_MIN_DAYS) {
+    el.textContent = `Collecting history (${res.days}d so far, this browser — need ${SKEW_HISTORY_MIN_DAYS}+)`;
+    return;
+  }
+  const extreme = res.percentile >= 80 || res.percentile <= 20;
+  el.textContent =
+    `RR Rank ${fmtNum(res.rank, 0)} · Pctl ${fmtNum(res.percentile, 0)} (${res.days}d, this browser)` +
+    (extreme ? " — stretched vs. its own recent range" : "");
+}
+
+// ---------- Cross-asset: BTC/ETH volatility spread (relative-value vol pair, not true dispersion) ----------
+// Genuine index dispersion needs an index priced against 3+ constituents; with just two
+// assets this is closer to a cross-asset vol/correlation pair trade. Labeled honestly as
+// that rather than "dispersion." ETH's ATM IV is derived without trusting an unverified
+// underlying_price field — instead it backs out an implied spot from put-call parity
+// (r=0, matching this app's own Black-Scholes convention) using only mark_price, which is
+// already relied on elsewhere for BTC.
+
+async function fetchEthOptionSnapshot() {
+  const [instrRes, summaryRes] = await Promise.all([
+    fetch(`${REST_BASE}/get_instruments?currency=ETH&kind=option&expired=false`),
+    fetch(`${REST_BASE}/get_book_summary_by_currency?currency=ETH&kind=option`),
+  ]);
+  const instrJson = await instrRes.json();
+  const summaryJson = await summaryRes.json();
+  if (instrJson.error) throw new Error(instrJson.error.message);
+  if (summaryJson.error) throw new Error(summaryJson.error.message);
+  return { instruments: instrJson.result, summaries: summaryJson.result };
+}
+
+async function fetchDailyCloses(instrumentName, days) {
+  const end = Date.now();
+  const start = end - days * 24 * 60 * 60 * 1000;
+  const url = `${REST_BASE}/get_tradingview_chart_data?instrument_name=${instrumentName}&start_timestamp=${start}&end_timestamp=${end}&resolution=1D`;
+  const res = await fetch(url);
+  const json = await res.json();
+  if (json.error) throw new Error(json.error.message);
+  return json.result;
+}
+
+function computeAtmIvFromChain(instruments, summaries) {
+  if (!instruments || !instruments.length || !summaries || !summaries.length) return null;
+  const nearestExpiry = Math.min(...instruments.map((i) => i.expiration_timestamp));
+  const summaryMap = new Map(summaries.map((s) => [s.instrument_name, s]));
+  const byStrike = new Map();
+  for (const inst of instruments) {
+    if (inst.expiration_timestamp !== nearestExpiry) continue;
+    const sum = summaryMap.get(inst.instrument_name);
+    if (!sum || sum.mark_price == null) continue;
+    const entry = byStrike.get(inst.strike) || {};
+    if (inst.option_type === "call") entry.call = sum;
+    else entry.put = sum;
+    byStrike.set(inst.strike, entry);
+  }
+  // Implied spot via put-call parity, r=0: C - P = S - K (in coin-denominated terms this
+  // becomes S = K / (1 - (C_coin - P_coin))). Median across strikes for robustness.
+  const impliedSpots = [];
+  for (const [strike, pair] of byStrike) {
+    if (pair.call && pair.put && pair.call.mark_price != null && pair.put.mark_price != null) {
+      const denom = 1 - (pair.call.mark_price - pair.put.mark_price);
+      if (denom > 0.2 && denom < 5) impliedSpots.push(strike / denom);
+    }
+  }
+  if (!impliedSpots.length) return null;
+  impliedSpots.sort((a, b) => a - b);
+  const spot = impliedSpots[Math.floor(impliedSpots.length / 2)];
+  let atmStrike = null, bestDist = Infinity;
+  for (const strike of byStrike.keys()) {
+    const dist = Math.abs(strike - spot);
+    if (dist < bestDist) {
+      bestDist = dist;
+      atmStrike = strike;
+    }
+  }
+  const atmEntry = byStrike.get(atmStrike);
+  const ivs = [atmEntry.call && atmEntry.call.mark_iv, atmEntry.put && atmEntry.put.mark_iv].filter((v) => v != null);
+  if (!ivs.length) return null;
+  return { atmIv: ivs.reduce((a, b) => a + b, 0) / ivs.length, spot, expiry: nearestExpiry };
+}
+
+function logReturns(closes) {
+  const out = [];
+  for (let i = 1; i < closes.length; i++) out.push(Math.log(closes[i] / closes[i - 1]));
+  return out;
+}
+
+function pearsonCorrelation(a, b) {
+  const n = Math.min(a.length, b.length);
+  if (n < 3) return null;
+  const xs = a.slice(-n), ys = b.slice(-n);
+  const meanX = xs.reduce((s, v) => s + v, 0) / n;
+  const meanY = ys.reduce((s, v) => s + v, 0) / n;
+  let num = 0, denX = 0, denY = 0;
+  for (let i = 0; i < n; i++) {
+    const dx = xs[i] - meanX, dy = ys[i] - meanY;
+    num += dx * dy;
+    denX += dx * dx;
+    denY += dy * dy;
+  }
+  if (denX === 0 || denY === 0) return null;
+  return num / Math.sqrt(denX * denY);
+}
+
+function updateCrossAssetStat() {
+  const el = $("crossAssetStat");
+  if (!el) return;
+  const { ethAtmIv, btcAtmIv, corr30 } = state.crossAsset;
+  if (ethAtmIv == null || btcAtmIv == null) {
+    el.textContent = "—";
+    return;
+  }
+  const spread = btcAtmIv - ethAtmIv;
+  const parts = [
+    `BTC IV ${fmtNum(btcAtmIv, 1)}% vs ETH IV ${fmtNum(ethAtmIv, 1)}% (spread ${spread >= 0 ? "+" : ""}${fmtNum(spread, 1)}pp)`,
+    corr30 != null ? `30D realized corr ${fmtNum(corr30 * 100, 0)}%` : "corr —",
+  ];
+  el.textContent = parts.join(" · ");
+}
+
+async function refreshCrossAsset() {
+  try {
+    const [ethChain, btcOhlc, ethOhlc] = await Promise.all([
+      fetchEthOptionSnapshot(),
+      fetchDailyCloses("BTC-PERPETUAL", 31),
+      fetchDailyCloses("ETH-PERPETUAL", 31),
+    ]);
+    const ethAtm = computeAtmIvFromChain(ethChain.instruments, ethChain.summaries);
+    const term = state.expiries.length ? computeIvTermStructure() : [];
+    const btcFront = term.find((t) => t.atmIv != null);
+
+    state.crossAsset.ethAtmIv = ethAtm ? ethAtm.atmIv : null;
+    state.crossAsset.btcAtmIv = btcFront ? btcFront.atmIv : null;
+    if (btcOhlc && btcOhlc.close && ethOhlc && ethOhlc.close) {
+      state.crossAsset.corr30 = pearsonCorrelation(logReturns(btcOhlc.close), logReturns(ethOhlc.close));
+      state.crossAsset.ethRvol30 = annualizedVolFromCloses(ethOhlc.close.slice(-31));
+    }
+    updateCrossAssetStat();
+  } catch (err) {
+    console.error("cross-asset (ETH) fetch failed", err);
+  }
 }
 
 function updateVolStat() {
@@ -915,6 +1093,7 @@ function updateVolStat() {
   const parts = [rvolParts.join(" · "), front ? `ATM IV ${fmtNum(front.atmIv, 1)}%` : "ATM IV —"];
   $("volStat").textContent = parts.join(" / ");
   updateIvRankStat(front ? front.atmIv : null);
+  updateSkewRankStat();
 }
 
 function updateOrderFlowStat() {
@@ -1871,12 +2050,14 @@ async function init() {
   await refreshChain();
   refreshRealizedVol();
   refreshFutures();
+  refreshCrossAsset();
   renderStrategyPanel();
   renderAlertsList();
   setChainPollInterval(CHAIN_POLL_MS);
   setInterval(refreshInstruments, INSTRUMENTS_REFRESH_MS);
   setInterval(refreshRealizedVol, REALIZED_VOL_REFRESH_MS);
   setInterval(refreshFutures, FUTURES_REFRESH_MS);
+  setInterval(refreshCrossAsset, CROSS_ASSET_REFRESH_MS);
 }
 
 init();

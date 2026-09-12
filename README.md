@@ -65,6 +65,22 @@ python3 -m http.server 8000   # then open http://localhost:8000
   Each shows green/yellow/red and rolls up into an overall verdict. It only reflects this
   dashboard's own free public data, says nothing about which side (if any) to sell, and
   is not a trade signal or financial advice — hover a row to see what it measures.
+- **Skew Rank / Percentile** — the same localStorage-history idea as IV Rank, applied to
+  the front-month 25-delta risk reversal instead of ATM IV, for gauging when skew itself
+  is stretched vs. its own recent range (the read a skew mean-reversion trade would use).
+  Anchored to the front-month expiry regardless of which expiry is selected in the ladder,
+  so switching expiries in the UI doesn't corrupt the daily history with unrelated
+  readings. Same "collecting history" / per-browser caveats as IV Rank.
+- **BTC/ETH Vol Spread & Realized Correlation** — front-month ATM IV for BTC vs. ETH side
+  by side (Deribit lists ETH options too, on the same free endpoints already used for
+  BTC), plus their 30-day realized-return correlation. This is a two-asset relative-value
+  vol read, not true index dispersion trading (that needs an index priced against 3+
+  constituents, which doesn't exist for crypto) — labeled honestly rather than
+  overclaiming. ETH's ATM strike/IV is derived without an unverified `underlying_price`
+  field: it backs out an implied spot from put-call parity (`S = K / (1 - (C - P))` at
+  r=0, the same convention this app's own Black-Scholes pricer already uses) across ETH's
+  near-dated strikes, using only the `mark_price`/`mark_iv` fields already relied on for
+  BTC. Refreshed every 60s, independent of the main chain poll.
 
 ## What's deliberately not included
 
