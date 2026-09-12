@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Options Glossary</title>
+<link rel="stylesheet" href="styles.css?v=7" />
+<style>
+  .glossary-search { margin: 16px 20px; }
+  .glossary-search input {
+    width: 100%; max-width: 400px; font: inherit; font-size: 13px;
+    background: var(--panel-alt); color: var(--text); border: 1px solid var(--border);
+    border-radius: 6px; padding: 8px 12px;
+  }
+  .glossary-term { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; margin-bottom: 8px; }
+  .glossary-term dt { font-weight: 700; font-size: 13px; color: var(--accent); margin-bottom: 4px; }
+  .glossary-term dd { margin: 0; font-size: 12px; color: var(--text); line-height: 1.5; }
+  .glossary-term dd a { color: var(--accent); }
+  .glossary-list { margin: 0 20px 20px; }
+  .glossary-empty { text-align: center; color: var(--text-dim); padding: 24px; }
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Options Glossary</h1>
+        <p class="subtitle">Plain-language definitions for the terms used across this dashboard and its strategy pages</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <div class="glossary-search">
+    <input id="searchInput" type="text" placeholder="Search terms (e.g. 'delta', 'theta', 'contango')…" autocomplete="off" />
+  </div>
+
+  <dl class="glossary-list" id="glossaryList"></dl>
+
+  <script src="tool-glossary.js?v=1"></script>
+</body>
+</html>
