@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Skew Arbitrage — Risk Reversal Strategy</title>
+<link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Skew Arbitrage — Risk Reversal</h1>
+        <p class="subtitle">Trade the 25Δ risk reversal mean-reverting vs. its own recent range — not true riskless arbitrage</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled>
+          <option>Loading…</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">25Δ Risk Reversal (selected expiry)</span>
+      <span id="rrStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">25Δ Butterfly (selected expiry)</span>
+      <span id="bfStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Skew Rank · Percentile (front-month, shared history with the main ladder)</span>
+      <span id="skewRankStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>25Δ Risk Reversal — Term Structure</h2>
+      <span class="hint">RR25 across all live expiries · negative = puts richer than calls (typical downside-fear skew)</span>
+    </div>
+    <div id="rrTermChart" class="svg-chart"></div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Suggested Risk Reversal — <span id="rrExpiry">—</span></h2>
+      <span class="hint">Sell the richer 25Δ option, buy the cheaper one — illustrative, ignores fees/margin</span>
+    </div>
+    <div id="rrInfo" class="scanner-body">
+      <p class="loading">Loading…</p>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Skew "richness" is relative to this specific
+    browser's own short accumulated history, not a long-run historical norm. A stretched
+    reading can stay stretched, or become more stretched, for a long time — this is a
+    relative-value read, not a prediction. 25Δ strikes are derived from Black-Scholes
+    delta computed off each strike's own quoted mark IV, not live greeks.
+  </p>
+
+  <script src="quant.js?v=2"></script>
+  <script src="strategy-nav.js?v=1"></script>
+  <script src="strategy-skew-arb.js?v=1"></script>
+</body>
+</html>

@@ -211,6 +211,54 @@ function qExpiryLabel(ts) {
   return days >= 0 ? `${dateStr} (${days}d)` : `${dateStr} (${Math.abs(days)}d ago)`;
 }
 
+// ---------- Generic multi-leg payoff-at-expiry SVG ----------
+// legs: [{ type: "call"|"put", side: "long"|"short", strike, premiumUsd, qty }]
+
+function qBuildPayoffSvg(legs, spot, opts = {}) {
+  const W = opts.width || 640, H = opts.height || 220, padL = 50, padR = 16, padT = 14, padB = 26;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const strikes = legs.map((l) => l.strike);
+  const lo = Math.min(spot, ...strikes) * 0.7;
+  const hi = Math.max(spot, ...strikes) * 1.3;
+  const steps = 100;
+  const pnlAt = (S) =>
+    legs.reduce((sum, leg) => {
+      const intrinsic = leg.type === "call" ? Math.max(S - leg.strike, 0) : Math.max(leg.strike - S, 0);
+      const legPnl = leg.side === "long" ? intrinsic - leg.premiumUsd : leg.premiumUsd - intrinsic;
+      return sum + legPnl * (leg.qty || 1);
+    }, 0);
+  const pts = [];
+  for (let i = 0; i <= steps; i++) {
+    const S = lo + ((hi - lo) * i) / steps;
+    pts.push({ S, pnl: pnlAt(S) });
+  }
+  const xScale = (S) => padL + ((S - lo) / (hi - lo)) * innerW;
+  const maxAbs = Math.max(...pts.map((p) => Math.abs(p.pnl)), 1) * 1.15;
+  const yScale = (pnl) => padT + innerH / 2 - (pnl / maxAbs) * (innerH / 2);
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
+  const zeroY = yScale(0);
+  svg += `<line x1="${padL}" y1="${zeroY}" x2="${W - padR}" y2="${zeroY}" stroke="#232a3a" stroke-width="1"/>`;
+  const spotX = xScale(spot);
+  svg += `<line x1="${spotX}" y1="${padT}" x2="${spotX}" y2="${H - padB}" stroke="#f7931a" stroke-width="1" stroke-dasharray="3,3"/>`;
+  svg += `<text x="${spotX}" y="${padT - 2}" font-size="9" fill="#f7931a" text-anchor="middle">spot</text>`;
+  const seenX = new Set();
+  strikes.forEach((K) => {
+    const x = xScale(K).toFixed(1);
+    if (seenX.has(x)) return;
+    seenX.add(x);
+    svg += `<line x1="${x}" y1="${padT}" x2="${x}" y2="${H - padB}" stroke="#8892a6" stroke-width="1" stroke-dasharray="2,2"/>`;
+    svg += `<text x="${x}" y="${H - padB + 12}" font-size="9" fill="#8892a6" text-anchor="middle">${qFmt(K, 0)}</text>`;
+  });
+  let d = "";
+  pts.forEach((p, i) => {
+    d += `${i === 0 ? "M" : "L"}${xScale(p.S).toFixed(1)},${yScale(p.pnl).toFixed(1)} `;
+  });
+  svg += `<path d="${d.trim()}" fill="none" stroke="${opts.color || "#35d399"}" stroke-width="2"/>`;
+  svg += "</svg>";
+  return svg;
+}
+
 // ---------- Minimal shared line-chart SVG (sparkline / history charts) ----------
 
 function qBuildSparkline(values, opts = {}) {
