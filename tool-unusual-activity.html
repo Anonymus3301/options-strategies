@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Unusual Options Activity Scanner</title>
+<link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Unusual Options Activity Scanner</h1>
+        <p class="subtitle">Biggest open-interest and volume changes, tracked live in this browser since no historical-OI endpoint exists</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Baseline set</span>
+        <span id="baselineStat" class="stat-value">—</span>
+      </div>
+      <button id="resetBaseline" class="ob-chart-link">Reset baseline (now)</button>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Biggest Open Interest Changes Since Baseline</h2>
+      <span class="hint">Ranked by |ΔOI| · baseline resets when you open this page fresh, or on demand</span>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table" id="oiTable">
+        <thead><tr><th>Instrument</th><th>Expiry</th><th>Strike</th><th>Type</th><th>OI now</th><th>ΔOI (baseline)</th><th>ΔOI (last poll)</th></tr></thead>
+        <tbody><tr><td colspan="7" class="loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Biggest Volume Since Last Poll</h2>
+      <span class="hint">Volume is cumulative-for-the-day per Deribit's book summary, so this shows the largest raw totals, not necessarily "new" trades</span>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table" id="volTable">
+        <thead><tr><th>Instrument</th><th>Expiry</th><th>Strike</th><th>Type</th><th>Volume</th><th>ΔVolume (last poll)</th></tr></thead>
+        <tbody><tr><td colspan="6" class="loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Deribit's free API has no historical-OI/volume
+    endpoint, so "unusual" here is relative only to what this specific browser has
+    observed — it cannot see activity before this page was first opened (or since the
+    baseline was last reset), and a jump can reflect routine hedging or expiry-day
+    mechanics rather than a directional bet. Large OI at a strike is not itself a
+    prediction of anything; check the Max Pain page for the OI-implied pinning theory.
+  </p>
+
+  <script src="quant.js?v=3"></script>
+  <script src="strategy-nav.js?v=5"></script>
+  <script src="tool-unusual-activity.js?v=1"></script>
+</body>
+</html>
