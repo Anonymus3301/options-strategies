@@ -82,6 +82,45 @@ python3 -m http.server 8000   # then open http://localhost:8000
   near-dated strikes, using only the `mark_price`/`mark_iv` fields already relied on for
   BTC. Refreshed every 60s, independent of the main chain poll.
 
+## Standalone Strategy Pages
+
+Seven dedicated pages, each buildable purely from Deribit's free public REST API (no
+WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
+its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
+and on each strategy page itself, and built on a shared `quant.js` (fetch helpers,
+Black-Scholes, rank/percentile, payoff-diagram SVG). All are explicitly labeled as
+heuristics/informational, not financial advice, and each page's own disclaimer spells out
+its specific limitations.
+
+- **[Premium Selling](strategy-premium-selling.html)** — vol risk premium harvesting: the
+  same 4-signal scanner as the main dashboard's widget (recomputed independently here),
+  plus a suggested short strangle at ±1 expected move with a payoff diagram.
+- **[Skew Arbitrage](strategy-skew-arb.html)** — 25Δ risk reversal, found via
+  Black-Scholes delta from each strike's own quoted IV (no live greeks needed), a Skew
+  Rank/Percentile, an RR25 term-structure sparkline, and a suggested risk-reversal
+  structure (sell the richer 25Δ option, buy the cheaper one). Labeled as relative-value
+  skew-reversion, not riskless arbitrage.
+- **[Long Volatility](strategy-long-vol.html)** — the mirror image of Premium Selling:
+  favors buying an ATM straddle when IV Rank is low, IV sits below realized vol, and the
+  expiry is short-dated (more gamma per dollar).
+- **[Carry & Funding](strategy-carry.html)** — cash-and-carry basis trade (annualized
+  basis per dated future vs. the perpetual's own mark as a spot proxy) and perpetual
+  funding-rate farming, with a this-browser funding-rate history sparkline.
+- **[Covered Call / CSP Income Scanner](strategy-income.html)** — scans every live
+  expiry's chain for OTM strikes in a selectable delta band (10-20Δ / 15-30Δ / 25-40Δ),
+  ranked by annualized premium yield, for both covered calls and cash-secured puts.
+- **[BTC/ETH Vol Pair Trade](strategy-cross-asset.html)** — front-month ATM IV for BTC vs.
+  ETH (each via its own put-call-parity implied spot), 30D realized correlation, a spread
+  history/rank, and a suggested pair structure. Named a "pair trade," not "dispersion" —
+  true index dispersion needs 3+ constituents, which doesn't exist in crypto.
+- **[Max Pain / Pin Risk](strategy-maxpain.html)** — max pain strike and OI-by-strike
+  chart per expiry, plus a table across every live expiry. Explicitly flagged as a
+  contested theory with weak empirical support, not a forecast.
+
+Several pages share `localStorage` keys with the main dashboard's own IV Rank / Skew
+Rank features (same key names), so history accumulates regardless of which page — or how
+many of them — a visitor has open in that browser.
+
 ## What's deliberately not included
 
 A few items from a "full" advanced dashboard were left out because Deribit's free public
@@ -92,6 +131,11 @@ API doesn't support them without a backend/persistent storage or materially larg
 - **Historical replay / time-travel** through past chain snapshots — needs a database.
 - **Portfolio-level P&L / margin** — would require an authenticated account; this app
   only ever reads public market data.
+- **Structured-product flow hedging** — depends on banks'/dealers' own OTC issuance and
+  hedging books, which isn't published anywhere for free (or at all, publicly).
+- **True index dispersion trading** — needs an index priced against 3+ constituents;
+  crypto has no such instrument. The BTC/ETH Vol Pair page is the closest honest analog
+  with two assets.
 
 ## Where to get free live BTC options data
 
@@ -114,8 +158,15 @@ prices/IV are the most representative.
 
 Static site, no build step, no backend:
 
-- `index.html` / `styles.css` — layout and dark trading-terminal theme.
-- `app.js` — all data fetching and rendering logic.
+- `index.html` / `styles.css` — layout and dark trading-terminal theme, shared by every
+  page in this project.
+- `app.js` — all data fetching and rendering logic for the main ladder page.
+- `quant.js` / `strategy-nav.js` — shared fetch/math helpers and the cross-page nav strip
+  used by the seven standalone strategy pages (`strategy-*.html` / `strategy-*.js`,
+  documented above). Deliberately does not share code with `app.js`'s own copies of
+  similar functions (Black-Scholes, rank/percentile, etc.) — `app.js` is the
+  already-tested main dashboard, and a little duplication is a safer tradeoff than
+  risking a regression there.
 
 Data flow:
 
