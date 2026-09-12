@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Call Backspread — Capped Risk, Unlimited Upside</title>
+<link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Call Backspread (1×2)</h1>
+        <p class="subtitle">Sell 1 near-ATM call, buy 2 further OTM calls — the mirror image of the Ratio Spread page: capped loss, unlimited upside</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Long strike width</span>
+        <select id="widthSelect" class="poll-rate-select">
+          <option value="5">5% of spot</option>
+          <option value="10" selected>10% of spot</option>
+          <option value="15">15% of spot</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+
+  <section class="market-stats">
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Strikes (short 1× / long 2×)</span>
+      <span id="strikesStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Net Cost</span>
+      <span id="netCostStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Max Loss (at long strike)</span>
+      <span id="maxLossStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Upside Breakeven (unlimited profit above)</span>
+      <span id="breakevenStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Payoff at Expiry — <span id="backspreadExpiry">—</span></h2>
+      <span class="hint">Loss is capped at the long strike; profit grows unlimited past the upside breakeven</span>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> This is a long-gamma, typically long-vega
+    structure — it benefits from a large move and/or rising IV, and its worst case (a
+    defined, capped loss) happens if price sits exactly at the long strike at expiry, not
+    from a big move against you. Often entered near breakeven cost when skew/IV favor it;
+    check the actual net cost above before assuming it's free.
+  </p>
+
+  <script src="quant.js?v=3"></script>
+  <script src="strategy-nav.js?v=4"></script>
+  <script src="strategy-backspread.js?v=1"></script>
+</body>
+</html>
