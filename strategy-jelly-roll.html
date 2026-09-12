@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jelly Roll</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Jelly Roll — Forward Consistency Across Expiries</h1>
+        <p class="subtitle">Sells the front-month synthetic forward, buys the back-month one at the same strike — a near-zero-cost structure whose actual entry price reveals any inconsistency between the two expiries' implied forwards</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Front expiry</span>
+        <select id="frontSelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Back expiry</span>
+        <select id="backSelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> sell a front-month synthetic forward (short call + long put, same strike K) and buy a back-month synthetic forward (long call + short put, same strike K) — four legs total, two expiries, one strike.</p>
+      <p><strong>Market view:</strong> none directly — like the Box Spread and Synthetic Forward pages, this is a cross-check on pricing consistency, not a directional or volatility bet.</p>
+      <p><strong>Why it matters:</strong> by put-call parity, each synthetic forward's cost reflects that expiry's own implied forward price. Combining a short front synthetic with a long back synthetic at the same strike means the entry cash flow reduces to (front-implied forward) − (back-implied forward) — in a perfectly consistent market this should be close to zero; a nonzero reading reveals the two expiries' chains disagreeing about the forward curve.</p>
+      <p><strong>Not a payoff — a snapshot:</strong> unlike the Box Spread's single fixed payout at one expiry, a Jelly Roll's front leg settles before its back leg does, so it does <em>not</em> collapse to a clean, riskless terminal payoff — once the front leg is gone, the remaining back synthetic is a live, fully directional position again. This page reports the entry cash flow only, not a completed trade.</p>
+      <p><strong>Key risk / caveat:</strong> executing this in practice means carrying real directional exposure in the back leg after the front leg settles — it is a pricing-consistency signal, not a riskless arbitrage capture, despite superficially resembling one.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Strike</span>
+      <span id="strikeStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Front Implied Forward</span>
+      <span id="frontFwdStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Back Implied Forward</span>
+      <span id="backFwdStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Entry Cash Flow</span>
+      <span id="cashFlowStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Legs</h2>
+    </div>
+    <div id="legsInfo" class="scanner-body"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> A nonzero reading here can come from real
+    forward-curve information (e.g. differing funding expectations across the two expiries)
+    or simply from noisy/stale quotes at one of the two strikes — this page can't
+    distinguish the two, and doesn't attempt a payoff chart since the structure doesn't
+    reduce to one cleanly across two different settlement dates.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=11"></script>
+  <script src="strategy-jelly-roll.js?v=1"></script>
+</body>
+</html>

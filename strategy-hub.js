@@ -1,4 +1,4 @@
-// Strategy Hub — an index/overview page for all 49 standalone strategy pages, plus a
+// Strategy Hub — an index/overview page for all 53 standalone strategy pages, plus a
 // small live market snapshot (front-month IV, realized vol, vol risk premium, IV Rank)
 // computed the same way the other pages do, standalone/REST-only.
 
@@ -61,6 +61,9 @@ const CATEGORIES = [
       { href: "strategy-skew-arb.html", title: "Skew Arbitrage", desc: "25Δ risk reversal mean-reversion vs. its own recent range.", risk: "defined" },
       { href: "strategy-calendar.html", title: "Calendar Spread", desc: "Sell front straddle, buy back straddle, same strike.", risk: "defined" },
       { href: "strategy-diagonal.html", title: "Diagonal Spread", desc: "Calendar spread with a directional lean via different strikes.", risk: "defined" },
+      { href: "strategy-put-diagonal.html", title: "Put Diagonal Spread", desc: "Bearish mirror of the Diagonal Spread.", risk: "defined" },
+      { href: "strategy-call-calendar.html", title: "Call Calendar Spread", desc: "Single-leg, cheaper cousin of the straddle Calendar Spread — mild bullish lean.", risk: "defined" },
+      { href: "strategy-put-calendar.html", title: "Put Calendar Spread", desc: "Bearish-leaning mirror of the Call Calendar Spread.", risk: "defined" },
     ],
   },
   {
@@ -69,6 +72,7 @@ const CATEGORIES = [
       { href: "strategy-carry.html", title: "Carry & Funding", desc: "Dated-futures basis and perpetual funding-rate farming.", risk: "defined" },
       { href: "strategy-box-spread.html", title: "Box Spread", desc: "Fixed-payout structure whose price implies a financing rate.", risk: "defined" },
       { href: "strategy-synthetic.html", title: "Synthetic Forward", desc: "Options-implied forward vs. the actual dated future.", risk: "defined" },
+      { href: "strategy-jelly-roll.html", title: "Jelly Roll", desc: "Front/back synthetic forwards at one strike — reveals cross-expiry forward inconsistency.", risk: "defined" },
     ],
   },
   {

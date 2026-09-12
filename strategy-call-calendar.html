@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Call Calendar Spread</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Call Calendar Spread</h1>
+        <p class="subtitle">Sell a front-month call, buy a back-month call at the same strike — a single-leg, cheaper cousin of the (straddle) Calendar Spread with a mild bullish lean</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Front expiry</span>
+        <select id="frontSelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Back expiry</span>
+        <select id="backSelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> sell 1 front-month ATM call, buy 1 back-month call at the same strike — a single option leg per expiry, unlike the plain Calendar Spread page's full straddle (call + put) at each expiry.</p>
+      <p><strong>Market view:</strong> mildly bullish-to-neutral with a term-structure lean — wants price to sit at or drift slightly above the strike by front expiry, letting the front leg decay while the back leg holds value.</p>
+      <p><strong>Why trade it:</strong> half the cost and half the legs of the straddle Calendar Spread, appropriate when a trader wants the time-decay edge without also expressing a view on the put side.</p>
+      <p><strong>Max loss:</strong> the net debit paid, if things go badly wrong (typically a large move either direction, or an IV collapse). <strong>Max profit:</strong> maximized if price sits near the strike at front expiry.</p>
+      <p><strong>Key risk:</strong> the back leg's value at front expiry is estimated via Black-Scholes at its <em>current</em> IV — a simplification, since IV can move by then. Unlike the straddle Calendar, this leans bullish rather than being purely neutral.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Strike / Front Premium / Back Premium</span>
+      <span id="setupStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Net Debit</span>
+      <span id="debitStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat" title="Risk-neutral probability at front expiry under front-month IV, not a real-world/objective probability">
+      <span class="mstat-label">Probability of Profit (live)</span>
+      <span id="popStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Payoff at Front Expiry</h2>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> The back leg's remaining value at front expiry
+    assumes its current IV holds, a simplification shared with the plain Calendar Spread
+    and Diagonal Spread pages.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=11"></script>
+  <script src="strategy-call-calendar.js?v=1"></script>
+</body>
+</html>

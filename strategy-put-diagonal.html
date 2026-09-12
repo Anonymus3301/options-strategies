@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Diagonal Spread — Calendar + Directional Bias</title>
+<title>Put Diagonal Spread</title>
 <link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="brand">
       <a href="index.html" class="back-link">← Ladder</a>
       <div>
-        <h1>Diagonal Spread (Bullish Call)</h1>
-        <p class="subtitle">Buy a back-month call, sell a front-month call at a higher strike — a calendar spread with a directional lean</p>
+        <h1>Put Diagonal Spread</h1>
+        <p class="subtitle">Buy a back-month put, sell a front-month put at a lower strike — the bearish mirror of the (bullish call) Diagonal Spread</p>
       </div>
     </div>
     <div class="status-cluster">
@@ -25,11 +25,11 @@
         <span id="feedStatus" class="pill pill-connecting">loading…</span>
       </div>
       <div class="stat">
-        <span class="stat-label">Front</span>
+        <span class="stat-label">Front expiry</span>
         <select id="frontSelect" class="poll-rate-select" disabled><option>Loading…</option></select>
       </div>
       <div class="stat">
-        <span class="stat-label">Back</span>
+        <span class="stat-label">Back expiry</span>
         <select id="backSelect" class="poll-rate-select" disabled><option>Loading…</option></select>
       </div>
       <div class="stat">
@@ -37,6 +37,7 @@
         <select id="widthSelect" class="poll-rate-select">
           <option value="5">5% of spot</option>
           <option value="10" selected>10% of spot</option>
+          <option value="15">15% of spot</option>
         </select>
       </div>
     </div>
@@ -50,9 +51,9 @@
       <h2>Strategy Explained</h2>
     </div>
     <div class="explainer-body">
-      <p><strong>Construction:</strong> buy a back-month call at a lower (near-ATM) strike, sell a front-month call at a higher strike.</p>
-      <p><strong>Market view:</strong> bullish with a term-structure lean — wants price to drift up toward the short strike by front expiry while the back leg retains value.</p>
-      <p><strong>Why trade it:</strong> combines the Calendar Spread's time-decay edge with directional exposure, typically cheaper than an outright bull call spread since the short leg sits in a nearer expiry.</p>
+      <p><strong>Construction:</strong> buy a back-month put at a higher (near-ATM) strike, sell a front-month put at a lower strike — the bearish mirror of the Diagonal Spread page's bullish call construction.</p>
+      <p><strong>Market view:</strong> bearish with a term-structure lean — wants price to drift down toward the short strike by front expiry while the back leg retains value.</p>
+      <p><strong>Why trade it:</strong> combines the Calendar Spread's time-decay edge with bearish directional exposure, typically cheaper than an outright bear put spread since the short leg sits in a nearer expiry.</p>
       <p><strong>Max loss:</strong> the net debit paid. <strong>Max profit:</strong> maximized if price finishes right at or near the short strike at front expiry, letting the front leg decay maximally while the back leg keeps most of its value.</p>
       <p><strong>Key risk:</strong> the back leg's value at front expiry is estimated via Black-Scholes at its <em>current</em> IV — a simplification, since IV can move by then — and no early-assignment or margin costs are modeled.</p>
     </div>
@@ -76,7 +77,6 @@
   <section class="chart-card chart-card-wide">
     <div class="panel-header">
       <h2>Payoff at Front Expiry</h2>
-      <span class="hint">Front leg settles at intrinsic; the still-alive back leg is repriced via Black-Scholes at its current IV</span>
     </div>
     <div id="payoffChart" class="svg-chart"></div>
   </section>
@@ -85,11 +85,11 @@
     <strong>Not financial advice.</strong> Like the Calendar Spread page, the back leg's
     value at front expiry assumes its <em>current</em> IV holds — a simplification, since
     IV can move by then. This diagonal adds directional exposure on top of that: it profits
-    most if BTC drifts up toward the short strike by front expiry while IV cooperates.
+    most if BTC drifts down toward the short strike by front expiry while IV cooperates.
   </p>
 
   <script src="quant.js?v=6"></script>
   <script src="strategy-nav.js?v=11"></script>
-  <script src="strategy-diagonal.js?v=1"></script>
+  <script src="strategy-put-diagonal.js?v=1"></script>
 </body>
 </html>

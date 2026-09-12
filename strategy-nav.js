@@ -52,6 +52,10 @@ const STRATEGY_PAGES = [
   { href: "strategy-put-condor.html", label: "Put Condor" },
   { href: "strategy-naked-call.html", label: "Naked Call" },
   { href: "strategy-naked-put.html", label: "Naked Put" },
+  { href: "strategy-put-diagonal.html", label: "Put Diagonal Spread" },
+  { href: "strategy-call-calendar.html", label: "Call Calendar" },
+  { href: "strategy-put-calendar.html", label: "Put Calendar" },
+  { href: "strategy-jelly-roll.html", label: "Jelly Roll" },
 ];
 
 const TOOL_PAGES = [

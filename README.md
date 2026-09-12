@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Forty-nine dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Fifty-three dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -262,6 +262,16 @@ financial advice, and each page's own disclaimer spells out its specific limitat
 - **[Naked Put Writing](strategy-naked-put.html)** — a single short put sold on margin
   rather than fully cash-secured, contrasted directly against the Income Scanner's
   cash-backed CSP framing.
+- **[Put Diagonal Spread](strategy-put-diagonal.html)** — the bearish mirror of the
+  Diagonal Spread: buy a back-month put, sell a front-month put at a lower strike.
+- **[Call Calendar Spread](strategy-call-calendar.html)** / **[Put Calendar Spread](strategy-put-calendar.html)** —
+  single-leg (call-only or put-only) versions of the plain straddle Calendar Spread, half
+  the cost and legs, with a mild directional lean instead of pure neutrality.
+- **[Jelly Roll](strategy-jelly-roll.html)** — sells the front-month synthetic forward,
+  buys the back-month one at the same strike; the entry cash flow reduces (by put-call
+  parity) to the gap between the two expiries' own implied forwards. Explicitly framed as
+  a pricing-consistency signal rather than a riskless payoff, since the front leg settles
+  before the back one does — unlike the Box Spread's single, clean terminal payout.
 
 **[Strategy Hub](strategy-hub.html)** ties the set together: a live market snapshot
 (front-month ATM IV, realized vol, vol risk premium, IV Rank) plus every strategy page
@@ -277,7 +287,7 @@ many of them — a visitor has open in that browser.
 
 ### Live Probability of Profit
 
-Thirty-seven of the pages above show a live **Probability of Profit** stat, recomputed on
+Forty of the pages above show a live **Probability of Profit** stat, recomputed on
 every refresh from that page's own strikes, premiums, and quoted IV: Premium Selling,
 Skew Arbitrage, Long Volatility, Calendar Spread, Protective Put, Collar, Iron Condor,
 Butterfly, Jade Lizard, Ratio Spread, Diagonal Spread, Call Backspread, Strap/Strip,
@@ -285,8 +295,8 @@ Broken Wing Butterfly, Iron Butterfly, Long Strangle, Guts, Call Ladder, Covered
 Strangle, Put Ratio Spread, Put Backspread, Put Ladder, Reverse Iron Condor, Covered
 Put, Poor Man's Covered Call, Poor Man's Covered Put, Double Calendar Spread, Seagull
 Spread, Broken Wing Iron Condor, Bull Call Spread, Bear Call Spread, Bull Put Spread,
-Bear Put Spread, Call Condor Spread, Put Condor Spread, Naked Call Writing, and Naked
-Put Writing.
+Bear Put Spread, Call Condor Spread, Put Condor Spread, Naked Call Writing, Naked
+Put Writing, Put Diagonal Spread, Call Calendar Spread, and Put Calendar Spread.
 
 It's computed by numerically integrating each structure's own PnL-at-expiry function
 against the lognormal price distribution implied by the page's IV and time-to-expiry —
