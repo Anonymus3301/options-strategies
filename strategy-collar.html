@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Collar Strategy — Zero-Cost Hedge</title>
+<link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Collar Strategy — Zero-Cost Hedge</h1>
+        <p class="subtitle">Sell an OTM call to fund an OTM put — caps upside to buy a downside floor, near zero net cost</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Floor</span>
+        <select id="floorSelect" class="poll-rate-select">
+          <option value="5">−5%</option>
+          <option value="10" selected>−10%</option>
+          <option value="20">−20%</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Floor (put strike)</span>
+      <span id="floorStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Cap (call strike, zero-cost match)</span>
+      <span id="capStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Net Cost</span>
+      <span id="netCostStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Collared vs. Unhedged — <span id="payoffExpiry">—</span></h2>
+      <span class="hint">Long BTC + long put (floor) + short call (cap) vs. long BTC alone, at expiry</span>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> The call strike above is chosen to roughly
+    offset the put's premium (a "zero-cost" collar), not to hit any particular cap level —
+    if you want a specific cap, you'll pay or receive a net premium either way. Being
+    short the call means any upside past the cap is given up entirely, not just reduced,
+    if you hold through expiry and get assigned.
+  </p>
+
+  <script src="quant.js?v=3"></script>
+  <script src="strategy-nav.js?v=2"></script>
+  <script src="strategy-collar.js?v=1"></script>
+</body>
+</html>
