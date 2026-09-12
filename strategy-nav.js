@@ -24,6 +24,11 @@ const STRATEGY_PAGES = [
   { href: "strategy-backspread.html", label: "Backspread" },
   { href: "strategy-strap-strip.html", label: "Strap / Strip" },
   { href: "strategy-broken-wing.html", label: "Broken Wing Butterfly" },
+  { href: "strategy-iron-butterfly.html", label: "Iron Butterfly" },
+  { href: "strategy-long-strangle.html", label: "Long Strangle" },
+  { href: "strategy-guts.html", label: "Guts (ITM Strangle)" },
+  { href: "strategy-call-ladder.html", label: "Call Ladder" },
+  { href: "strategy-covered-strangle.html", label: "Covered Strangle" },
 ];
 
 const TOOL_PAGES = [

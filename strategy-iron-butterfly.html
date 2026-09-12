@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Butterfly Spread — Pinning Play</title>
+<title>Iron Butterfly</title>
 <link rel="stylesheet" href="styles.css?v=7" />
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="brand">
       <a href="index.html" class="back-link">← Ladder</a>
       <div>
-        <h1>Butterfly Spread — Low-Volatility Pinning Play</h1>
-        <p class="subtitle">Buy 1 wing, sell 2 middle, buy 1 wing — cheap defined-risk bet that price finishes near the center</p>
+        <h1>Iron Butterfly</h1>
+        <p class="subtitle">Sell the ATM straddle, buy protective wings — defined-risk premium selling with a single peak at the center strike</p>
       </div>
     </div>
     <div class="status-cluster">
@@ -27,13 +27,6 @@
       <div class="stat">
         <span class="stat-label">Expiry</span>
         <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Center on</span>
-        <select id="centerSelect" class="poll-rate-select">
-          <option value="atm" selected>ATM (spot)</option>
-          <option value="maxpain">Max Pain</option>
-        </select>
       </div>
       <div class="stat">
         <span class="stat-label">Wing width</span>
@@ -51,16 +44,16 @@
 
   <section class="market-stats">
     <div class="mstat mstat-wide">
-      <span class="mstat-label">Strikes (long / short×2 / long)</span>
+      <span class="mstat-label">Strikes (long put / short straddle / long call)</span>
       <span id="strikesStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Net Debit (max loss)</span>
-      <span id="debitStat" class="mstat-value">—</span>
+      <span class="mstat-label">Net Credit (max profit)</span>
+      <span id="creditStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Max Profit (at center)</span>
-      <span id="maxProfitStat" class="mstat-value">—</span>
+      <span class="mstat-label">Max Loss (either wing)</span>
+      <span id="maxLossStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
       <span class="mstat-label">Breakevens</span>
@@ -74,22 +67,22 @@
 
   <section class="chart-card chart-card-wide">
     <div class="panel-header">
-      <h2>Payoff at Expiry — <span id="flyExpiry">—</span></h2>
-      <span class="hint">Built from calls throughout (a put butterfly at the same strikes has the same payoff shape at expiry)</span>
+      <h2>Payoff at Expiry — <span id="ibExpiry">—</span></h2>
+      <span class="hint">Short straddle at the center strike, long strangle wings at the selected width — a single peak, not a flat plateau like an Iron Condor</span>
     </div>
     <div id="payoffChart" class="svg-chart"></div>
   </section>
 
   <p class="chart-note">
-    <strong>Not financial advice.</strong> Maximum loss is capped at the net debit paid,
-    but that's also the most common outcome if price doesn't land near the center strike —
-    butterflies have a low probability of hitting max profit and are cheap for exactly that
-    reason. Strike selection here rounds to the nearest listed strike on each wing, so the
-    position may not be perfectly symmetric.
+    <strong>Not financial advice.</strong> Unlike the Iron Condor's flat-top profit zone,
+    an Iron Butterfly's max profit only occurs exactly at the center strike — most outcomes
+    land somewhere in between max profit and max loss. Center strike is the nearest listed
+    strike to spot, so the position may not be perfectly symmetric. Wings are rounded to
+    the nearest listed strike on each side.
   </p>
 
   <script src="quant.js?v=4"></script>
   <script src="strategy-nav.js?v=6"></script>
-  <script src="strategy-butterfly.js?v=1"></script>
+  <script src="strategy-iron-butterfly.js?v=1"></script>
 </body>
 </html>

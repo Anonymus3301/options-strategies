@@ -1,4 +1,4 @@
-// Strategy Hub — an index/overview page for all 21 standalone strategy pages, plus a
+// Strategy Hub — an index/overview page for all 26 standalone strategy pages, plus a
 // small live market snapshot (front-month IV, realized vol, vol risk premium, IV Rank)
 // computed the same way the other pages do, standalone/REST-only.
 
@@ -17,12 +17,15 @@ const CATEGORIES = [
       { href: "strategy-butterfly.html", title: "Butterfly Spread", desc: "Cheap, defined-risk bet that price pins near a center strike.", risk: "defined" },
       { href: "strategy-jade-lizard.html", title: "Jade Lizard", desc: "Short put + call credit spread — checks if credit kills upside risk.", risk: "undefined" },
       { href: "strategy-broken-wing.html", title: "Broken Wing Butterfly", desc: "Asymmetric butterfly, often net credit — checks both flat regions honestly.", risk: "defined" },
+      { href: "strategy-iron-butterfly.html", title: "Iron Butterfly", desc: "Short straddle + long wings — a single peak instead of the Condor's flat top.", risk: "defined" },
     ],
   },
   {
     title: "Volatility Buying",
     items: [
       { href: "strategy-long-vol.html", title: "Long Volatility", desc: "Long ATM straddle when IV looks cheap vs. realized vol.", risk: "defined" },
+      { href: "strategy-long-strangle.html", title: "Long Strangle", desc: "Cheaper than a straddle, but needs a bigger move to pay off.", risk: "defined" },
+      { href: "strategy-guts.html", title: "Guts (ITM Strangle)", desc: "Same shape as a strangle, with a guaranteed value locked in between strikes.", risk: "defined" },
       { href: "strategy-strap-strip.html", title: "Strap / Strip", desc: "Weighted straddle with a bullish or bearish lean.", risk: "defined" },
       { href: "strategy-backspread.html", title: "Call Backspread", desc: "Capped loss, unlimited upside — mirror of the Ratio Spread.", risk: "defined" },
     ],
@@ -32,6 +35,7 @@ const CATEGORIES = [
     items: [
       { href: "strategy-protective-put.html", title: "Protective Put", desc: "Cost of downside insurance at a selectable floor.", risk: "defined" },
       { href: "strategy-collar.html", title: "Collar", desc: "Near-zero-cost hedge: sell a call to fund a put.", risk: "defined" },
+      { href: "strategy-covered-strangle.html", title: "Covered Strangle", desc: "Covered call plus a short put — extra income, but doubled downside below the put strike.", risk: "undefined" },
       { href: "strategy-income.html", title: "Covered Call / CSP Income", desc: "Scans the chain for the best annualized yield by delta band.", risk: "defined" },
     ],
   },
@@ -63,6 +67,7 @@ const CATEGORIES = [
     title: "Undefined-Risk (flagged)",
     items: [
       { href: "strategy-ratio-spread.html", title: "Call Ratio Spread (1×2)", desc: "Often a credit, but genuinely unlimited risk above breakeven.", risk: "undefined" },
+      { href: "strategy-call-ladder.html", title: "Call Ladder (Christmas Tree)", desc: "Cheaper bull spread that flips into an uncapped short above the top strike.", risk: "undefined" },
     ],
   },
 ];

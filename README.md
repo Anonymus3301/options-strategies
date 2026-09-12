@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Twenty-one dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Twenty-six dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -160,6 +160,25 @@ its specific limitations.
 - **[Broken Wing Butterfly](strategy-broken-wing.html)** — an asymmetric butterfly with
   independently selectable inner/outer wing widths; explicitly reports both outside-the-
   wings flat values rather than assuming a net credit means one side is risk-free.
+- **[Iron Butterfly](strategy-iron-butterfly.html)** — short the ATM straddle, buy
+  protective wings at a selectable width; the same 4 legs as an Iron Condor but the short
+  strikes coincide at the center, so the payoff peaks instead of plateauing.
+- **[Long Strangle](strategy-long-strangle.html)** — buy an OTM call and put at a
+  selectable width; cheaper than the Long Volatility page's ATM straddle, at the cost of
+  needing a bigger move to reach breakeven.
+- **[Guts (ITM Strangle)](strategy-guts.html)** — buy an in-the-money call and put; between
+  the two strikes their intrinsic values sum to a constant, a "locked-in" minimum value
+  baked into the cost. Cross-checks exactly against Long Strangle by put-call parity: cost
+  above the locked-in value equals what an equivalent OTM strangle at the same strikes
+  would cost.
+- **[Call Ladder (Christmas Tree)](strategy-call-ladder.html)** — buy 1 near-ATM call, sell
+  1 further-OTM call, sell 1 even further-OTM call; cheaper than a plain bull call spread,
+  but the second short call removes the cap, so it becomes an uncapped short position above
+  the top strike.
+- **[Covered Strangle](strategy-covered-strangle.html)** — for holders: sell an OTM call
+  and an OTM put against a held position. The call behaves like a covered call; the put
+  does not — it doubles the effective downside slope below the put strike, flagged
+  explicitly as not a hedge.
 
 **[Strategy Hub](strategy-hub.html)** ties the set together: a live market snapshot
 (front-month ATM IV, realized vol, vol risk premium, IV Rank) plus every strategy page
@@ -174,11 +193,12 @@ many of them — a visitor has open in that browser.
 
 ### Live Probability of Profit
 
-Fourteen of the pages above show a live **Probability of Profit** stat, recomputed on
+Nineteen of the pages above show a live **Probability of Profit** stat, recomputed on
 every refresh from that page's own strikes, premiums, and quoted IV: Premium Selling,
 Skew Arbitrage, Long Volatility, Calendar Spread, Protective Put, Collar, Iron Condor,
-Butterfly, Jade Lizard, Ratio Spread, Diagonal Spread, Call Backspread, Strap/Strip, and
-Broken Wing Butterfly.
+Butterfly, Jade Lizard, Ratio Spread, Diagonal Spread, Call Backspread, Strap/Strip,
+Broken Wing Butterfly, Iron Butterfly, Long Strangle, Guts, Call Ladder, and Covered
+Strangle.
 
 It's computed by numerically integrating each structure's own PnL-at-expiry function
 against the lognormal price distribution implied by the page's IV and time-to-expiry —

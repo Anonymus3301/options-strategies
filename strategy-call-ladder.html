@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Butterfly Spread — Pinning Play</title>
+<title>Call Ladder</title>
 <link rel="stylesheet" href="styles.css?v=7" />
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="brand">
       <a href="index.html" class="back-link">← Ladder</a>
       <div>
-        <h1>Butterfly Spread — Low-Volatility Pinning Play</h1>
-        <p class="subtitle">Buy 1 wing, sell 2 middle, buy 1 wing — cheap defined-risk bet that price finishes near the center</p>
+        <h1>Call Ladder (Christmas Tree)</h1>
+        <p class="subtitle">Buy 1 near-ATM call, sell 1 further-OTM call, sell 1 even further-OTM call — a cheaper bull spread that flips into an uncapped short above the top strike</p>
       </div>
     </div>
     <div class="status-cluster">
@@ -29,15 +29,15 @@
         <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
       </div>
       <div class="stat">
-        <span class="stat-label">Center on</span>
-        <select id="centerSelect" class="poll-rate-select">
-          <option value="atm" selected>ATM (spot)</option>
-          <option value="maxpain">Max Pain</option>
+        <span class="stat-label">Inner width (K1→K2)</span>
+        <select id="innerSelect" class="poll-rate-select">
+          <option value="5" selected>5% of spot</option>
+          <option value="10">10% of spot</option>
         </select>
       </div>
       <div class="stat">
-        <span class="stat-label">Wing width</span>
-        <select id="widthSelect" class="poll-rate-select">
+        <span class="stat-label">Outer width (K2→K3)</span>
+        <select id="outerSelect" class="poll-rate-select">
           <option value="5">5% of spot</option>
           <option value="10" selected>10% of spot</option>
           <option value="15">15% of spot</option>
@@ -51,22 +51,22 @@
 
   <section class="market-stats">
     <div class="mstat mstat-wide">
-      <span class="mstat-label">Strikes (long / short×2 / long)</span>
+      <span class="mstat-label">Strikes (long K1 / short K2 / short K3)</span>
       <span id="strikesStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Net Debit (max loss)</span>
-      <span id="debitStat" class="mstat-value">—</span>
+      <span class="mstat-label">Net Cost</span>
+      <span id="costStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Max Profit (at center)</span>
+      <span class="mstat-label">Max Profit (plateau, K2 to K3)</span>
       <span id="maxProfitStat" class="mstat-value">—</span>
     </div>
-    <div class="mstat">
+    <div class="mstat mstat-wide">
       <span class="mstat-label">Breakevens</span>
       <span id="breakevenStat" class="mstat-value">—</span>
     </div>
-    <div class="mstat" title="Risk-neutral probability under center-strike IV, not a real-world/objective probability">
+    <div class="mstat" title="Risk-neutral probability under the legs' average IV, not a real-world/objective probability">
       <span class="mstat-label">Probability of Profit (live)</span>
       <span id="popStat" class="mstat-value">—</span>
     </div>
@@ -74,22 +74,22 @@
 
   <section class="chart-card chart-card-wide">
     <div class="panel-header">
-      <h2>Payoff at Expiry — <span id="flyExpiry">—</span></h2>
-      <span class="hint">Built from calls throughout (a put butterfly at the same strikes has the same payoff shape at expiry)</span>
+      <h2>Payoff at Expiry — <span id="ladderExpiry">—</span></h2>
+      <span class="hint">Rises like a bull call spread up to K2, plateaus between K2 and K3, then loses $1 per $1 above K3 with no cap</span>
     </div>
     <div id="payoffChart" class="svg-chart"></div>
   </section>
 
   <p class="chart-note">
-    <strong>Not financial advice.</strong> Maximum loss is capped at the net debit paid,
-    but that's also the most common outcome if price doesn't land near the center strike —
-    butterflies have a low probability of hitting max profit and are cheap for exactly that
-    reason. Strike selection here rounds to the nearest listed strike on each wing, so the
-    position may not be perfectly symmetric.
+    <strong>Not financial advice.</strong> Selling the second call (K3) is what makes this
+    cheaper than a plain bull call spread, but it's also what removes the cap on the upside
+    — above K3 this position behaves like a naked short call and can lose an unlimited
+    amount if price keeps rising. This structure is a bet on a moderate rally, not an
+    explosive one.
   </p>
 
   <script src="quant.js?v=4"></script>
   <script src="strategy-nav.js?v=6"></script>
-  <script src="strategy-butterfly.js?v=1"></script>
+  <script src="strategy-call-ladder.js?v=1"></script>
 </body>
 </html>

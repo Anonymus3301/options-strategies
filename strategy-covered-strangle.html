@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Butterfly Spread — Pinning Play</title>
+<title>Covered Strangle</title>
 <link rel="stylesheet" href="styles.css?v=7" />
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="brand">
       <a href="index.html" class="back-link">← Ladder</a>
       <div>
-        <h1>Butterfly Spread — Low-Volatility Pinning Play</h1>
-        <p class="subtitle">Buy 1 wing, sell 2 middle, buy 1 wing — cheap defined-risk bet that price finishes near the center</p>
+        <h1>Covered Strangle</h1>
+        <p class="subtitle">Hold BTC, sell an OTM call and an OTM put for extra income — caps the upside like a covered call, but doubles the downside exposure below the put strike</p>
       </div>
     </div>
     <div class="status-cluster">
@@ -29,14 +29,7 @@
         <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
       </div>
       <div class="stat">
-        <span class="stat-label">Center on</span>
-        <select id="centerSelect" class="poll-rate-select">
-          <option value="atm" selected>ATM (spot)</option>
-          <option value="maxpain">Max Pain</option>
-        </select>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Wing width</span>
+        <span class="stat-label">Strike width</span>
         <select id="widthSelect" class="poll-rate-select">
           <option value="5">5% of spot</option>
           <option value="10" selected>10% of spot</option>
@@ -51,22 +44,22 @@
 
   <section class="market-stats">
     <div class="mstat mstat-wide">
-      <span class="mstat-label">Strikes (long / short×2 / long)</span>
+      <span class="mstat-label">Strikes (short put / short call)</span>
       <span id="strikesStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Net Debit (max loss)</span>
-      <span id="debitStat" class="mstat-value">—</span>
+      <span class="mstat-label">Total Credit Received</span>
+      <span id="creditStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Max Profit (at center)</span>
+      <span class="mstat-label">Max Profit (capped above call strike)</span>
       <span id="maxProfitStat" class="mstat-value">—</span>
     </div>
-    <div class="mstat">
-      <span class="mstat-label">Breakevens</span>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Breakevens (below put strike / above it)</span>
       <span id="breakevenStat" class="mstat-value">—</span>
     </div>
-    <div class="mstat" title="Risk-neutral probability under center-strike IV, not a real-world/objective probability">
+    <div class="mstat" title="Risk-neutral probability under the legs' average IV, not a real-world/objective probability">
       <span class="mstat-label">Probability of Profit (live)</span>
       <span id="popStat" class="mstat-value">—</span>
     </div>
@@ -74,22 +67,22 @@
 
   <section class="chart-card chart-card-wide">
     <div class="panel-header">
-      <h2>Payoff at Expiry — <span id="flyExpiry">—</span></h2>
-      <span class="hint">Built from calls throughout (a put butterfly at the same strikes has the same payoff shape at expiry)</span>
+      <h2>Covered Strangle vs. Unhedged — <span id="payoffExpiry">—</span></h2>
+      <span class="hint">Long BTC + short call + short put vs. long BTC alone, at expiry</span>
     </div>
     <div id="payoffChart" class="svg-chart"></div>
   </section>
 
   <p class="chart-note">
-    <strong>Not financial advice.</strong> Maximum loss is capped at the net debit paid,
-    but that's also the most common outcome if price doesn't land near the center strike —
-    butterflies have a low probability of hitting max profit and are cheap for exactly that
-    reason. Strike selection here rounds to the nearest listed strike on each wing, so the
-    position may not be perfectly symmetric.
+    <strong>Not financial advice.</strong> This is not a hedge — below the put strike, this
+    position loses money twice as fast as simply holding BTC, because the short put obliges
+    you to effectively buy more at that price on top of the BTC you already hold. The
+    premium collected softens that, but does not remove it. Above the call strike, upside
+    is given up entirely if assigned, just like a covered call.
   </p>
 
   <script src="quant.js?v=4"></script>
   <script src="strategy-nav.js?v=6"></script>
-  <script src="strategy-butterfly.js?v=1"></script>
+  <script src="strategy-covered-strangle.js?v=1"></script>
 </body>
 </html>

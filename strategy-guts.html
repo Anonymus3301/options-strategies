@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Butterfly Spread — Pinning Play</title>
+<title>Guts (ITM Strangle)</title>
 <link rel="stylesheet" href="styles.css?v=7" />
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="brand">
       <a href="index.html" class="back-link">← Ladder</a>
       <div>
-        <h1>Butterfly Spread — Low-Volatility Pinning Play</h1>
-        <p class="subtitle">Buy 1 wing, sell 2 middle, buy 1 wing — cheap defined-risk bet that price finishes near the center</p>
+        <h1>Guts (In-the-Money Strangle)</h1>
+        <p class="subtitle">Buy an ITM call and an ITM put — same payoff slope as a strangle, but with a guaranteed minimum value locked in between the strikes</p>
       </div>
     </div>
     <div class="status-cluster">
@@ -29,14 +29,7 @@
         <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
       </div>
       <div class="stat">
-        <span class="stat-label">Center on</span>
-        <select id="centerSelect" class="poll-rate-select">
-          <option value="atm" selected>ATM (spot)</option>
-          <option value="maxpain">Max Pain</option>
-        </select>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Wing width</span>
+        <span class="stat-label">How far ITM</span>
         <select id="widthSelect" class="poll-rate-select">
           <option value="5">5% of spot</option>
           <option value="10" selected>10% of spot</option>
@@ -51,22 +44,26 @@
 
   <section class="market-stats">
     <div class="mstat mstat-wide">
-      <span class="mstat-label">Strikes (long / short×2 / long)</span>
+      <span class="mstat-label">Strikes (long ITM call / long ITM put)</span>
       <span id="strikesStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Net Debit (max loss)</span>
-      <span id="debitStat" class="mstat-value">—</span>
+      <span class="mstat-label">Total Cost</span>
+      <span id="costStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Max Profit (at center)</span>
-      <span id="maxProfitStat" class="mstat-value">—</span>
+      <span class="mstat-label">Locked-in Minimum Value</span>
+      <span id="lockedStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
+      <span class="mstat-label">Cost Above Locked-in Value</span>
+      <span id="excessStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
       <span class="mstat-label">Breakevens</span>
       <span id="breakevenStat" class="mstat-value">—</span>
     </div>
-    <div class="mstat" title="Risk-neutral probability under center-strike IV, not a real-world/objective probability">
+    <div class="mstat" title="Risk-neutral probability under the legs' average IV, not a real-world/objective probability">
       <span class="mstat-label">Probability of Profit (live)</span>
       <span id="popStat" class="mstat-value">—</span>
     </div>
@@ -74,22 +71,22 @@
 
   <section class="chart-card chart-card-wide">
     <div class="panel-header">
-      <h2>Payoff at Expiry — <span id="flyExpiry">—</span></h2>
-      <span class="hint">Built from calls throughout (a put butterfly at the same strikes has the same payoff shape at expiry)</span>
+      <h2>Payoff at Expiry — <span id="gutsExpiry">—</span></h2>
+      <span class="hint">Both legs sit in-the-money, so between the two strikes their intrinsic values sum to a constant — the flat "locked-in" region on the chart</span>
     </div>
     <div id="payoffChart" class="svg-chart"></div>
   </section>
 
   <p class="chart-note">
-    <strong>Not financial advice.</strong> Maximum loss is capped at the net debit paid,
-    but that's also the most common outcome if price doesn't land near the center strike —
-    butterflies have a low probability of hitting max profit and are cheap for exactly that
-    reason. Strike selection here rounds to the nearest listed strike on each wing, so the
-    position may not be perfectly symmetric.
+    <strong>Not financial advice.</strong> By put-call parity, Guts should cost roughly the
+    same as an equivalent out-of-the-money strangle plus the locked-in minimum value shown
+    above — it is not "extra" insurance, just prepaid intrinsic value returned to you
+    unconditionally at expiry. The "Cost Above Locked-in Value" figure is the true premium
+    genuinely at risk, and is what should be compared against an OTM strangle's cost.
   </p>
 
   <script src="quant.js?v=4"></script>
   <script src="strategy-nav.js?v=6"></script>
-  <script src="strategy-butterfly.js?v=1"></script>
+  <script src="strategy-guts.js?v=1"></script>
 </body>
 </html>
