@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Box Spread — Implied Interest Rate</title>
+<link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Box Spread — Implied Interest Rate</h1>
+        <p class="subtitle">A call spread + a put spread at the same two strikes pays a fixed amount at expiry — its price reveals an implied financing rate</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Strike width</span>
+        <select id="widthSelect" class="poll-rate-select">
+          <option value="5">5% of spot</option>
+          <option value="10" selected>10% of spot</option>
+          <option value="20">20% of spot</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Strikes (K1 / K2)</span>
+      <span id="strikesStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Box Cost (pays K2−K1 at expiry, guaranteed)</span>
+      <span id="costStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Implied Annualized Rate</span>
+      <span id="rateStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Structure</h2>
+      <span class="hint">Long call spread + long put spread, same two strikes — payoff is flat at K2−K1 for every spot outcome</span>
+    </div>
+    <div id="boxInfo" class="scanner-body">
+      <p class="loading">Loading…</p>
+    </div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice, and not risk-free in practice.</strong> A box spread's
+    payoff is fixed only in theory — European settlement, no counterparty/margin risk, and
+    the ability to actually trade all four legs at the quoted mark prices are all
+    idealizations. This page reports what the chain's <em>current mark prices</em> imply,
+    not an executable rate. Cross-check against the Carry &amp; Funding page's futures
+    basis — in an efficient market the two should broadly agree.
+  </p>
+
+  <script src="quant.js?v=3"></script>
+  <script src="strategy-nav.js?v=3"></script>
+  <script src="strategy-box-spread.js?v=1"></script>
+</body>
+</html>
