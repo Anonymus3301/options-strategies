@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Broken Wing Butterfly</title>
+<link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Broken Wing Butterfly (Call)</h1>
+        <p class="subtitle">An asymmetric butterfly — wider upper wing financed by the short strikes, often for a net credit</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Inner (lower) wing</span>
+        <select id="innerSelect" class="poll-rate-select">
+          <option value="5" selected>5% of spot</option>
+          <option value="10">10% of spot</option>
+        </select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Outer (upper) wing</span>
+        <select id="outerSelect" class="poll-rate-select">
+          <option value="10">10% of spot</option>
+          <option value="15" selected>15% of spot</option>
+          <option value="20">20% of spot</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+
+  <section class="market-stats">
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Strikes (long / short×2 / long)</span>
+      <span id="strikesStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Net Cost</span>
+      <span id="costStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Max Profit (at center)</span>
+      <span id="maxProfitStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Risk Above Upper Wing?</span>
+      <span id="upsideRiskStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Payoff at Expiry — <span id="bwbExpiry">—</span></h2>
+      <span class="hint">Watch the flat region past the upper wing — it can sit above or below zero depending on the credit</span>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Unlike a symmetric butterfly, the two flat
+    regions outside the wings are generally different values here — this page reports both
+    explicitly rather than assuming one is safe. Losses below the lower wing are still
+    possible (bounded, not unlimited) if the net cost was a debit.
+  </p>
+
+  <script src="quant.js?v=3"></script>
+  <script src="strategy-nav.js?v=4"></script>
+  <script src="strategy-broken-wing.js?v=1"></script>
+</body>
+</html>
