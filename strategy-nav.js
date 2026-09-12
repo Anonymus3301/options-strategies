@@ -2,6 +2,7 @@
 // Kept in one file so adding a new strategy page only means editing this list once.
 
 const STRATEGY_PAGES = [
+  { href: "strategy-hub.html", label: "★ Strategy Hub" },
   { href: "strategy-premium-selling.html", label: "Premium Selling" },
   { href: "strategy-skew-arb.html", label: "Skew Arbitrage" },
   { href: "strategy-long-vol.html", label: "Long Volatility" },
@@ -19,6 +20,10 @@ const STRATEGY_PAGES = [
   { href: "strategy-box-spread.html", label: "Box Spread" },
   { href: "strategy-synthetic.html", label: "Synthetic Forward" },
   { href: "strategy-ratio-spread.html", label: "Ratio Spread" },
+  { href: "strategy-diagonal.html", label: "Diagonal Spread" },
+  { href: "strategy-backspread.html", label: "Backspread" },
+  { href: "strategy-strap-strip.html", label: "Strap / Strip" },
+  { href: "strategy-broken-wing.html", label: "Broken Wing Butterfly" },
 ];
 
 (function renderStrategyNav() {
