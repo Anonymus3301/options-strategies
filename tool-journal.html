@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Trade Journal</title>
+<link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Trade Journal</h1>
+        <p class="subtitle">Log real or paper trades from any strategy page and track them to close — kept entirely in this browser</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Open Positions</span>
+      <span id="openCountStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Closed Positions</span>
+      <span id="closedCountStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Realized P&amp;L</span>
+      <span id="realizedPnlStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Win Rate (closed trades)</span>
+      <span id="winRateStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>New Entry</h2>
+      <span class="hint">Copy strikes / net credit / max loss straight off any strategy page</span>
+      <button id="exportCsv" class="ob-chart-link">Export CSV ↓</button>
+    </div>
+    <div class="alerts-form" style="padding: 16px; flex-wrap: wrap;">
+      <select id="strategySelect" style="min-width: 180px;"></select>
+      <input id="entrySpot" type="number" step="any" placeholder="Spot at entry" style="width: 130px;" />
+      <input id="netCost" type="number" step="any" placeholder="Net credit(+)/debit(-) USD" style="width: 170px;" />
+      <input id="maxProfit" type="number" step="any" placeholder="Max profit USD (optional)" style="width: 170px;" />
+      <input id="maxLoss" type="number" step="any" placeholder="Max loss USD (optional)" style="width: 160px;" />
+      <input id="notes" type="text" placeholder="Strikes / expiry / notes" style="min-width: 220px; flex: 1;" />
+      <button id="addEntry" class="ob-chart-link">Add Entry</button>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Positions</h2>
+      <span class="hint">Click "Close" to record an exit and realized P&amp;L</span>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table" id="journalTable">
+        <thead><tr><th>Date</th><th>Strategy</th><th>Notes</th><th>Entry Spot</th><th>Net Cost</th><th>Max P / L</th><th>Status</th><th></th></tr></thead>
+        <tbody><tr><td colspan="8" class="loading">No entries yet</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice, and not synced anywhere.</strong> Everything here lives
+    in this browser's own storage — clearing site data, switching browsers, or switching
+    devices loses it. This is a personal log, not a broker record; it doesn't verify fills,
+    fees, or actual account balances.
+  </p>
+
+  <script src="strategy-nav.js?v=5"></script>
+  <script src="tool-journal.js?v=1"></script>
+</body>
+</html>
