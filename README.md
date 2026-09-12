@@ -57,6 +57,14 @@ python3 -m http.server 8000   # then open http://localhost:8000
   what this specific browser has observed since first loading the page, not an
   authoritative multi-year rank, and resets if that browser's storage is cleared. Shows
   "collecting history" until at least 5 days of readings have accumulated.
+- **Strategy Scanner** — a heuristic "conditions for selling premium" read for the
+  selected expiry, combining four signals already computed elsewhere on the page: IV
+  Rank, the vol risk premium (this expiry's ATM IV minus 30D realized vol), days to
+  expiry (scored against the classic 15-45d theta/gamma sweet spot), and how this
+  expiry's IV compares to the rest of the term structure (a local "hump" often reverts).
+  Each shows green/yellow/red and rolls up into an overall verdict. It only reflects this
+  dashboard's own free public data, says nothing about which side (if any) to sell, and
+  is not a trade signal or financial advice — hover a row to see what it measures.
 
 ## What's deliberately not included
 

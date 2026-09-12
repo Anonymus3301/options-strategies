@@ -31,6 +31,7 @@ const state = {
   perp: { markPrice: null, fundingRate: null },
   realizedVol: null,
   realizedVolWindows: {}, // { 7: pct, 14: pct, 30: pct, 60: pct, 90: pct }
+  ivRank: null, // { rank, percentile, days } from computeIvRankPercentile, or { days } while collecting
   recentTrades: [],
   strategyLegs: [], // { instrument, strike, type, side, qty, premiumUsd, ivPct, expiry }
   futures: [], // [{ name, expiry, markPrice }]
@@ -893,9 +894,10 @@ function computeIvRankPercentile(currentIv, history) {
 
 function updateIvRankStat(currentIv) {
   const el = $("ivRankStat");
-  if (!el) return;
   const history = recordIvHistory(currentIv);
   const res = computeIvRankPercentile(currentIv, history);
+  state.ivRank = res;
+  if (!el) return;
   if (currentIv == null || res.days < IV_HISTORY_MIN_DAYS) {
     el.textContent = `Collecting history (${res.days}d so far, this browser — need ${IV_HISTORY_MIN_DAYS}+)`;
     return;
@@ -927,6 +929,145 @@ function updateOrderFlowStat() {
   $("orderFlowStat").textContent = `Calls ${fmtSigned(netCall)} · Puts ${fmtSigned(netPut)}`;
 }
 
+// ---------- Strategy Scanner: heuristic scan of this dashboard's own signals ----------
+// Combines signals already computed elsewhere (IV Rank, realized-vol-vs-IV premium, days
+// to expiry, and this expiry's IV richness relative to the rest of the term structure)
+// into a rough "conditions for selling premium" read for the selected expiry. Built only
+// from this app's own free public data — not a trade signal, not financial advice, and it
+// says nothing about direction (which side, if any, to sell).
+
+const SCANNER_DTE_SWEET_MIN = 15;
+const SCANNER_DTE_SWEET_MAX = 45;
+const SCANNER_DTE_WIDE_MIN = 7;
+const SCANNER_DTE_WIDE_MAX = 75;
+
+function computeStrategyScanner() {
+  const components = [];
+
+  // 1. IV Rank (market-wide, from this browser's own recorded ATM IV history).
+  const ivRank = state.ivRank;
+  if (ivRank && ivRank.rank != null) {
+    const score = ivRank.rank >= 60 ? 1 : ivRank.rank <= 30 ? -1 : 0;
+    components.push({
+      label: "IV Rank",
+      value: `${fmtNum(ivRank.rank, 0)} (${ivRank.days}d history)`,
+      score,
+      note: "Higher rank = IV rich vs. its own recent range — favors selling.",
+    });
+  } else {
+    components.push({
+      label: "IV Rank",
+      value: `Collecting history (${ivRank ? ivRank.days : 0}d so far)`,
+      score: null,
+      note: "Needs 5+ days of this browser's own IV readings.",
+    });
+  }
+
+  // 2. Vol risk premium: this expiry's ATM IV vs. 30D realized vol.
+  const term = computeIvTermStructure();
+  const thisExpiry = term.find((t) => t.expiry === state.selectedExpiry);
+  const atmIv = thisExpiry ? thisExpiry.atmIv : null;
+  const rvol30 = state.realizedVolWindows[30];
+  if (atmIv != null && rvol30 != null) {
+    const premium = atmIv - rvol30;
+    const score = premium > 5 ? 1 : premium < -5 ? -1 : 0;
+    components.push({
+      label: "Vol Risk Premium",
+      value: `${premium >= 0 ? "+" : ""}${fmtNum(premium, 1)}pp (IV ${fmtNum(atmIv, 1)}% − RVol30 ${fmtNum(rvol30, 1)}%)`,
+      score,
+      note: "IV pricier than realized moves = a premium available to sell.",
+    });
+  } else {
+    components.push({ label: "Vol Risk Premium", value: "—", score: null, note: "Waiting on IV/realized vol data." });
+  }
+
+  // 3. Days to expiry — the classic theta/gamma tradeoff sweet spot.
+  const dte = state.selectedExpiry != null ? (state.selectedExpiry - Date.now()) / (24 * 60 * 60 * 1000) : null;
+  if (dte != null) {
+    const score =
+      dte >= SCANNER_DTE_SWEET_MIN && dte <= SCANNER_DTE_SWEET_MAX
+        ? 1
+        : dte < SCANNER_DTE_WIDE_MIN || dte > SCANNER_DTE_WIDE_MAX
+        ? -1
+        : 0;
+    components.push({
+      label: "Days to Expiry",
+      value: `${fmtNum(dte, 0)}d`,
+      score,
+      note: `${SCANNER_DTE_SWEET_MIN}-${SCANNER_DTE_SWEET_MAX}d balances theta decay vs. gamma risk; <${SCANNER_DTE_WIDE_MIN}d is gamma-risky, >${SCANNER_DTE_WIDE_MAX}d decays slowly.`,
+    });
+  } else {
+    components.push({ label: "Days to Expiry", value: "—", score: null, note: "No expiry selected." });
+  }
+
+  // 4. This expiry's IV vs. the rest of the term structure (a local "hump" often reverts).
+  const allIvs = term.map((t) => t.atmIv).filter((v) => v != null);
+  if (atmIv != null && allIvs.length >= 2) {
+    const sorted = [...allIvs].sort((a, b) => a - b);
+    const mid = sorted.length / 2;
+    const median = sorted.length % 2 ? sorted[Math.floor(mid)] : (sorted[mid - 1] + sorted[mid]) / 2;
+    const richness = atmIv - median;
+    const score = richness > 3 ? 1 : richness < -3 ? -1 : 0;
+    components.push({
+      label: "Term-Structure Richness",
+      value: `${richness >= 0 ? "+" : ""}${fmtNum(richness, 1)}pp vs. curve median`,
+      score,
+      note: "This expiry priced rich vs. the rest of the curve (e.g. an event hump) — extra edge if it reverts.",
+    });
+  } else {
+    components.push({ label: "Term-Structure Richness", value: "—", score: null, note: "Needs 2+ expiries with IV data." });
+  }
+
+  const scored = components.filter((c) => c.score != null);
+  const verdictScore = scored.length ? scored.reduce((a, c) => a + c.score, 0) / scored.length : null;
+  let verdict, level;
+  if (verdictScore == null) {
+    verdict = "Insufficient data";
+    level = "na";
+  } else if (verdictScore >= 0.5) {
+    verdict = "Conditions favor selling premium";
+    level = "favorable";
+  } else if (verdictScore <= -0.5) {
+    verdict = "Conditions favor buying — selling looks unfavorable";
+    level = "unfavorable";
+  } else {
+    verdict = "Mixed / neutral signals";
+    level = "neutral";
+  }
+
+  return { components, verdict, level };
+}
+
+function renderStrategyScanner() {
+  const el = $("scannerBody");
+  if (!el) return;
+  const expiryEl = $("scannerExpiry");
+  if (expiryEl) expiryEl.textContent = state.selectedExpiry ? expiryLabel(state.selectedExpiry) : "—";
+  if (!state.selectedExpiry) {
+    el.innerHTML = '<p class="loading">No expiry selected</p>';
+    return;
+  }
+  const { components, verdict, level } = computeStrategyScanner();
+  const dotClass = (score) =>
+    score == null ? "scanner-dot-na" : score > 0 ? "scanner-dot-green" : score < 0 ? "scanner-dot-red" : "scanner-dot-yellow";
+  el.innerHTML = `
+    <div class="scanner-verdict scanner-${level}">${verdict}</div>
+    <div class="scanner-rows">
+      ${components
+        .map(
+          (c) => `
+        <div class="scanner-row" title="${c.note.replace(/"/g, "&quot;")}">
+          <span class="scanner-dot ${dotClass(c.score)}"></span>
+          <span class="scanner-label">${c.label}</span>
+          <span class="scanner-value">${c.value}</span>
+        </div>`
+        )
+        .join("")}
+    </div>
+    <p class="scanner-disclaimer">Heuristic scan of this dashboard's own free-data signals — not a trade signal or financial advice. Hover a row for what it means; verify independently.</p>
+  `;
+}
+
 function renderMarketStats(strikes, bucket) {
   const maxPain = computeMaxPain(strikes, bucket);
   $("maxPainStat").textContent = maxPain != null ? fmtStrike(maxPain) : "—";
@@ -947,6 +1088,7 @@ function renderMarketStats(strikes, bucket) {
 
   updateVolStat();
   renderProbabilityCone();
+  renderStrategyScanner();
 }
 
 function updatePerpStats() {

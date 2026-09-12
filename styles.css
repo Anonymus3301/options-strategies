@@ -151,6 +151,30 @@ body {
 .svg-chart svg { width: 100%; height: 100%; overflow: visible; }
 .heatmap-chart { height: 210px; overflow-x: auto; }
 .heatmap-chart svg { width: auto; height: 100%; min-width: 100%; }
+
+.scanner-body { padding: 14px 16px; }
+.scanner-verdict {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.scanner-favorable { background: var(--call-bg); color: var(--call); }
+.scanner-unfavorable { background: var(--put-bg); color: var(--put); }
+.scanner-neutral { background: rgba(247, 147, 26, 0.12); color: var(--accent); }
+.scanner-na { background: var(--panel-alt); color: var(--text-dim); }
+.scanner-rows { display: flex; flex-direction: column; gap: 8px; }
+.scanner-row { display: flex; align-items: center; gap: 10px; font-size: 13px; cursor: help; }
+.scanner-dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; }
+.scanner-dot-green { background: var(--call); }
+.scanner-dot-red { background: var(--put); }
+.scanner-dot-yellow { background: var(--accent); }
+.scanner-dot-na { background: var(--text-dim); opacity: 0.5; }
+.scanner-label { color: var(--text-dim); min-width: 170px; }
+.scanner-value { font-weight: 600; }
+.scanner-disclaimer { color: var(--text-dim); font-size: 11px; margin: 12px 0 0; }
 .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin: 0 4px 0 10px; }
 .dot:first-child { margin-left: 0; }
 .dot-call { background: var(--call); }
