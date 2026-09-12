@@ -56,6 +56,7 @@ const STRATEGY_PAGES = [
   { href: "strategy-call-calendar.html", label: "Call Calendar" },
   { href: "strategy-put-calendar.html", label: "Put Calendar" },
   { href: "strategy-jelly-roll.html", label: "Jelly Roll" },
+  { href: "strategy-double-diagonal.html", label: "Double Diagonal" },
 ];
 
 const TOOL_PAGES = [

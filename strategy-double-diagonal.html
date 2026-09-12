@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Double Diagonal Spread</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Double Diagonal Spread</h1>
+        <p class="subtitle">A call diagonal and a put diagonal combined — like the Double Calendar's wider neutral zone, but with the back-month strikes pushed further out for a bigger credit and a bigger range</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Front expiry</span>
+        <select id="frontSelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Back expiry</span>
+        <select id="backSelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Front width</span>
+        <select id="frontWidthSelect" class="poll-rate-select">
+          <option value="5" selected>5% of spot</option>
+          <option value="10">10% of spot</option>
+        </select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Back width</span>
+        <select id="backWidthSelect" class="poll-rate-select">
+          <option value="10">10% of spot</option>
+          <option value="15" selected>15% of spot</option>
+          <option value="20">20% of spot</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> sell a front-month OTM call and OTM put (closer to spot), buy a back-month OTM call and OTM put at wider strikes (further from spot) — a call diagonal and a put diagonal run side by side, four legs and two expiries.</p>
+      <p><strong>Market view:</strong> neutral, wanting price to stay inside a range through front expiry — the same thesis as the Double Calendar, but the back legs sitting further out (rather than at the same strikes as the front, like the Double Calendar) usually makes this cheaper to put on for a similar-sized range.</p>
+      <p><strong>Why trade it:</strong> selling closer-to-the-money front options collects more premium than the Double Calendar's identical-strike construction, while the wider back legs still cap the risk if front expiry arrives with price outside the range.</p>
+      <p><strong>Max loss:</strong> the net debit (or credit, if collected upfront) — see the actual net cost figure, since whether this is a net payer or receiver of premium depends on the specific strikes and IV. <strong>Max profit:</strong> not a single clean number — depends on where price sits relative to all four strikes at front expiry; see the payoff chart.</p>
+      <p><strong>Key risk:</strong> both back legs' remaining value at front expiry are estimated via Black-Scholes at their <em>current</em> IV — a simplification shared with every calendar/diagonal page on this site.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Strikes (back put / front put / front call / back call)</span>
+      <span id="strikesStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Front Premium Received</span>
+      <span id="frontPremiumStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Back Premium Paid</span>
+      <span id="backPremiumStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Net Cost</span>
+      <span id="netCostStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat" title="Risk-neutral probability at front expiry under front-month IV, not a real-world/objective probability">
+      <span class="mstat-label">Probability of Profit (live)</span>
+      <span id="popStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Payoff at Front Expiry</h2>
+      <span class="hint">Both front legs settle at intrinsic; both back legs are repriced via Black-Scholes at their current IV, since neither has expired yet</span>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Requires four independently-selected strikes
+    across two expiries — thin chains may not have good matches at every leg, in which
+    case this page shows "no data" rather than guessing a substitute strike.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=12"></script>
+  <script src="strategy-double-diagonal.js?v=1"></script>
+</body>
+</html>
