@@ -65,8 +65,10 @@ function computeRatioSpread(widthPct) {
   const netCost = longUsd - 2 * shortUsd; // positive = net debit, negative = net credit
   const maxProfit = shortStrike - longStrike - netCost;
   const upperBreakeven = shortStrike + maxProfit;
+  const ivs = [longCall.mark_iv, shortCall.mark_iv].filter((v) => v != null);
+  const avgIv = ivs.length ? ivs.reduce((a, b) => a + b, 0) / ivs.length : null;
 
-  return { spot, longStrike, shortStrike, longUsd, shortUsd, netCost, maxProfit, upperBreakeven };
+  return { spot, longStrike, shortStrike, longUsd, shortUsd, netCost, maxProfit, upperBreakeven, avgIv };
 }
 
 function renderRatioSpread(rs) {
@@ -80,6 +82,7 @@ function renderRatioSpread(rs) {
     $("maxProfitStat").textContent = "—";
     $("breakevenStat").textContent = "—";
     chartEl.innerHTML = '<p class="loading">No data (chain may be too thin for this width)</p>';
+    if ($("popStat")) $("popStat").textContent = "—";
     return;
   }
 
@@ -93,6 +96,15 @@ function renderRatioSpread(rs) {
     { type: "call", side: "short", strike: rs.shortStrike, premiumUsd: rs.shortUsd, qty: 2 },
   ];
   chartEl.innerHTML = qBuildPayoffSvg(legs, rs.spot, { width: 700 });
+
+  if ($("popStat")) {
+    let pop = null;
+    if (rs.avgIv != null && state.selectedExpiry) {
+      const T = Math.max((state.selectedExpiry - Date.now()) / QUANT_YEAR_MS, 1 / 365 / 24);
+      pop = qComputeProbabilityOfProfit(legs, rs.spot, rs.avgIv / 100, T);
+    }
+    $("popStat").textContent = pop != null ? qFmt(pop, 0) + "%" : "—";
+  }
 }
 
 async function refresh() {

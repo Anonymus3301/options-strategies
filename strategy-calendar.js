@@ -101,12 +101,21 @@ function renderCalendar(front, back) {
   const backIvs = [backCall.mark_iv, backPut.mark_iv].filter((v) => v != null);
   const sigmaBack = backIvs.length ? (backIvs.reduce((a, b) => a + b, 0) / backIvs.length) / 100 : null;
 
+  let pop = null;
+  if (sigmaBack != null && front.atmIv != null) {
+    const remainingT = Math.max((backDte - frontDte) / 365.25, 1 / 365 / 24);
+    const pnlAt = makeCalendarPnlAt(strike, remainingT, sigmaBack, frontPremiumUsd, backPremiumUsd);
+    const frontT = Math.max(frontDte / 365.25, 1 / 365 / 24);
+    pop = qComputeProbabilityOfProfitFn(pnlAt, front.spot, front.atmIv / 100, frontT);
+  }
+
   el.innerHTML = `
     <div class="scanner-rows">
       <div class="scanner-row"><span class="scanner-label">Structure</span><span class="scanner-value">Sell front straddle (K=${qFmt(strike, 0)}), buy back straddle (same K)</span></div>
       <div class="scanner-row"><span class="scanner-label">Front premium received</span><span class="scanner-value">$${qFmt(frontPremiumUsd, 0)}</span></div>
       <div class="scanner-row"><span class="scanner-label">Back premium paid</span><span class="scanner-value">$${qFmt(backPremiumUsd, 0)}</span></div>
       <div class="scanner-row"><span class="scanner-label">Net cost</span><span class="scanner-value">${netDebit >= 0 ? "debit $" + qFmt(netDebit, 0) : "credit $" + qFmt(-netDebit, 0)}</span></div>
+      <div class="scanner-row" title="Risk-neutral probability at front expiry under front-month IV, not a real-world/objective probability"><span class="scanner-label">Probability of Profit (live)</span><span class="scanner-value">${pop != null ? qFmt(pop, 0) + "%" : "—"}</span></div>
     </div>`;
 
   if (sigmaBack != null) {
@@ -119,17 +128,21 @@ function renderCalendar(front, back) {
 // P&L at front expiry: front premium collected, minus the front straddle's payout,
 // minus back premium paid, plus the back leg's remaining value (BS reprice at its
 // current IV, since it hasn't expired yet).
+function makeCalendarPnlAt(strike, remainingT, sigmaBack, frontPremiumUsd, backPremiumUsd) {
+  return (S) => {
+    const frontPayout = Math.abs(S - strike);
+    const backValue = qBsPrice("call", S, strike, remainingT, sigmaBack) + qBsPrice("put", S, strike, remainingT, sigmaBack);
+    return frontPremiumUsd - frontPayout - backPremiumUsd + backValue;
+  };
+}
+
 function buildCalendarPayoffSvg(strike, spot, frontDte, backDte, sigmaBack, frontPremiumUsd, backPremiumUsd) {
   const W = 640, H = 220, padL = 50, padR = 16, padT = 14, padB = 26;
   const innerW = W - padL - padR, innerH = H - padT - padB;
   const lo = spot * 0.7, hi = spot * 1.3;
   const remainingT = Math.max((backDte - frontDte) / 365.25, 1 / 365 / 24);
   const steps = 100;
-  const pnlAt = (S) => {
-    const frontPayout = Math.abs(S - strike);
-    const backValue = qBsPrice("call", S, strike, remainingT, sigmaBack) + qBsPrice("put", S, strike, remainingT, sigmaBack);
-    return frontPremiumUsd - frontPayout - backPremiumUsd + backValue;
-  };
+  const pnlAt = makeCalendarPnlAt(strike, remainingT, sigmaBack, frontPremiumUsd, backPremiumUsd);
   const pts = [];
   for (let i = 0; i <= steps; i++) {
     const S = lo + ((hi - lo) * i) / steps;

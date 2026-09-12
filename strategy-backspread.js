@@ -66,8 +66,10 @@ function computeBackspread(widthPct) {
   const netCost = 2 * longUsd - shortUsd; // positive = net debit, negative = net credit
   const maxLoss = longStrike - shortStrike + netCost;
   const upsideBreakeven = 2 * longStrike - shortStrike + netCost;
+  const ivs = [shortCall.mark_iv, longCall.mark_iv].filter((v) => v != null);
+  const avgIv = ivs.length ? ivs.reduce((a, b) => a + b, 0) / ivs.length : null;
 
-  return { spot, shortStrike, longStrike, shortUsd, longUsd, netCost, maxLoss, upsideBreakeven };
+  return { spot, shortStrike, longStrike, shortUsd, longUsd, netCost, maxLoss, upsideBreakeven, avgIv };
 }
 
 function renderBackspread(bs) {
@@ -81,6 +83,7 @@ function renderBackspread(bs) {
     $("maxLossStat").textContent = "—";
     $("breakevenStat").textContent = "—";
     chartEl.innerHTML = '<p class="loading">No data (chain may be too thin for this width)</p>';
+    if ($("popStat")) $("popStat").textContent = "—";
     return;
   }
 
@@ -94,6 +97,15 @@ function renderBackspread(bs) {
     { type: "call", side: "long", strike: bs.longStrike, premiumUsd: bs.longUsd, qty: 2 },
   ];
   chartEl.innerHTML = qBuildPayoffSvg(legs, bs.spot, { width: 700 });
+
+  if ($("popStat")) {
+    let pop = null;
+    if (bs.avgIv != null && state.selectedExpiry) {
+      const T = Math.max((state.selectedExpiry - Date.now()) / QUANT_YEAR_MS, 1 / 365 / 24);
+      pop = qComputeProbabilityOfProfit(legs, bs.spot, bs.avgIv / 100, T);
+    }
+    $("popStat").textContent = pop != null ? qFmt(pop, 0) + "%" : "—";
+  }
 }
 
 async function refresh() {

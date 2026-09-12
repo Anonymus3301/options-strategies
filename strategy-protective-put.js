@@ -75,8 +75,10 @@ function renderTable(rows) {
 function renderPayoff(front, floorPct) {
   $("payoffExpiry").textContent = front ? qExpiryLabel(front.expiry) : "—";
   const el = $("payoffChart");
+  const popEl = $("popStat");
   if (!front || front.strike == null || front.spot == null || front.premiumUsd == null) {
     el.innerHTML = '<p class="loading">No data</p>';
+    if (popEl) popEl.textContent = "—";
     return;
   }
   const spot = front.spot, strike = front.strike, premium = front.premiumUsd;
@@ -86,6 +88,14 @@ function renderPayoff(front, floorPct) {
   const steps = 100;
   const hedgedPnl = (S) => (S - spot) + Math.max(strike - S, 0) - premium;
   const unhedgedPnl = (S) => S - spot;
+  if (popEl) {
+    let pop = null;
+    if (front.iv != null && front.dte > 0) {
+      const T = Math.max(front.dte / 365.25, 1 / 365 / 24);
+      pop = qComputeProbabilityOfProfitFn(hedgedPnl, spot, front.iv / 100, T);
+    }
+    popEl.textContent = pop != null ? qFmt(pop, 0) + "%" : "—";
+  }
   const pts = [];
   for (let i = 0; i <= steps; i++) {
     const S = lo + ((hi - lo) * i) / steps;

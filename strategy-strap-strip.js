@@ -60,8 +60,10 @@ function computeStrapStrip(mode) {
   const cost = callQty * callUsd + putQty * putUsd;
   const breakevenUp = strike + cost / callQty;
   const breakevenDown = strike - cost / putQty;
+  const ivs = [call.mark_iv, put.mark_iv].filter((v) => v != null);
+  const atmIv = ivs.length ? ivs.reduce((a, b) => a + b, 0) / ivs.length : null;
 
-  return { spot, strike, callUsd, putUsd, callQty, putQty, cost, breakevenUp, breakevenDown };
+  return { spot, strike, callUsd, putUsd, callQty, putQty, cost, breakevenUp, breakevenDown, atmIv };
 }
 
 function renderStrapStrip(ss) {
@@ -74,6 +76,7 @@ function renderStrapStrip(ss) {
     $("costStat").textContent = "—";
     $("breakevenStat").textContent = "—";
     chartEl.innerHTML = '<p class="loading">No data</p>';
+    if ($("popStat")) $("popStat").textContent = "—";
     return;
   }
 
@@ -86,6 +89,15 @@ function renderStrapStrip(ss) {
     { type: "put", side: "long", strike: ss.strike, premiumUsd: ss.putUsd, qty: ss.putQty },
   ];
   chartEl.innerHTML = qBuildPayoffSvg(legs, ss.spot);
+
+  if ($("popStat")) {
+    let pop = null;
+    if (ss.atmIv != null && state.selectedExpiry) {
+      const T = Math.max((state.selectedExpiry - Date.now()) / QUANT_YEAR_MS, 1 / 365 / 24);
+      pop = qComputeProbabilityOfProfit(legs, ss.spot, ss.atmIv / 100, T);
+    }
+    $("popStat").textContent = pop != null ? qFmt(pop, 0) + "%" : "—";
+  }
 }
 
 async function refresh() {

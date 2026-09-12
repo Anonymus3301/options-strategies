@@ -86,6 +86,7 @@ function computeBrokenWing(innerPct, outerPct) {
     maxProfit,
     belowLowerFlat,
     aboveUpperFlat,
+    centerIv: centerCall.mark_iv,
   };
 }
 
@@ -100,6 +101,7 @@ function renderBrokenWing(bwb) {
     $("maxProfitStat").textContent = "—";
     $("upsideRiskStat").textContent = "—";
     chartEl.innerHTML = '<p class="loading">No data (chain may be too thin for these widths)</p>';
+    if ($("popStat")) $("popStat").textContent = "—";
     return;
   }
 
@@ -117,6 +119,15 @@ function renderBrokenWing(bwb) {
     { type: "call", side: "long", strike: bwb.upperStrike, premiumUsd: bwb.upperUsd },
   ];
   chartEl.innerHTML = qBuildPayoffSvg(legs, bwb.spot, { width: 700 });
+
+  if ($("popStat")) {
+    let pop = null;
+    if (bwb.centerIv != null && state.selectedExpiry) {
+      const T = Math.max((state.selectedExpiry - Date.now()) / QUANT_YEAR_MS, 1 / 365 / 24);
+      pop = qComputeProbabilityOfProfit(legs, bwb.spot, bwb.centerIv / 100, T);
+    }
+    $("popStat").textContent = pop != null ? qFmt(pop, 0) + "%" : "—";
+  }
 }
 
 async function refresh() {

@@ -243,12 +243,23 @@ function renderStrangle(front) {
   const putPremiumUsd = putSum && putSum.mark_price != null ? putSum.mark_price * front.spot : null;
   const totalPremium = callPremiumUsd != null && putPremiumUsd != null ? callPremiumUsd + putPremiumUsd : null;
 
+  let pop = null;
+  if (totalPremium != null && front.atmIv != null) {
+    const T = Math.max((state.selectedExpiry - Date.now()) / (365.25 * 24 * 60 * 60 * 1000), 1 / 365 / 24);
+    const legs = [
+      { type: "call", side: "short", strike: callStrike, premiumUsd: callPremiumUsd },
+      { type: "put", side: "short", strike: putStrike, premiumUsd: putPremiumUsd },
+    ];
+    pop = qComputeProbabilityOfProfit(legs, front.spot, front.atmIv / 100, T);
+  }
+
   el.innerHTML = `
     <div class="scanner-rows">
       <div class="scanner-row"><span class="scanner-label">Sell call strike</span><span class="scanner-value">${qFmt(callStrike, 0)} (premium ≈ $${qFmt(callPremiumUsd, 0)})</span></div>
       <div class="scanner-row"><span class="scanner-label">Sell put strike</span><span class="scanner-value">${qFmt(putStrike, 0)} (premium ≈ $${qFmt(putPremiumUsd, 0)})</span></div>
       <div class="scanner-row"><span class="scanner-label">Total premium collected</span><span class="scanner-value">${totalPremium != null ? "$" + qFmt(totalPremium, 0) : "—"}</span></div>
       <div class="scanner-row"><span class="scanner-label">Breakevens</span><span class="scanner-value">${totalPremium != null ? qFmt(putStrike - totalPremium, 0) + " — " + qFmt(callStrike + totalPremium, 0) : "—"}</span></div>
+      <div class="scanner-row" title="Risk-neutral probability under ATM IV, not a real-world/objective probability"><span class="scanner-label">Probability of Profit (live)</span><span class="scanner-value">${pop != null ? qFmt(pop, 0) + "%" : "—"}</span></div>
     </div>`;
   chartEl.innerHTML = totalPremium != null ? buildStranglePayoffSvg(callStrike, putStrike, totalPremium, front.spot) : "";
 }

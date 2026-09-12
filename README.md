@@ -172,6 +172,30 @@ Several pages share `localStorage` keys with the main dashboard's own IV Rank / 
 Rank features (same key names), so history accumulates regardless of which page — or how
 many of them — a visitor has open in that browser.
 
+### Live Probability of Profit
+
+Fourteen of the pages above show a live **Probability of Profit** stat, recomputed on
+every refresh from that page's own strikes, premiums, and quoted IV: Premium Selling,
+Skew Arbitrage, Long Volatility, Calendar Spread, Protective Put, Collar, Iron Condor,
+Butterfly, Jade Lizard, Ratio Spread, Diagonal Spread, Call Backspread, Strap/Strip, and
+Broken Wing Butterfly.
+
+It's computed by numerically integrating each structure's own PnL-at-expiry function
+against the lognormal price distribution implied by the page's IV and time-to-expiry —
+the same risk-neutral, driftless-in-log convention (`r = 0`) as every Black-Scholes price
+already shown throughout this app. **This is a risk-neutral probability derived from
+current option prices, not a real-world/objective forecast of where price will end up** —
+the same honesty caveat already attached to the P(ITM) column and Probability Cone
+elsewhere in this project. Every page shows it with a tooltip repeating that caveat.
+
+Seven pages deliberately don't have it: Carry & Funding and the Income Scanner are
+linear/yield-harvest trades where delta-band selection already serves the purpose; the
+Income Scanner's table format has no single constructed position to score; BTC/ETH Vol
+Pair Trade would need a joint two-asset distribution, out of scope for this pass; Max
+Pain and PCR Sentiment are informational/contested-theory pages with no constructed
+position; and Box Spread and Synthetic Forward have fixed or near-fixed payoffs at
+expiry where a profit probability isn't a meaningful concept.
+
 ## Tools
 
 Four utility pages that complement the strategy suite rather than adding another

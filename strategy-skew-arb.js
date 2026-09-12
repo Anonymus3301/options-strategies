@@ -132,16 +132,10 @@ function renderRrInfo(skew) {
   const putPremiumUsd = skew.put25.mark != null ? skew.put25.mark * skew.spot : null;
   const netCredit = richer === "put" ? putPremiumUsd - callPremiumUsd : callPremiumUsd - putPremiumUsd;
 
-  el.innerHTML = `
-    <div class="scanner-rows">
-      <div class="scanner-row"><span class="scanner-label">Structure</span><span class="scanner-value">${structure}</span></div>
-      <div class="scanner-row"><span class="scanner-label">25Δ Call strike (IV)</span><span class="scanner-value">${qFmt(skew.call25.strike, 0)} (${qFmt(skew.call25.iv, 1)}%, Δ${qFmt(skew.call25.delta, 2)})</span></div>
-      <div class="scanner-row"><span class="scanner-label">25Δ Put strike (IV)</span><span class="scanner-value">${qFmt(skew.put25.strike, 0)} (${qFmt(skew.put25.iv, 1)}%, Δ${qFmt(skew.put25.delta, 2)})</span></div>
-      <div class="scanner-row"><span class="scanner-label">Net premium</span><span class="scanner-value">${netCredit != null ? (netCredit >= 0 ? "credit $" + qFmt(netCredit, 0) : "debit $" + qFmt(-netCredit, 0)) : "—"}</span></div>
-    </div>`;
-
+  let pop = null;
+  let legs = null;
   if (callPremiumUsd != null && putPremiumUsd != null) {
-    const legs =
+    legs =
       richer === "put"
         ? [
             { type: "put", side: "short", strike: skew.put25.strike, premiumUsd: putPremiumUsd },
@@ -151,10 +145,23 @@ function renderRrInfo(skew) {
             { type: "call", side: "short", strike: skew.call25.strike, premiumUsd: callPremiumUsd },
             { type: "put", side: "long", strike: skew.put25.strike, premiumUsd: putPremiumUsd },
           ];
-    chartEl.innerHTML = qBuildPayoffSvg(legs, skew.spot);
-  } else {
-    chartEl.innerHTML = "";
+    const sigmaPct = skew.atmIv != null ? skew.atmIv : (skew.call25.iv + skew.put25.iv) / 2;
+    if (sigmaPct != null && state.selectedExpiry) {
+      const T = Math.max((state.selectedExpiry - Date.now()) / QUANT_YEAR_MS, 1 / 365 / 24);
+      pop = qComputeProbabilityOfProfit(legs, skew.spot, sigmaPct / 100, T);
+    }
   }
+
+  el.innerHTML = `
+    <div class="scanner-rows">
+      <div class="scanner-row"><span class="scanner-label">Structure</span><span class="scanner-value">${structure}</span></div>
+      <div class="scanner-row"><span class="scanner-label">25Δ Call strike (IV)</span><span class="scanner-value">${qFmt(skew.call25.strike, 0)} (${qFmt(skew.call25.iv, 1)}%, Δ${qFmt(skew.call25.delta, 2)})</span></div>
+      <div class="scanner-row"><span class="scanner-label">25Δ Put strike (IV)</span><span class="scanner-value">${qFmt(skew.put25.strike, 0)} (${qFmt(skew.put25.iv, 1)}%, Δ${qFmt(skew.put25.delta, 2)})</span></div>
+      <div class="scanner-row"><span class="scanner-label">Net premium</span><span class="scanner-value">${netCredit != null ? (netCredit >= 0 ? "credit $" + qFmt(netCredit, 0) : "debit $" + qFmt(-netCredit, 0)) : "—"}</span></div>
+      <div class="scanner-row" title="Risk-neutral probability under ATM IV, not a real-world/objective probability"><span class="scanner-label">Probability of Profit (live)</span><span class="scanner-value">${pop != null ? qFmt(pop, 0) + "%" : "—"}</span></div>
+    </div>`;
+
+  chartEl.innerHTML = legs ? qBuildPayoffSvg(legs, skew.spot) : "";
 }
 
 async function refresh() {

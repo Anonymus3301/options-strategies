@@ -214,6 +214,16 @@ function qExpiryLabel(ts) {
 // ---------- Generic multi-leg payoff-at-expiry SVG ----------
 // legs: [{ type: "call"|"put", side: "long"|"short", strike, premiumUsd, qty }]
 
+// Shared by qBuildPayoffSvg and qComputeProbabilityOfProfit so both always agree on what
+// a set of legs pays out at expiry for a given terminal price S.
+function qLegsPnlAt(legs, S) {
+  return legs.reduce((sum, leg) => {
+    const intrinsic = leg.type === "call" ? Math.max(S - leg.strike, 0) : Math.max(leg.strike - S, 0);
+    const legPnl = leg.side === "long" ? intrinsic - leg.premiumUsd : leg.premiumUsd - intrinsic;
+    return sum + legPnl * (leg.qty || 1);
+  }, 0);
+}
+
 function qBuildPayoffSvg(legs, spot, opts = {}) {
   const W = opts.width || 640, H = opts.height || 220, padL = 50, padR = 16, padT = 14, padB = 26;
   const innerW = W - padL - padR, innerH = H - padT - padB;
@@ -221,12 +231,7 @@ function qBuildPayoffSvg(legs, spot, opts = {}) {
   const lo = Math.min(spot, ...strikes) * 0.7;
   const hi = Math.max(spot, ...strikes) * 1.3;
   const steps = 100;
-  const pnlAt = (S) =>
-    legs.reduce((sum, leg) => {
-      const intrinsic = leg.type === "call" ? Math.max(S - leg.strike, 0) : Math.max(leg.strike - S, 0);
-      const legPnl = leg.side === "long" ? intrinsic - leg.premiumUsd : leg.premiumUsd - intrinsic;
-      return sum + legPnl * (leg.qty || 1);
-    }, 0);
+  const pnlAt = (S) => qLegsPnlAt(legs, S);
   const pts = [];
   for (let i = 0; i <= steps; i++) {
     const S = lo + ((hi - lo) * i) / steps;
@@ -257,6 +262,49 @@ function qBuildPayoffSvg(legs, spot, opts = {}) {
   svg += `<path d="${d.trim()}" fill="none" stroke="${opts.color || "#35d399"}" stroke-width="2"/>`;
   svg += "</svg>";
   return svg;
+}
+
+// ---------- Probability of profit (numerical, under the lognormal price distribution) ----------
+// Same risk-neutral (r=0, driftless-in-log) convention as this file's own Black-Scholes
+// pricer: ln(S_T) ~ Normal(ln(S0) - 0.5*sigma^2*T, sigma^2*T). This is the standard
+// martingale assumption behind every price in this app, not a real-world/objective
+// probability — flagged as such on every page that shows it, the same way P(ITM) already
+// is elsewhere in this project.
+
+function qLognormalPdf(S, S0, sigma, T) {
+  if (S <= 0 || sigma <= 0 || T <= 0) return 0;
+  const mu = Math.log(S0) - 0.5 * sigma * sigma * T;
+  const sd = sigma * Math.sqrt(T);
+  const z = (Math.log(S) - mu) / sd;
+  return Math.exp(-0.5 * z * z) / (S * sd * Math.sqrt(2 * Math.PI));
+}
+
+// Numerically integrates a PnL-at-expiry function against the lognormal density to get
+// the probability that pnlFn(S) > 0. `pnlFn` can be as simple as a legs sum or a bespoke
+// function (e.g. a calendar spread's front-settles/back-reprices logic) — this only cares
+// that it returns a number for any terminal price S.
+function qComputeProbabilityOfProfitFn(pnlFn, spot, sigma, T, opts = {}) {
+  if (spot == null || sigma == null || sigma <= 0 || T == null || T <= 0) return null;
+  const steps = opts.steps || 4000;
+  const sd = sigma * Math.sqrt(T);
+  const lo = spot * Math.exp(-8 * sd);
+  const hi = spot * Math.exp(8 * sd);
+  const dS = (hi - lo) / steps;
+  let profitMass = 0, totalMass = 0;
+  for (let i = 0; i < steps; i++) {
+    const S = lo + (i + 0.5) * dS;
+    const density = qLognormalPdf(S, spot, sigma, T) * dS;
+    totalMass += density;
+    if (pnlFn(S) > 0) profitMass += density;
+  }
+  return totalMass > 0 ? (profitMass / totalMass) * 100 : null;
+}
+
+// Convenience wrapper for the common case of a plain options-legs payoff (no underlying
+// spot position mixed in — see qLegsPnlAt).
+function qComputeProbabilityOfProfit(legs, spot, sigma, T, opts = {}) {
+  if (!legs || !legs.length) return null;
+  return qComputeProbabilityOfProfitFn((S) => qLegsPnlAt(legs, S), spot, sigma, T, opts);
 }
 
 // ---------- Simple signed bar chart (category labels, not numeric x-axis) ----------

@@ -175,17 +175,24 @@ function renderStraddle(front) {
     chartEl.innerHTML = "";
     return;
   }
+  const legs = [
+    { type: "call", side: "long", strike: front.atmStrike, premiumUsd: front.call.mark_price * front.spot },
+    { type: "put", side: "long", strike: front.atmStrike, premiumUsd: front.put.mark_price * front.spot },
+  ];
+  let pop = null;
+  if (front.atmIv != null) {
+    const T = Math.max((state.selectedExpiry - Date.now()) / (365.25 * 24 * 60 * 60 * 1000), 1 / 365 / 24);
+    pop = qComputeProbabilityOfProfit(legs, front.spot, front.atmIv / 100, T);
+  }
+
   el.innerHTML = `
     <div class="scanner-rows">
       <div class="scanner-row"><span class="scanner-label">Buy call + put strike</span><span class="scanner-value">${qFmt(front.atmStrike, 0)}</span></div>
       <div class="scanner-row"><span class="scanner-label">Total premium paid</span><span class="scanner-value">$${qFmt(cost.usd, 0)} (${qFmt(cost.pct, 1)}% of spot)</span></div>
       <div class="scanner-row"><span class="scanner-label">Breakevens</span><span class="scanner-value">${qFmt(front.atmStrike - cost.usd, 0)} — ${qFmt(front.atmStrike + cost.usd, 0)}</span></div>
       <div class="scanner-row"><span class="scanner-label">Needs a move of</span><span class="scanner-value">≥ ${qFmt(cost.pct, 1)}% either direction to profit at expiry</span></div>
+      <div class="scanner-row" title="Risk-neutral probability under ATM IV, not a real-world/objective probability"><span class="scanner-label">Probability of Profit (live)</span><span class="scanner-value">${pop != null ? qFmt(pop, 0) + "%" : "—"}</span></div>
     </div>`;
-  const legs = [
-    { type: "call", side: "long", strike: front.atmStrike, premiumUsd: front.call.mark_price * front.spot },
-    { type: "put", side: "long", strike: front.atmStrike, premiumUsd: front.put.mark_price * front.spot },
-  ];
   chartEl.innerHTML = qBuildPayoffSvg(legs, front.spot);
 }
 

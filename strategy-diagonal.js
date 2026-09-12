@@ -77,8 +77,17 @@ function computeDiagonal(widthPct) {
   const frontDte = (state.frontExpiry - now) / (24 * 60 * 60 * 1000);
   const backDte = (state.backExpiry - now) / (24 * 60 * 60 * 1000);
   const sigmaBack = backCall.mark_iv != null ? backCall.mark_iv / 100 : null;
+  const sigmaFront = frontCall.mark_iv != null ? frontCall.mark_iv / 100 : null;
 
-  return { spot, longStrike, shortStrike, backUsd, frontUsd, netDebit, frontDte, backDte, sigmaBack };
+  return { spot, longStrike, shortStrike, backUsd, frontUsd, netDebit, frontDte, backDte, sigmaBack, sigmaFront };
+}
+
+function makeDiagonalPnlAt(longStrike, shortStrike, remainingT, sigmaBack, backUsd, frontUsd) {
+  return (S) => {
+    const frontPayout = Math.max(S - shortStrike, 0);
+    const backValue = qBsPrice("call", S, longStrike, remainingT, sigmaBack);
+    return frontUsd - frontPayout - backUsd + backValue;
+  };
 }
 
 function buildDiagonalPayoffSvg(longStrike, shortStrike, spot, frontDte, backDte, sigmaBack, backUsd, frontUsd) {
@@ -87,11 +96,7 @@ function buildDiagonalPayoffSvg(longStrike, shortStrike, spot, frontDte, backDte
   const lo = spot * 0.6, hi = spot * 1.5;
   const remainingT = Math.max((backDte - frontDte) / 365.25, 1 / 365 / 24);
   const steps = 100;
-  const pnlAt = (S) => {
-    const frontPayout = Math.max(S - shortStrike, 0);
-    const backValue = qBsPrice("call", S, longStrike, remainingT, sigmaBack);
-    return frontUsd - frontPayout - backUsd + backValue;
-  };
+  const pnlAt = makeDiagonalPnlAt(longStrike, shortStrike, remainingT, sigmaBack, backUsd, frontUsd);
   const pts = [];
   for (let i = 0; i <= steps; i++) {
     const S = lo + ((hi - lo) * i) / steps;
@@ -127,6 +132,7 @@ function renderDiagonal(diag) {
     $("strikesStat").textContent = "—";
     $("debitStat").textContent = "—";
     chartEl.innerHTML = '<p class="loading">No data</p>';
+    if ($("popStat")) $("popStat").textContent = "—";
     return;
   }
 
@@ -139,6 +145,17 @@ function renderDiagonal(diag) {
     );
   } else {
     chartEl.innerHTML = "";
+  }
+
+  if ($("popStat")) {
+    let pop = null;
+    if (diag.sigmaBack != null && diag.sigmaFront != null) {
+      const remainingT = Math.max((diag.backDte - diag.frontDte) / 365.25, 1 / 365 / 24);
+      const pnlAt = makeDiagonalPnlAt(diag.longStrike, diag.shortStrike, remainingT, diag.sigmaBack, diag.backUsd, diag.frontUsd);
+      const frontT = Math.max(diag.frontDte / 365.25, 1 / 365 / 24);
+      pop = qComputeProbabilityOfProfitFn(pnlAt, diag.spot, diag.sigmaFront, frontT);
+    }
+    $("popStat").textContent = pop != null ? qFmt(pop, 0) + "%" : "—";
   }
 }
 

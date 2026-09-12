@@ -104,6 +104,7 @@ function computeButterfly(centerMode, widthPct) {
     maxProfit,
     breakevenLow: lowerStrike + netDebit,
     breakevenHigh: upperStrike - netDebit,
+    centerIv: centerCall.mark_iv,
   };
 }
 
@@ -118,6 +119,7 @@ function renderButterfly(fly) {
     $("maxProfitStat").textContent = "—";
     $("breakevenStat").textContent = "—";
     chartEl.innerHTML = '<p class="loading">No data (chain may be too thin for this width)</p>';
+    if ($("popStat")) $("popStat").textContent = "—";
     return;
   }
 
@@ -132,6 +134,15 @@ function renderButterfly(fly) {
     { type: "call", side: "long", strike: fly.upperStrike, premiumUsd: fly.upperUsd },
   ];
   chartEl.innerHTML = qBuildPayoffSvg(legs, fly.spot);
+
+  if ($("popStat")) {
+    let pop = null;
+    if (fly.centerIv != null && state.selectedExpiry) {
+      const T = Math.max((state.selectedExpiry - Date.now()) / QUANT_YEAR_MS, 1 / 365 / 24);
+      pop = qComputeProbabilityOfProfit(legs, fly.spot, fly.centerIv / 100, T);
+    }
+    $("popStat").textContent = pop != null ? qFmt(pop, 0) + "%" : "—";
+  }
 }
 
 async function refresh() {

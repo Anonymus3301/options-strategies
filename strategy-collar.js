@@ -54,7 +54,7 @@ function computeCollar(floorPct) {
   const putPremiumUsd = put.mark_price * spot;
 
   const callStrikes = [...bucket.calls.keys()].filter((k) => k > spot).sort((a, b) => a - b);
-  let capStrike = null, bestDiff = Infinity, capPremiumUsd = null;
+  let capStrike = null, bestDiff = Infinity, capPremiumUsd = null, capIv = null;
   for (const strike of callStrikes) {
     const call = state.summaries.get(bucket.calls.get(strike));
     if (!call || call.mark_price == null) continue;
@@ -64,20 +64,26 @@ function computeCollar(floorPct) {
       bestDiff = diff;
       capStrike = strike;
       capPremiumUsd = premiumUsd;
+      capIv = call.mark_iv;
     }
   }
 
-  return { spot, floorStrike, putPremiumUsd, capStrike, capPremiumUsd };
+  const ivs = [put.mark_iv, capIv].filter((v) => v != null);
+  const atmIv = ivs.length ? ivs.reduce((a, b) => a + b, 0) / ivs.length : null;
+
+  return { spot, floorStrike, putPremiumUsd, capStrike, capPremiumUsd, atmIv };
 }
 
 function renderPayoff(collar) {
   $("payoffExpiry").textContent = state.selectedExpiry ? qExpiryLabel(state.selectedExpiry) : "—";
   const el = $("payoffChart");
+  const popEl = $("popStat");
   if (!collar || collar.spot == null || collar.floorStrike == null || collar.capStrike == null) {
     el.innerHTML = '<p class="loading">No data</p>';
+    if (popEl) popEl.textContent = "—";
     return;
   }
-  const { spot, floorStrike, putPremiumUsd, capStrike, capPremiumUsd } = collar;
+  const { spot, floorStrike, putPremiumUsd, capStrike, capPremiumUsd, atmIv } = collar;
   const netCost = putPremiumUsd - capPremiumUsd;
   const W = 640, H = 220, padL = 50, padR = 16, padT = 14, padB = 26;
   const innerW = W - padL - padR, innerH = H - padT - padB;
@@ -85,6 +91,14 @@ function renderPayoff(collar) {
   const steps = 100;
   const collaredPnl = (S) => (S - spot) + Math.max(floorStrike - S, 0) - Math.max(S - capStrike, 0) - netCost;
   const unhedgedPnl = (S) => S - spot;
+  if (popEl) {
+    let pop = null;
+    if (atmIv != null && state.selectedExpiry) {
+      const T = Math.max((state.selectedExpiry - Date.now()) / QUANT_YEAR_MS, 1 / 365 / 24);
+      pop = qComputeProbabilityOfProfitFn(collaredPnl, spot, atmIv / 100, T);
+    }
+    popEl.textContent = pop != null ? qFmt(pop, 0) + "%" : "—";
+  }
   const pts = [];
   for (let i = 0; i <= steps; i++) {
     const S = lo + ((hi - lo) * i) / steps;

@@ -54,7 +54,7 @@ function findDeltaStrike(strikes, bucket, type, targetDelta, spot, T) {
     const diff = Math.abs(Math.abs(delta) - targetDelta);
     if (diff < bestDiff) {
       bestDiff = diff;
-      best = { strike, delta, mark: sum.mark_price };
+      best = { strike, delta, mark: sum.mark_price, iv: sum.mark_iv };
     }
   }
   return best;
@@ -113,6 +113,7 @@ function renderJadeLizard(jl) {
     $("upsideRiskStat").textContent = "—";
     $("breakevenStat").textContent = "—";
     chartEl.innerHTML = '<p class="loading">No data (chain may be too thin for this width)</p>';
+    if ($("popStat")) $("popStat").textContent = "—";
     return;
   }
 
@@ -130,6 +131,17 @@ function renderJadeLizard(jl) {
     { type: "call", side: "long", strike: jl.longCallStrike, premiumUsd: jl.longCallUsd },
   ];
   chartEl.innerHTML = qBuildPayoffSvg(legs, jl.spot);
+
+  if ($("popStat")) {
+    let pop = null;
+    const ivs = [jl.shortPut.iv, jl.shortCall.iv].filter((v) => v != null);
+    const sigmaPct = ivs.length ? ivs.reduce((a, b) => a + b, 0) / ivs.length : null;
+    if (sigmaPct != null && state.selectedExpiry) {
+      const T = Math.max((state.selectedExpiry - Date.now()) / QUANT_YEAR_MS, 1 / 365 / 24);
+      pop = qComputeProbabilityOfProfit(legs, jl.spot, sigmaPct / 100, T);
+    }
+    $("popStat").textContent = pop != null ? qFmt(pop, 0) + "%" : "—";
+  }
 }
 
 async function refresh() {

@@ -63,6 +63,9 @@
       <span class="hint">Long BTC + long put (floor) + short call (cap) vs. long BTC alone, at expiry</span>
     </div>
     <div id="payoffChart" class="svg-chart"></div>
+    <div class="scanner-rows">
+      <div class="scanner-row" title="Risk-neutral probability under the collar leg's average IV, not a real-world/objective probability"><span class="scanner-label">Probability of Profit (live)</span><span class="scanner-value" id="popStat">—</span></div>
+    </div>
   </section>
 
   <p class="chart-note">
@@ -73,7 +76,7 @@
     if you hold through expiry and get assigned.
   </p>
 
-  <script src="quant.js?v=3"></script>
+  <script src="quant.js?v=4"></script>
   <script src="strategy-nav.js?v=5"></script>
   <script src="strategy-collar.js?v=1"></script>
 </body>
