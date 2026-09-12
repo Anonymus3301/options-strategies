@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Twelve dedicated pages, each buildable purely from Deribit's free public REST API (no
+Seventeen dedicated pages, each buildable purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
 and on each strategy page itself, and built on a shared `quant.js` (fetch helpers,
@@ -132,6 +132,22 @@ its specific limitations.
 - **[PCR Contrarian Sentiment](strategy-pcr.html)** — whole-chain put/call ratio (every
   live expiry combined), tracked vs. its own recent range (this-browser localStorage) and
   read as a contrarian signal at extremes — flagged explicitly as weak and noisy.
+- **[Butterfly Spread](strategy-butterfly.html)** — long call butterfly (buy 1 lower
+  strike, sell 2 center strikes, buy 1 upper strike) centered on ATM or the max-pain
+  strike, with a selectable wing width; a cheap, defined-risk bet on low realized volatility.
+- **[Jade Lizard](strategy-jade-lizard.html)** — sell a ~25Δ put plus a call credit spread
+  (~20Δ short call, long a further-OTM call); reports whether the total credit actually
+  covers the call spread's width, the defining feature of "no upside risk."
+- **[Box Spread](strategy-box-spread.html)** — a call spread + put spread at the same two
+  strikes pays a fixed amount at expiry regardless of outcome; comparing that payout to
+  what the chain's current mark prices say it costs implies an annualized financing rate.
+- **[Synthetic Forward](strategy-synthetic.html)** — long call + short put at the ATM
+  strike replicates a long forward; compares that options-implied forward against the
+  actual dated future's mark price for the matching expiry (a different cross-check than
+  Carry & Funding, which compares dated futures against the perpetual instead).
+- **[Ratio Spread](strategy-ratio-spread.html)** — a 1×2 call ratio spread (buy 1 near-ATM
+  call, sell 2 further-OTM calls); the one page in this set with genuinely unlimited risk
+  above its upper breakeven, and labeled as such rather than implied to be defined-risk.
 
 Several pages share `localStorage` keys with the main dashboard's own IV Rank / Skew
 Rank features (same key names), so history accumulates regardless of which page — or how
