@@ -14,6 +14,11 @@ const STRATEGY_PAGES = [
   { href: "strategy-collar.html", label: "Collar" },
   { href: "strategy-iron-condor.html", label: "Iron Condor" },
   { href: "strategy-pcr.html", label: "PCR Sentiment" },
+  { href: "strategy-butterfly.html", label: "Butterfly Spread" },
+  { href: "strategy-jade-lizard.html", label: "Jade Lizard" },
+  { href: "strategy-box-spread.html", label: "Box Spread" },
+  { href: "strategy-synthetic.html", label: "Synthetic Forward" },
+  { href: "strategy-ratio-spread.html", label: "Ratio Spread" },
 ];
 
 (function renderStrategyNav() {
