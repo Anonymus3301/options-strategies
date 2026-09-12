@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Long Volatility — Cheap Vol Strategy</title>
+<link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Long Volatility — Cheap Vol / Event Play</h1>
+        <p class="subtitle">Buy straddles when IV is cheap vs. realized moves — the mirror image of Premium Selling</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled>
+          <option>Loading…</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">ATM IV (selected expiry)</span>
+      <span id="atmIvStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Realized Vol (7/14/30D)</span>
+      <span id="rvolStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Vol Risk Premium (ATM IV − 30D RVol)</span>
+      <span id="premiumStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">IV Rank · Percentile (shared history with the main ladder)</span>
+      <span id="ivRankStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Straddle cost (breakeven move)</span>
+      <span id="expectedMoveStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide scanner-card">
+    <div class="panel-header">
+      <h2>Conditions</h2>
+      <span class="hint">Inverse of the Premium Selling scanner — favors buying when vol looks cheap, not rich</span>
+    </div>
+    <div id="scannerBody" class="scanner-body">
+      <p class="loading">Loading…</p>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Suggested Long Straddle — <span id="straddleExpiry">—</span></h2>
+      <span class="hint">Illustrative only — ATM strike, ignores fees/margin/early exercise</span>
+    </div>
+    <div id="straddleInfo" class="scanner-body">
+      <p class="loading">Loading…</p>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Long volatility positions decay via theta every
+    day the underlying doesn't move — a "favorable" reading here means vol looks
+    statistically cheap, not that a move is imminent. This page does not know about any
+    specific upcoming event and cannot forecast price direction or timing.
+  </p>
+
+  <script src="quant.js?v=2"></script>
+  <script src="strategy-nav.js?v=1"></script>
+  <script src="strategy-long-vol.js?v=1"></script>
+</body>
+</html>
