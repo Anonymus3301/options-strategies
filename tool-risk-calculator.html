@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Risk &amp; Position Sizing Calculator</title>
+<link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Risk &amp; Position Sizing Calculator</h1>
+        <p class="subtitle">How many contracts fits your risk budget, for any strategy's known max loss</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Inputs</h2>
+      <span class="hint">Get max loss per contract from any strategy page above (e.g. Iron Condor's "Max Profit / Max Loss" stat)</span>
+    </div>
+    <div class="alerts-form" style="padding: 16px; flex-wrap: wrap;">
+      <label class="chart-select-label">
+        Account size (USD)
+        <input id="accountSize" type="number" step="any" value="10000" style="width: 140px; font: inherit; background: var(--panel-alt); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px;" />
+      </label>
+      <label class="chart-select-label">
+        Max risk per trade (%)
+        <input id="riskPct" type="number" step="any" value="2" style="width: 80px; font: inherit; background: var(--panel-alt); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px;" />
+      </label>
+      <label class="chart-select-label">
+        Max loss per contract (USD)
+        <input id="maxLossPerContract" type="number" step="any" placeholder="e.g. 4647" style="width: 140px; font: inherit; background: var(--panel-alt); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px;" />
+      </label>
+      <label class="chart-select-label">
+        Premium/margin per contract (USD, optional)
+        <input id="marginPerContract" type="number" step="any" placeholder="e.g. capital tied up" style="width: 160px; font: inherit; background: var(--panel-alt); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px;" />
+      </label>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Risk Budget (this trade)</span>
+      <span id="riskBudgetStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Contracts by Max Loss</span>
+      <span id="contractsByLossStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Contracts by Margin/Capital</span>
+      <span id="contractsByMarginStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Suggested Size (binding constraint)</span>
+      <span id="suggestedSizeStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Kelly-Fraction Sanity Check (optional)</h2>
+      <span class="hint">Rough, high-variance estimate — most traders use a fraction of Kelly, not full Kelly</span>
+    </div>
+    <div class="alerts-form" style="padding: 16px; flex-wrap: wrap;">
+      <label class="chart-select-label">
+        Est. win probability (%)
+        <input id="winProb" type="number" step="any" placeholder="e.g. 65" style="width: 80px; font: inherit; background: var(--panel-alt); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px;" />
+      </label>
+      <label class="chart-select-label">
+        Win amount (USD, per contract)
+        <input id="winAmount" type="number" step="any" placeholder="e.g. max profit" style="width: 140px; font: inherit; background: var(--panel-alt); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px;" />
+      </label>
+      <label class="chart-select-label">
+        Loss amount (USD, per contract)
+        <input id="lossAmount" type="number" step="any" placeholder="e.g. max loss" style="width: 140px; font: inherit; background: var(--panel-alt); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px;" />
+      </label>
+    </div>
+    <div id="kellyOutput" class="scanner-body">
+      <p class="loading">Fill in win probability, win amount, and loss amount to see a Kelly estimate.</p>
+    </div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> This is arithmetic, not risk management advice —
+    it doesn't know your total portfolio, correlation with other positions, or margin
+    rules on your actual exchange (which can differ from a simple "max loss" figure,
+    especially for undefined-risk structures like the Ratio Spread or Jade Lizard pages).
+    The Kelly estimate is especially sensitive to your win-probability guess being right,
+    which it usually isn't — most practitioners use a fraction (e.g. 25-50%) of the
+    computed Kelly size, not the full amount.
+  </p>
+
+  <script src="strategy-nav.js?v=5"></script>
+  <script src="tool-risk-calculator.js?v=1"></script>
+</body>
+</html>

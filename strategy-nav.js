@@ -26,11 +26,21 @@ const STRATEGY_PAGES = [
   { href: "strategy-broken-wing.html", label: "Broken Wing Butterfly" },
 ];
 
-(function renderStrategyNav() {
-  const el = document.getElementById("strategyNav");
+const TOOL_PAGES = [
+  { href: "tool-risk-calculator.html", label: "🛠 Risk / Position Sizing" },
+  { href: "tool-unusual-activity.html", label: "🛠 Unusual Activity" },
+  { href: "tool-glossary.html", label: "🛠 Glossary" },
+  { href: "tool-journal.html", label: "🛠 Trade Journal" },
+];
+
+function renderNavInto(id, pages) {
+  const el = document.getElementById(id);
   if (!el) return;
   const here = location.pathname.split("/").pop();
-  el.innerHTML = STRATEGY_PAGES.map(
-    (p) => `<a href="${p.href}" class="strategy-nav-link${p.href === here ? " active" : ""}">${p.label}</a>`
-  ).join("");
-})();
+  el.innerHTML = pages
+    .map((p) => `<a href="${p.href}" class="strategy-nav-link${p.href === here ? " active" : ""}">${p.label}</a>`)
+    .join("");
+}
+
+renderNavInto("strategyNav", STRATEGY_PAGES);
+renderNavInto("toolsNav", TOOL_PAGES);
