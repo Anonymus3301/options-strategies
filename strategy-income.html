@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Covered Call / CSP Income Scanner</title>
+<link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Covered Call / Cash-Secured Put — Income Scanner</h1>
+        <p class="subtitle">Scans the whole chain for the best annualized premium yield at typical income-strategy deltas</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Delta band</span>
+        <select id="deltaBandSelect" class="poll-rate-select">
+          <option value="0.10,0.20">10–20Δ (further OTM, lower yield/risk)</option>
+          <option value="0.15,0.30" selected>15–30Δ (typical income range)</option>
+          <option value="0.25,0.40">25–40Δ (closer to ATM, higher yield/risk)</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Covered Call — sell calls against long spot</h2>
+      <span class="hint">Ranked by annualized premium yield · caps upside above the strike if assigned</span>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table" id="callTable">
+        <thead><tr><th>Expiry</th><th>DTE</th><th>Strike</th><th>IV</th><th>Δ</th><th>Premium</th><th>Annualized Yield</th></tr></thead>
+        <tbody><tr><td colspan="7" class="loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Cash-Secured Put — sell puts backed by cash collateral</h2>
+      <span class="hint">Ranked by annualized yield on collateral (strike) · obligates buying at strike if assigned</span>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table" id="putTable">
+        <thead><tr><th>Expiry</th><th>DTE</th><th>Strike</th><th>IV</th><th>Δ</th><th>Premium</th><th>Annualized Yield</th></tr></thead>
+        <tbody><tr><td colspan="7" class="loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Annualized yield is a simple premium/time
+    extrapolation, not a compounded or risk-adjusted return, and assumes you can repeat
+    the trade every cycle at the same terms (unlikely). Covered calls cap your upside if
+    BTC rallies past the strike; cash-secured puts obligate you to buy BTC at the strike
+    if it falls below it. Delta is a Black-Scholes estimate from each strike's own quoted
+    IV, not a guarantee of assignment probability. Ignores fees, early exercise (American-
+    style is not how these are settled on Deribit, but venues vary), and taxes.
+  </p>
+
+  <script src="quant.js?v=3"></script>
+  <script src="strategy-nav.js?v=1"></script>
+  <script src="strategy-income.js?v=1"></script>
+</body>
+</html>
