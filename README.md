@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Seventy dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Seventy-one dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -375,6 +375,15 @@ financial advice, and each page's own disclaimer spells out its specific limitat
   max-profit/max-loss figures flip correctly between sides, Probability of Profit is
   exactly complementary (42% long + 58% short = 100%), and the premium ($7,538) matches
   the standard √(2/π)·σ√T·S breakeven-width approximation ($7,546) almost exactly.
+- **[Vol-of-Vol (IV Volatility)](strategy-vol-of-vol.html)** — every other vol page here
+  measures a LEVEL (IV Rank, IV Term Structure, VRP Term Structure, the Volatility Cone);
+  this measures how much that level itself moves day to day instead, reusing the exact
+  same this-browser daily ATM-IV history the IV Rank feature already writes and running it
+  through the same `qAnnualizedVol` formula every realized-vol reading here applies to
+  price closes, just applied to IV levels. Verified by seeding a known 15-day alternating
+  IV history (50/55/50/55…) plus a live-fetched 16th day: the computed vol-of-vol (196.3%)
+  and average daily move (±5.2pp) both matched an independent reference computation on the
+  identical series exactly.
 
 **[Strategy Hub](strategy-hub.html)** ties the set together: a live market snapshot
 (front-month ATM IV, realized vol, vol risk premium, IV Rank) plus every strategy page
@@ -411,7 +420,7 @@ current option prices, not a real-world/objective forecast of where price will e
 the same honesty caveat already attached to the P(ITM) column and Probability Cone
 elsewhere in this project. Every page shows it with a tooltip repeating that caveat.
 
-Eighteen pages deliberately don't have it: Carry & Funding and the Income Scanner are
+Nineteen pages deliberately don't have it: Carry & Funding and the Income Scanner are
 linear/yield-harvest trades where delta-band selection already serves the purpose; the
 Income Scanner's table format has no single constructed position to score; The Wheel
 Strategy is the same table-scanner format across two hypothetical phases, with no single
@@ -430,8 +439,9 @@ the same way its Term Structure Curve sibling is; Gamma Exposure is an
 informational positioning read with no constructed position, the same reason as Max Pain;
 the Realized Volatility Cone is a historical-distribution measurement, not a
 constructed position either; the BTC/ETH Correlation Cone is the same kind of
-measurement for a different underlying metric; and the Vol Risk Premium Term Structure is
-an informational per-expiry comparison, not a constructed position.
+measurement for a different underlying metric; the Vol Risk Premium Term Structure is
+an informational per-expiry comparison, not a constructed position; and Vol-of-Vol is a
+measurement of the IV history's own volatility, not a constructed position either.
 
 ## Tools
 

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vol-of-Vol</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Vol-of-Vol (IV Volatility)</h1>
+        <p class="subtitle">Every other vol page here measures a LEVEL — this measures how much that level itself moves day to day, from the same this-browser ATM IV history the IV Rank feature already accumulates</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> the same front-month ATM IV recorded daily in this browser's localStorage that powers the IV Rank feature elsewhere on this site — treated here as a time series in its own right, and run through the same annualized-volatility formula (`qAnnualizedVol`) every realized-vol reading on this site already uses on price closes, just applied to IV levels instead of price levels.</p>
+      <p><strong>Market view:</strong> none by itself — a measurement, not a position. IV Rank asks "is current IV high or low vs. its own recent range." This asks a different question: "how jumpy has IV itself been recently," independent of whether it's currently high or low.</p>
+      <p><strong>Why it matters:</strong> a calendar spread, vega-neutral calendar, or forward-variance position is a bet expressed through vega — and vega's own P&L sensitivity compounds with how much IV itself actually moves, not just its current level. High vol-of-vol means a vega position's mark-to-market can swing hard even with price pinned flat; low vol-of-vol means IV itself is unusually stable right now.</p>
+      <p><strong>How to use it:</strong> cross-reference with the Vega-Neutral Calendar, Forward Variance, and Calendar Spread pages before sizing a vega-heavy position — a high vol-of-vol reading argues for smaller size or a shorter holding period on any of those structures.</p>
+      <p><strong>Key risk / caveat:</strong> this-browser-only history (same limitation as every other Rank feature here), starts from zero on a fresh browser or after clearing site data, and a single front-month ATM IV point per day is a coarse proxy for the whole vol surface's actual day-to-day movement.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Current Front-Month ATM IV</span>
+      <span id="currentIvStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Vol-of-Vol (Annualized)</span>
+      <span id="volOfVolStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Avg. Daily IV Move</span>
+      <span id="avgDailyMoveStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">History Length</span>
+      <span id="historyDaysStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Front-Month ATM IV — Daily History (This Browser)</h2>
+      <span class="hint">Same accumulated series the IV Rank feature reads — the more days this browser has visited any page here, the more complete this gets</span>
+    </div>
+    <div id="sparkline" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Builds up only from this browser's own visits —
+    a fresh browser or cleared site data starts the history over from zero. A single daily
+    ATM IV snapshot per day is a coarse measurement, not a full vol-surface-of-vol model.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=42"></script>
+  <script src="strategy-vol-of-vol.js?v=1"></script>
+</body>
+</html>
