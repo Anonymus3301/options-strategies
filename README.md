@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Sixty-eight dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Sixty-nine dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -300,6 +300,15 @@ financial advice, and each page's own disclaimer spells out its specific limitat
   not a dislocation, unlike a gap between options and the perpetual). Verified with a
   synthetic 1.67% options-vs-perp divergence: correctly flags it while reporting the
   future's own +8.1% annualized basis separately as expected, not flagged.
+- **[Empirical vs. Risk-Neutral POP Backtest](strategy-empirical-pop.html)** — the one
+  page that steps outside the risk-neutral lognormal assumption behind every other POP
+  stat on this site: walks ~400 days of real BTC-PERPETUAL closes to find the empirical
+  frequency that an ATM straddle's own breakeven move has actually happened over windows
+  matching its DTE, then compares that directly against the risk-neutral POP for the
+  identical structure. Verified with a synthetic price history built to match its own
+  quoted IV: the computed breakeven (±12.6% for a 30-day ATM straddle at 55% IV) matches
+  the standard 0.8·σ·√T approximation almost exactly, and both win-rate figures compute
+  correctly and land in a sensible range.
 - **[Double Diagonal Spread](strategy-double-diagonal.html)** — a call diagonal and a put
   diagonal combined: sell front-month OTM call+put closer to spot, buy back-month call+put
   at wider strikes. Cheaper than the Double Calendar's identical-strike construction for a
@@ -393,7 +402,7 @@ current option prices, not a real-world/objective forecast of where price will e
 the same honesty caveat already attached to the P(ITM) column and Probability Cone
 elsewhere in this project. Every page shows it with a tooltip repeating that caveat.
 
-Seventeen pages deliberately don't have it: Carry & Funding and the Income Scanner are
+Eighteen pages deliberately don't have it: Carry & Funding and the Income Scanner are
 linear/yield-harvest trades where delta-band selection already serves the purpose; the
 Income Scanner's table format has no single constructed position to score; The Wheel
 Strategy is the same table-scanner format across two hypothetical phases, with no single
@@ -405,7 +414,9 @@ isn't a meaningful concept; Risk-Neutral Density and the IV Term Structure Curve
 measurements of a distribution/curve shape, not a constructed position either; and the
 Conversion/Reversal Scanner is a ranked table across many strikes, the same table-format
 reason as the Income Scanner; the Spot Consistency Check is a cross-market measurement
-with no constructed position; the Volatility Smile Curve is a whole-curve measurement
+with no constructed position; the Empirical vs. Risk-Neutral POP Backtest computes its
+own risk-neutral figure inline as part of a two-column comparison rather than the
+standard single "Probability of Profit (live)" stat used elsewhere; the Volatility Smile Curve is a whole-curve measurement
 the same way its Term Structure Curve sibling is; Gamma Exposure is an
 informational positioning read with no constructed position, the same reason as Max Pain;
 the Realized Volatility Cone is a historical-distribution measurement, not a

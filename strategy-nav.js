@@ -71,6 +71,7 @@ const STRATEGY_PAGES = [
   { href: "strategy-correlation-cone.html", label: "BTC/ETH Correlation Cone" },
   { href: "strategy-vrp-term-structure.html", label: "VRP Term Structure" },
   { href: "strategy-spot-consistency.html", label: "Spot Consistency Check" },
+  { href: "strategy-empirical-pop.html", label: "Empirical vs Risk-Neutral POP" },
 ];
 
 const TOOL_PAGES = [

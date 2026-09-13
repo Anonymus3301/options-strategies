@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Empirical vs Risk-Neutral POP</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Empirical vs. Risk-Neutral POP Backtest</h1>
+        <p class="subtitle">Every Probability of Profit on this site is a forward-looking model assumption — this is the one page that checks it against what actually happened</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> takes the ATM long straddle for the selected expiry and its breakeven move (± the straddle's total premium as a % of spot). Walks every overlapping historical window of that same length across ~400 days of real BTC-PERPETUAL closes and counts how often the actual move was at least that large — the empirical win rate for "the straddle would have paid off." Compares it directly against the risk-neutral POP the rest of this site would compute for the identical structure from today's quoted IV.</p>
+      <p><strong>Market view:</strong> none by itself — a backtest/measurement, not a position. It's the only page here that steps outside the risk-neutral lognormal assumption behind every other POP stat and checks it against real outcomes.</p>
+      <p><strong>Why it matters:</strong> a risk-neutral POP is a pricing convention, not a claim about the real-world odds of anything — this site says so on every page that shows one. This page is the closest thing to actually testing that gap: if history's empirical rate and today's risk-neutral rate diverge a lot, it's a hint (not proof) about whether the current IV level has historically been rich or cheap for this specific expiry length.</p>
+      <p><strong>How to use it:</strong> a persistent, large gap here is a companion data point to the VRP Term Structure and Volatility Cone pages' own richness reads — three different lenses on the same underlying question of whether current IV looks expensive or cheap.</p>
+      <p><strong>Key risk / caveat:</strong> ~400 days is a short, overlapping-window sample (each window shares most of its days with its neighbors, so the count of "independent" observations is much smaller than the window count suggests) from one specific historical period — not proof the pattern repeats, and BTC's realized-vol regime can and does shift.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Straddle Breakeven Move</span>
+      <span id="breakevenStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Empirical Win Rate (real history)</span>
+      <span id="empiricalStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Risk-Neutral POP (today's IV)</span>
+      <span id="riskNeutralStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Read</span>
+      <span id="readStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Overlapping windows are not independent
+    observations — treat the "count" as a rough sample size, not a rigorous statistical
+    test. This backtests one specific historical period against today's IV; it says
+    nothing about whether that period is representative of what comes next.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=30"></script>
+  <script src="strategy-empirical-pop.js?v=1"></script>
+</body>
+</html>
