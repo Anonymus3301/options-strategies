@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Scenario Analysis</title>
+<title>Historical Backtest</title>
 <link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="brand">
       <a href="index.html" class="back-link">← Ladder</a>
       <div>
-        <h1>Scenario Analysis (Your Own Probabilities)</h1>
-        <p class="subtitle">Every POP/VaR stat on this site uses the risk-neutral lognormal distribution implied by quoted IV — this inverts that, letting you supply your own probabilities for the same up-to-4-leg combination as the Strategy Builder</p>
+        <h1>Historical Backtest (Custom Strategy)</h1>
+        <p class="subtitle">Every POP/VaR stat here prices off the risk-neutral lognormal distribution; Scenario Analysis uses probabilities you type in. This instead replays ~400 days of REAL BTC-PERPETUAL price history through the same up-to-4-leg combination as the Strategy Builder</p>
       </div>
     </div>
     <div class="status-cluster">
@@ -76,49 +76,44 @@
     </div>
   </section>
 
-  <section class="chart-card chart-card-wide">
-    <div class="panel-header">
-      <h2>Your Scenarios</h2>
-      <span class="hint">Edit the probability column — it doesn't need to sum to exactly 100%, but the expected P&L normalizes as if it did</span>
-    </div>
-    <div class="data-table-wrap">
-      <table class="data-table" id="scenarioTable">
-        <thead><tr><th>Move</th><th>Price</th><th>P&L at Expiry</th><th>Your Probability (%)</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
-
   <section class="market-stats">
     <div class="mstat">
-      <span class="mstat-label">Probability Sum</span>
-      <span id="probSumStat" class="mstat-value">—</span>
+      <span class="mstat-label">Historical Win Rate</span>
+      <span id="winRateStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Expected P&L (your view)</span>
-      <span id="expectedPnlStat" class="mstat-value">—</span>
+      <span class="mstat-label">Median P&L</span>
+      <span id="medianStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">5th — 95th Percentile P&L</span>
+      <span id="rangeStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Best / Worst Historical Window</span>
+      <span id="bestWorstStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat" title="Risk-neutral probability under the legs' average IV, for comparison — not the same computation as the empirical win rate">
+      <span class="mstat-label">Risk-Neutral POP (for comparison)</span>
+      <span id="riskNeutralStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Best Case (of the 5 scenarios)</span>
-      <span id="bestCaseStat" class="mstat-value">—</span>
-    </div>
-    <div class="mstat">
-      <span class="mstat-label">Worst Case (of the 5 scenarios)</span>
-      <span id="worstCaseStat" class="mstat-value">—</span>
+      <span class="mstat-label">Windows Used</span>
+      <span id="windowsStat" class="mstat-value">—</span>
     </div>
   </section>
 
   <p class="chart-note">
-    <strong>Not financial advice.</strong> This tool takes your typed-in probabilities at
-    face value — it doesn't check them against anything, including the market's own
-    implied odds (see the Risk-Neutral Density or Empirical vs. Risk-Neutral POP pages for
-    that comparison). Only 5 fixed price scenarios are modeled; a real distribution has a
-    continuum of outcomes, so treat "best/worst case" here as bounded by what you typed,
-    not a true tail estimate.
+    <strong>Not financial advice.</strong> Every window replays a REAL historical % price
+    move applied to today's spot and options premiums — not a live P&L, and not a forecast.
+    Overlapping windows are not independent samples, so treat the win rate as a description
+    of the last ~400 days, not a statistically rigorous estimate. See the Empirical vs.
+    Risk-Neutral POP page for the same technique applied specifically to an ATM straddle's
+    breakeven frequency.
   </p>
 
   <script src="quant.js?v=6"></script>
   <script src="strategy-nav.js?v=41"></script>
-  <script src="tool-scenario-analysis.js?v=1"></script>
+  <script src="tool-historical-backtest.js?v=1"></script>
 </body>
 </html>

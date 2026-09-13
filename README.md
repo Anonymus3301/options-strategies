@@ -435,7 +435,7 @@ an informational per-expiry comparison, not a constructed position.
 
 ## Tools
 
-Eighteen utility pages that complement the strategy suite rather than adding another
+Nineteen utility pages that complement the strategy suite rather than adding another
 strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
 `strategy-nav.js`) on every strategy page and the main ladder:
 
@@ -555,6 +555,18 @@ strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
   balanced 30d expiry): every call/put/total OI figure, notional dollar value, share-of-book
   percentage, and per-expiry PCR matched an independent hand computation exactly (front
   expiry: 62.5% of total OI, PCR 4.00), with zero page errors.
+- **[Historical Backtest (Custom Strategy)](tool-historical-backtest.html)** — every
+  POP/VaR stat here prices off the risk-neutral lognormal distribution, and Scenario
+  Analysis uses probabilities typed in by hand; this instead replays ~400 days of REAL
+  BTC-PERPETUAL price history through the same up-to-4-leg combination as the Strategy
+  Builder, applying each historical window's actual % move to today's spot to build an
+  empirical P&L distribution (win rate, median, 5th/95th percentile, best/worst window) —
+  the same historical-window technique the Empirical vs. Risk-Neutral POP page uses for a
+  single ATM straddle, generalized to any custom combination. Verified with a deliberately
+  degenerate synthetic price history (pure geometric growth, so every 30-day window shows
+  the exact same % move): median, 5th/95th percentile, and best/worst all correctly
+  collapsed to the single expected P&L value, matching an independent hand computation
+  exactly, with the correct window count (371) and zero page errors.
 
 ## What's deliberately not included
 
