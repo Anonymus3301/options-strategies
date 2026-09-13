@@ -90,6 +90,7 @@ const TOOL_PAGES = [
   { href: "tool-synthetic-equivalents.html", label: "🛠 Synthetic Equivalents" },
   { href: "tool-portfolio-greeks.html", label: "🛠 Portfolio Greeks" },
   { href: "tool-roll-analyzer.html", label: "🛠 Roll Analyzer" },
+  { href: "tool-scenario-analysis.html", label: "🛠 Scenario Analysis" },
 ];
 
 function renderNavInto(id, pages) {

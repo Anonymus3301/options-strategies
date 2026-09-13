@@ -426,7 +426,7 @@ an informational per-expiry comparison, not a constructed position.
 
 ## Tools
 
-Fifteen utility pages that complement the strategy suite rather than adding another
+Sixteen utility pages that complement the strategy suite rather than adding another
 strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
 `strategy-nav.js`) on every strategy page and the main ladder:
 
@@ -520,6 +520,16 @@ strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
   ($1,947) matches the premium difference exactly (3,769 − 1,822), and toggling to the
   long side flips the same trade to an exact -$1,947 debit, confirming the sign convention
   is internally consistent.
+- **[Scenario Analysis (Your Own Probabilities)](tool-scenario-analysis.html)** — every
+  POP/VaR/CVaR stat on this site prices off the risk-neutral lognormal distribution
+  implied by quoted IV; this inverts that, letting the user type in their own subjective
+  probabilities across 5 fixed price moves (-20%/-10%/0%/+10%/+20%) for the same up-to-4-leg
+  combination as the Strategy Builder, then computes expected P&L under that explicitly
+  subjective view instead of the market's implied one. Verified with a long ATM call:
+  concentrating 100% probability on the +20% scenario makes expected P&L collapse exactly
+  to that single scenario's own P&L (+8,231 both times), and the default probability blend
+  (8/22/40/22/8) produces a sensible intermediate expected value (-1,489) between the best
+  (+8,231) and worst (-3,769) case, consistent with a long call's known payoff shape.
 
 ## What's deliberately not included
 
