@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Condor Optimizer</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Defined-Risk Structure Optimizer (Iron Condor)</h1>
+        <p class="subtitle">The Iron Condor page commits to one 20Δ short strike; this scans a whole range of short-strike deltas at a chosen wing width and ranks every candidate side by side</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Wing Width</span>
+        <select id="wingSelect" class="poll-rate-select">
+          <option value="3">3% of spot</option>
+          <option value="5" selected>5% of spot</option>
+          <option value="10">10% of spot</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Candidates by Short-Strike Delta</h2>
+      <span class="hint">Tighter deltas → more credit, lower POP · wider deltas → less credit, higher POP</span>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table" id="optTable">
+        <thead><tr><th>Short Δ</th><th>Short Strikes (P/C)</th><th>Long Strikes (P/C)</th><th>Net Credit</th><th>Max Loss</th><th>Reward:Risk</th><th>POP</th></tr></thead>
+        <tbody><tr><td colspan="7" class="loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Max Loss is the worse of the two wings' caps
+    (not the narrower one) since real strikes rarely snap to perfectly symmetric widths —
+    verified against a hand-checked asymmetric-wing case before shipping. Reward:Risk is
+    net credit divided by max loss; higher isn't automatically "better," since it comes
+    with lower POP. Ignores fees, margin, and early assignment.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=31"></script>
+  <script src="tool-condor-optimizer.js?v=1"></script>
+</body>
+</html>

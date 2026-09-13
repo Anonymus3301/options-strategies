@@ -426,7 +426,7 @@ an informational per-expiry comparison, not a constructed position.
 
 ## Tools
 
-Nine utility pages that complement the strategy suite rather than adding another
+Ten utility pages that complement the strategy suite rather than adding another
 strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
 `strategy-nav.js`) on every strategy page and the main ladder:
 
@@ -476,6 +476,14 @@ strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
   initially showed decay *slowing* near expiry — caught by checking the ratio against the
   theoretical √(T₁/T₂) scaling before shipping, which the fixed version matches almost
   exactly (3.17 observed vs. 3.16 theoretical).
+- **[Defined-Risk Structure Optimizer (Iron Condor)](tool-condor-optimizer.html)** — the
+  Iron Condor page commits to one 20Δ short strike; this scans 10Δ-40Δ at a chosen wing
+  width and ranks every candidate's net credit, max loss, reward:risk, and POP side by
+  side. A real bug caught before shipping: max loss was computed from the *narrower* of
+  the two wings (`Math.min`) instead of the wider one, understating risk on an
+  asymmetric condor — verified against a hand-checked case (904 shown vs. 1,904 actual)
+  and fixed to `Math.max`, then re-verified against two live scanned rows matching by
+  hand exactly.
 
 ## What's deliberately not included
 

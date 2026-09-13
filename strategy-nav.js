@@ -84,6 +84,7 @@ const TOOL_PAGES = [
   { href: "tool-strategy-builder.html", label: "🛠 Strategy Builder" },
   { href: "tool-var-calculator.html", label: "🛠 VaR / CVaR Calculator" },
   { href: "tool-theta-decay-curve.html", label: "🛠 Theta Decay Curve" },
+  { href: "tool-condor-optimizer.html", label: "🛠 Condor Optimizer" },
 ];
 
 function renderNavInto(id, pages) {
