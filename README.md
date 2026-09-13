@@ -426,7 +426,7 @@ an informational per-expiry comparison, not a constructed position.
 
 ## Tools
 
-Twelve utility pages that complement the strategy suite rather than adding another
+Thirteen utility pages that complement the strategy suite rather than adding another
 strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
 `strategy-nav.js`) on every strategy page and the main ladder:
 
@@ -498,6 +498,13 @@ strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
   near 0) — not a bug, but a non-representative test caught before drawing the wrong
   conclusion from it; re-verified with an explicit ATM leg, where a small move (0.5%)
   shows ~0% error and a large move (20%) shows a real, visible 6.1% Taylor-vs-actual gap.
+- **[Synthetic Equivalents Explorer](tool-synthetic-equivalents.html)** — put-call parity
+  means every one of the 6 basic positions (long/short stock, call, put) has an exact
+  synthetic build from the other two; pick one and see its live-priced equivalent plus a
+  parity-consistency check, reframing the same identity the Box Spread and Synthetic
+  Forward pages already use for arbitrage-hunting as a pedagogical reference instead.
+  Verified by cycling through all 6 recipes at both a trivial deep-ITM strike and a
+  representative ATM one (call = put = $3,769): every parity check reads exactly 0.
 
 ## What's deliberately not included
 
