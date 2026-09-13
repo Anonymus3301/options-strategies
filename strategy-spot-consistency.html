@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Spot Consistency Check</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Cross-Market Spot Consistency Check</h1>
+        <p class="subtitle">Compares the options-implied spot against the perpetual's independent mark price — closing the gap the Conversion/Reversal Scanner page explicitly disclosed (it only checks parity within the options chain, never against an outside price)</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> the front-month options-implied spot (put-call parity, same qImpliedSpot the rest of this app uses) compared directly against the BTC perpetual's own mark price — an independent, non-options-derived number. The nearest dated future is shown alongside for context, with its own annualized basis (the same convention as the Carry & Funding page).</p>
+      <p><strong>Market view:</strong> none — a pricing-consistency check across markets, not a position.</p>
+      <p><strong>Why it matters:</strong> the Conversion/Reversal Scanner page checks parity <em>within</em> one options chain against that chain's own aggregated median — it explicitly cannot tell if the whole options market is priced away from the real underlying. This page checks exactly that, using the perpetual (traded completely independently of the options chain) as the outside reference.</p>
+      <p><strong>Why the dated future is different:</strong> a dated future legitimately trades away from spot by its cost of carry (time value of money, funding expectations) — that's the Carry & Funding page's whole subject, not a dislocation. Options-implied spot has no equivalent structural reason to differ from the perpetual at all; a persistent gap there is a more interesting signal than the futures basis ever is.</p>
+      <p><strong>Key risk / caveat:</strong> both the options-implied spot and the perpetual mark can be individually noisy on thin liquidity — a single snapshot reading isn't proof of a real cross-market dislocation, just a prompt to look closer at both sides.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Perpetual Mark (independent reference)</span>
+      <span id="perpStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Options-Implied Spot (front expiry)</span>
+      <span id="optionsSpotStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Deviation (options vs. perpetual)</span>
+      <span id="devStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Read</span>
+      <span id="readStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Nearest Dated Future (context)</span>
+      <span id="futureStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Future's Own Basis</span>
+      <span id="futureBasisStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> A flagged deviation is a prompt to look closer,
+    not proof of an executable arbitrage — thin liquidity on either the options chain or
+    the perpetual itself can produce a snapshot gap that closes on its own. The dated
+    future's basis is shown for context only and is not evaluated against the same
+    threshold, since a nonzero basis there is normal and expected.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=27"></script>
+  <script src="strategy-spot-consistency.js?v=1"></script>
+</body>
+</html>

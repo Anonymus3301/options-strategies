@@ -1,4 +1,4 @@
-// Strategy Hub — an index/overview page for all 67 standalone strategy pages, plus a
+// Strategy Hub — an index/overview page for all 68 standalone strategy pages, plus a
 // small live market snapshot (front-month IV, realized vol, vol risk premium, IV Rank)
 // computed the same way the other pages do, standalone/REST-only.
 
@@ -81,6 +81,7 @@ const CATEGORIES = [
       { href: "strategy-synthetic.html", title: "Synthetic Forward", desc: "Options-implied forward vs. the actual dated future.", risk: "defined" },
       { href: "strategy-jelly-roll.html", title: "Jelly Roll", desc: "Front/back synthetic forwards at one strike — reveals cross-expiry forward inconsistency.", risk: "defined" },
       { href: "strategy-conversion-scanner.html", title: "Conversion/Reversal Scanner", desc: "Scans every strike/expiry for parity deviations from the chain's own median spot.", risk: "defined" },
+      { href: "strategy-spot-consistency.html", title: "Spot Consistency Check", desc: "Options-implied spot vs. the perpetual's independent mark — closes the Scanner's own disclosed gap.", risk: "defined" },
     ],
   },
   {

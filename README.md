@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Sixty-seven dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Sixty-eight dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -292,6 +292,14 @@ financial advice, and each page's own disclaimer spells out its specific limitat
   strike across every live expiry for put-call parity deviations from the chain's own
   aggregated median spot, ranked by implied edge. Verified with a deliberately-mispriced
   synthetic strike: correctly surfaces it first with the right Conversion/Reversal label.
+- **[Cross-Market Spot Consistency Check](strategy-spot-consistency.html)** — closes a
+  gap the Conversion/Reversal Scanner explicitly disclosed: that page only checks parity
+  within one options chain against its own median, never against an outside price. This
+  page compares the options-implied spot directly against the perpetual's independent
+  mark, with the nearest dated future shown for context (its own basis is expected carry,
+  not a dislocation, unlike a gap between options and the perpetual). Verified with a
+  synthetic 1.67% options-vs-perp divergence: correctly flags it while reporting the
+  future's own +8.1% annualized basis separately as expected, not flagged.
 - **[Double Diagonal Spread](strategy-double-diagonal.html)** — a call diagonal and a put
   diagonal combined: sell front-month OTM call+put closer to spot, buy back-month call+put
   at wider strikes. Cheaper than the Double Calendar's identical-strike construction for a
@@ -383,7 +391,7 @@ current option prices, not a real-world/objective forecast of where price will e
 the same honesty caveat already attached to the P(ITM) column and Probability Cone
 elsewhere in this project. Every page shows it with a tooltip repeating that caveat.
 
-Sixteen pages deliberately don't have it: Carry & Funding and the Income Scanner are
+Seventeen pages deliberately don't have it: Carry & Funding and the Income Scanner are
 linear/yield-harvest trades where delta-band selection already serves the purpose; the
 Income Scanner's table format has no single constructed position to score; The Wheel
 Strategy is the same table-scanner format across two hypothetical phases, with no single
@@ -394,7 +402,8 @@ Synthetic Forward have fixed or near-fixed payoffs at expiry where a profit prob
 isn't a meaningful concept; Risk-Neutral Density and the IV Term Structure Curve are both
 measurements of a distribution/curve shape, not a constructed position either; and the
 Conversion/Reversal Scanner is a ranked table across many strikes, the same table-format
-reason as the Income Scanner; the Volatility Smile Curve is a whole-curve measurement
+reason as the Income Scanner; the Spot Consistency Check is a cross-market measurement
+with no constructed position; the Volatility Smile Curve is a whole-curve measurement
 the same way its Term Structure Curve sibling is; Gamma Exposure is an
 informational positioning read with no constructed position, the same reason as Max Pain;
 the Realized Volatility Cone is a historical-distribution measurement, not a

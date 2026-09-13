@@ -70,6 +70,7 @@ const STRATEGY_PAGES = [
   { href: "strategy-vol-cone.html", label: "Volatility Cone" },
   { href: "strategy-correlation-cone.html", label: "BTC/ETH Correlation Cone" },
   { href: "strategy-vrp-term-structure.html", label: "VRP Term Structure" },
+  { href: "strategy-spot-consistency.html", label: "Spot Consistency Check" },
 ];
 
 const TOOL_PAGES = [
