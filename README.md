@@ -426,7 +426,7 @@ an informational per-expiry comparison, not a constructed position.
 
 ## Tools
 
-Eleven utility pages that complement the strategy suite rather than adding another
+Twelve utility pages that complement the strategy suite rather than adding another
 strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
 `strategy-nav.js`) on every strategy page and the main ladder:
 
@@ -489,6 +489,15 @@ strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
   ranked list, so a term-structure-of-yield pattern is visible at a glance. Verified with
   a 4-expiry synthetic chain: all 16 cells in each grid populate correctly, with yield
   rising by delta band and falling by tenor exactly as expected.
+- **[Greeks P&L Attribution](tool-pnl-attribution.html)** — decomposes an assumed price
+  move + days-elapsed into delta/gamma/theta Taylor-expansion contributions for the same
+  up-to-4-leg combination as the Strategy Builder, then compares that estimate against
+  the actual Black-Scholes-repriced P&L. No other page here shows how the second-order
+  approximation's error grows with move size. First verified with a deep-ITM leg by
+  accident, which showed exactly 0% error at any move size (delta pinned near 1, gamma
+  near 0) — not a bug, but a non-representative test caught before drawing the wrong
+  conclusion from it; re-verified with an explicit ATM leg, where a small move (0.5%)
+  shows ~0% error and a large move (20%) shows a real, visible 6.1% Taylor-vs-actual gap.
 
 ## What's deliberately not included
 

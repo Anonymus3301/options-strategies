@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Strategy Builder</title>
+<title>Greeks P&amp;L Attribution</title>
 <link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="brand">
       <a href="index.html" class="back-link">← Ladder</a>
       <div>
-        <h1>Custom Multi-Leg Strategy Builder</h1>
-        <p class="subtitle">Combine up to 4 legs from the live chain freely — every named structure on this site is really just a fixed leg combination of this same generic payoff engine</p>
+        <h1>Greeks P&amp;L Attribution</h1>
+        <p class="subtitle">Decomposes an assumed price move into delta/gamma/theta contributions (Taylor expansion) and compares that estimate against the actual repriced P&amp;L — no other page here shows how the approximation error grows with move size</p>
       </div>
     </div>
     <div class="status-cluster">
@@ -37,7 +37,7 @@
   <section class="chart-card chart-card-wide">
     <div class="panel-header">
       <h2>Legs</h2>
-      <span class="hint">Same expiry only — mixing expiries needs the bespoke math the Calendar/Diagonal pages already have</span>
+      <span class="hint">Same expiry only, same 4-leg model as the Strategy Builder tool</span>
     </div>
     <div class="data-table-wrap">
       <table class="data-table" id="legsTable">
@@ -76,44 +76,60 @@
     </div>
   </section>
 
-  <section class="market-stats">
-    <div class="mstat">
-      <span class="mstat-label">Net Cost</span>
-      <span id="netCostStat" class="mstat-value">—</span>
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Assumed Scenario</h2>
     </div>
-    <div class="mstat">
-      <span class="mstat-label">Max Profit</span>
-      <span id="maxProfitStat" class="mstat-value">—</span>
-    </div>
-    <div class="mstat">
-      <span class="mstat-label">Max Loss</span>
-      <span id="maxLossStat" class="mstat-value">—</span>
-    </div>
-    <div class="mstat" title="Risk-neutral probability under the average IV of the enabled legs, not a real-world/objective probability">
-      <span class="mstat-label">Probability of Profit (live)</span>
-      <span id="popStat" class="mstat-value">—</span>
+    <div class="alerts-form" style="padding: 16px; flex-wrap: wrap;">
+      <label class="chart-select-label">
+        Price move (%)
+        <input id="moveInput" type="number" step="any" value="2" style="width: 80px; font: inherit; background: var(--panel-alt); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px;" />
+      </label>
+      <label class="chart-select-label">
+        Days elapsed
+        <input id="daysInput" type="number" step="any" value="1" style="width: 80px; font: inherit; background: var(--panel-alt); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px;" />
+      </label>
     </div>
   </section>
 
-  <section class="chart-card chart-card-wide">
-    <div class="panel-header">
-      <h2>Payoff at Expiry</h2>
-      <span class="hint">Illustrative only — ignores fees/margin/early assignment</span>
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Delta Contribution</span>
+      <span id="deltaContribStat" class="mstat-value">—</span>
     </div>
-    <div id="payoffChart" class="svg-chart"></div>
+    <div class="mstat">
+      <span class="mstat-label">Gamma Contribution</span>
+      <span id="gammaContribStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Theta Contribution</span>
+      <span id="thetaContribStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Taylor Estimate (sum of above)</span>
+      <span id="taylorTotalStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Actual Repriced P&L</span>
+      <span id="actualTotalStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Approximation Error</span>
+      <span id="errorStat" class="mstat-value">—</span>
+    </div>
   </section>
 
   <p class="chart-note">
-    <strong>Not financial advice.</strong> Max Profit/Loss is estimated by checking the
-    payoff's slope far outside the plotted range — a "capped" reading is only as reliable
-    as that check, and thin liquidity at combined strikes isn't accounted for. This is a
-    generic reference tool for exploring arbitrary leg combinations, not a suggested
-    position; every named strategy elsewhere on this site is a specific, pre-chosen
-    combination of exactly this kind.
+    <strong>Not financial advice.</strong> The Taylor estimate uses only delta, gamma, and
+    theta — it ignores vega entirely (this scenario holds IV fixed) and higher-order
+    terms (speed, color), so its error grows with move size even before any real-world IV
+    change is considered. A small move (a percent or two) should show a small error; a
+    large one will show gamma's second-order approximation visibly diverging from the
+    actual repriced value. A teaching/reference tool, not a suggested position.
   </p>
 
   <script src="quant.js?v=6"></script>
   <script src="strategy-nav.js?v=33"></script>
-  <script src="tool-strategy-builder.js?v=1"></script>
+  <script src="tool-pnl-attribution.js?v=1"></script>
 </body>
 </html>

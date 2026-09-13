@@ -86,6 +86,7 @@ const TOOL_PAGES = [
   { href: "tool-theta-decay-curve.html", label: "🛠 Theta Decay Curve" },
   { href: "tool-condor-optimizer.html", label: "🛠 Condor Optimizer" },
   { href: "tool-yield-heatmap.html", label: "🛠 Yield Heatmap" },
+  { href: "tool-pnl-attribution.html", label: "🛠 Greeks P&L Attribution" },
 ];
 
 function renderNavInto(id, pages) {
