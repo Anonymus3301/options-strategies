@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Fifty-nine dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Sixty dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -103,6 +103,10 @@ financial advice, and each page's own disclaimer spells out its specific limitat
   Rank/Percentile, an RR25 term-structure sparkline, and a suggested risk-reversal
   structure (sell the richer 25Δ option, buy the cheaper one). Labeled as relative-value
   skew-reversion, not riskless arbitrage.
+- **[Convexity Arbitrage (25Δ Butterfly)](strategy-convexity-arb.html)** — the convexity
+  companion to Skew Arbitrage: tracks BF25 (wing IV vs. ATM IV) against its own recent
+  range with an independent rank/percentile history, and suggests selling the 25Δ
+  strangle + buying the ATM straddle when wings are rich, or the reverse when cheap.
 - **[Long Volatility](strategy-long-vol.html)** — the mirror image of Premium Selling:
   favors buying an ATM straddle when IV Rank is low, IV sits below realized vol, and the
   expiry is short-dated (more gamma per dollar).
@@ -319,7 +323,7 @@ many of them — a visitor has open in that browser.
 
 ### Live Probability of Profit
 
-Forty-four of the pages above show a live **Probability of Profit** stat, recomputed on
+Forty-five of the pages above show a live **Probability of Profit** stat, recomputed on
 every refresh from that page's own strikes, premiums, and quoted IV: Premium Selling,
 Skew Arbitrage, Long Volatility, Calendar Spread, Protective Put, Collar, Iron Condor,
 Butterfly, Jade Lizard, Ratio Spread, Diagonal Spread, Call Backspread, Strap/Strip,
@@ -329,8 +333,8 @@ Put, Poor Man's Covered Call, Poor Man's Covered Put, Double Calendar Spread, Se
 Spread, Broken Wing Iron Condor, Bull Call Spread, Bear Call Spread, Bull Put Spread,
 Bear Put Spread, Call Condor Spread, Put Condor Spread, Naked Call Writing, Naked
 Put Writing, Put Diagonal Spread, Call Calendar Spread, Put Calendar Spread, Double
-Diagonal Spread, Covered Call Overwrite (2:1), Covered Put Overwrite (2:1), and Risk
-Reversal (25-Delta).
+Diagonal Spread, Covered Call Overwrite (2:1), Covered Put Overwrite (2:1), Risk
+Reversal (25-Delta), and Convexity Arbitrage (25Δ Butterfly).
 
 It's computed by numerically integrating each structure's own PnL-at-expiry function
 against the lognormal price distribution implied by the page's IV and time-to-expiry —

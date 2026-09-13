@@ -62,6 +62,7 @@ const STRATEGY_PAGES = [
   { href: "strategy-covered-put-ratio.html", label: "Covered Put Overwrite (2:1)" },
   { href: "strategy-risk-reversal.html", label: "Risk Reversal (25Δ)" },
   { href: "strategy-risk-neutral-density.html", label: "Risk-Neutral Density" },
+  { href: "strategy-convexity-arb.html", label: "Convexity Arb (25Δ Butterfly)" },
 ];
 
 const TOOL_PAGES = [

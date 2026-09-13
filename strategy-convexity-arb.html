@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Convexity Arbitrage — 25Δ Butterfly</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Convexity Arbitrage — 25Δ Butterfly</h1>
+        <p class="subtitle">Trades the 25Δ Butterfly (wing IV vs. ATM IV) mean-reverting vs. its own recent range — the convexity-signal companion to the Skew Arbitrage page's skew-direction signal</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> the 25Δ Butterfly (BF25) is the average of the 25Δ call and put IVs minus the ATM IV — a standard FX-desk measure of smile convexity/steepness, independent of which side (calls or puts) carries the skew. This page tracks BF25 against its own recent range and suggests a structure at the extremes: sell the 25Δ strangle + buy the ATM straddle when wings are rich, or the reverse when they're cheap.</p>
+      <p><strong>Market view:</strong> a bet that wing richness itself (not directional skew) is stretched and will normalize — orthogonal to the Skew Arbitrage page's risk-reversal signal. A chain can have a large RR25 (strong directional skew) with a small BF25 (flat convexity), or vice versa; they measure different things.</p>
+      <p><strong>Why trade it:</strong> when BF25 sits at an extreme percentile of its own recent range, the "cheap convexity, buy it" / "rich convexity, sell it" trade profits if wing pricing normalizes toward its typical level relative to the ATM straddle.</p>
+      <p><strong>Max profit / max loss:</strong> the "buy cheap convexity" structure (long wings, short ATM straddle) is exactly the existing Iron Butterfly page's shape — defined risk, entered here on the BF signal instead of a fixed wing width. The "sell rich convexity" structure (short wings, long ATM straddle) is its mirror image and is also defined-risk, since every leg is matched by an opposing one at the same or a different strike.</p>
+      <p><strong>Key risk:</strong> like the Skew Arbitrage page, "rich" or "cheap" is relative to this browser's own short accumulated history, not a long-run historical norm — a stretched reading can stay stretched, or become more stretched, for a long time.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">25Δ Butterfly (selected expiry)</span>
+      <span id="bfStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">BF Rank · Percentile (front-month, this browser)</span>
+      <span id="bfRankStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat" title="Risk-neutral probability under ATM IV, not a real-world/objective probability">
+      <span class="mstat-label">Probability of Profit (live)</span>
+      <span id="popStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>25Δ Butterfly — Term Structure</h2>
+      <span class="hint">BF25 across all live expiries · positive = wings rich vs. ATM (fat-tail pricing), negative = wings cheap</span>
+    </div>
+    <div id="bfTermChart" class="svg-chart"></div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Suggested Structure — <span id="structExpiry">—</span></h2>
+      <span class="hint">Illustrative — ignores fees/margin/early assignment</span>
+    </div>
+    <div id="structInfo" class="scanner-body">
+      <p class="loading">Loading…</p>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> BF rank/percentile history accumulates only in
+    this browser and is independent of the Skew Arbitrage page's own RR history — the two
+    signals measure different things and can disagree. 25Δ strikes are derived from
+    Black-Scholes delta computed off each strike's own quoted mark IV, not live greeks.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=16"></script>
+  <script src="strategy-convexity-arb.js?v=1"></script>
+</body>
+</html>
