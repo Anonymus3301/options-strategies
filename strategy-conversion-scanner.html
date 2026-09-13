@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Conversion/Reversal Scanner</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Conversion/Reversal Arbitrage Scanner</h1>
+        <p class="subtitle">Scans every strike across every live expiry for put-call parity deviations from the chain's own consensus spot — the whole-chain version of the Box Spread page's single selected pair</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied, chain median)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> put-call parity (C − P = S − K at r=0) implies a spot price at every single strike. The rest of this app aggregates all of them into one robust median "fair" spot (qImpliedSpot); this page keeps every strike's own implied spot separate and ranks them by how far each one deviates from that median.</p>
+      <p><strong>Market view:</strong> none directional — this is an internal pricing-consistency check across the chain, not a bet on where BTC goes. A strike whose call is priced rich relative to its put (vs. the chain's consensus) points to a <strong>Conversion</strong> (long spot + short call + long put); the reverse points to a <strong>Reversal</strong> (short spot + long call + short put).</p>
+      <p><strong>Why it matters:</strong> the Box Spread page checks parity at one strike pair you pick; a real dislocation could be sitting at any strike or expiry. This scans all of them and surfaces the largest one first.</p>
+      <p><strong>Max profit / max loss:</strong> in principle a locked-in edge at expiry (same idea as the Box Spread and Jelly Roll pages) — but only if the reference "fair" spot (the chain's own median) turns out to be right; a genuinely mispriced whole chain would show a real edge here that isn't actually capturable.</p>
+      <p><strong>Key risk / caveat:</strong> the "fair" spot is itself derived from the same chain being scanned — this is a relative/internal-consistency signal, not a check against an independent spot or futures price. A large edge more often means a stale or thin quote at that one strike than a genuine, capturable dislocation; always framed as a pricing-consistency signal, the same honesty caveat already attached to the Jelly Roll page.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Largest Edge Found</span>
+      <span id="maxEdgeStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Coverage</span>
+      <span id="scannedStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Largest Parity Deviations</h2>
+      <span class="hint">Ranked by |implied edge| vs. the chain's own median spot · illustrative, ignores fees/margin</span>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table" id="scanTable">
+        <thead><tr><th>Expiry</th><th>DTE</th><th>Strike</th><th>Call IV</th><th>Put IV</th><th>Deviation</th><th>Structure</th><th>Edge</th></tr></thead>
+        <tbody><tr><td colspan="8" class="loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> This measures internal consistency against the
+    chain's own aggregated median spot, not against an independent futures or spot price
+    feed — it cannot distinguish a genuine mispricing from one stale or thin quote at a
+    single strike. A large edge here is a prompt to look closer, not a guaranteed
+    executable arbitrage. Ignores fees, margin, and bid/ask spread (uses mark price only).
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=18"></script>
+  <script src="strategy-conversion-scanner.js?v=1"></script>
+</body>
+</html>

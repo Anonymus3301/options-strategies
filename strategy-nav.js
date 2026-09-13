@@ -64,6 +64,7 @@ const STRATEGY_PAGES = [
   { href: "strategy-risk-neutral-density.html", label: "Risk-Neutral Density" },
   { href: "strategy-convexity-arb.html", label: "Convexity Arb (25Δ Butterfly)" },
   { href: "strategy-term-structure.html", label: "IV Term Structure Curve" },
+  { href: "strategy-conversion-scanner.html", label: "Conversion/Reversal Scanner" },
 ];
 
 const TOOL_PAGES = [

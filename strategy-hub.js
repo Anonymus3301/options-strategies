@@ -1,4 +1,4 @@
-// Strategy Hub — an index/overview page for all 61 standalone strategy pages, plus a
+// Strategy Hub — an index/overview page for all 62 standalone strategy pages, plus a
 // small live market snapshot (front-month IV, realized vol, vol risk premium, IV Rank)
 // computed the same way the other pages do, standalone/REST-only.
 
@@ -78,6 +78,7 @@ const CATEGORIES = [
       { href: "strategy-box-spread.html", title: "Box Spread", desc: "Fixed-payout structure whose price implies a financing rate.", risk: "defined" },
       { href: "strategy-synthetic.html", title: "Synthetic Forward", desc: "Options-implied forward vs. the actual dated future.", risk: "defined" },
       { href: "strategy-jelly-roll.html", title: "Jelly Roll", desc: "Front/back synthetic forwards at one strike — reveals cross-expiry forward inconsistency.", risk: "defined" },
+      { href: "strategy-conversion-scanner.html", title: "Conversion/Reversal Scanner", desc: "Scans every strike/expiry for parity deviations from the chain's own median spot.", risk: "defined" },
     ],
   },
   {

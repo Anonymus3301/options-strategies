@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Sixty-one dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Sixty-two dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -276,6 +276,11 @@ financial advice, and each page's own disclaimer spells out its specific limitat
   parity) to the gap between the two expiries' own implied forwards. Explicitly framed as
   a pricing-consistency signal rather than a riskless payoff, since the front leg settles
   before the back one does — unlike the Box Spread's single, clean terminal payout.
+- **[Conversion/Reversal Arbitrage Scanner](strategy-conversion-scanner.html)** — the
+  whole-chain version of the Box Spread page's single selected strike pair: scans every
+  strike across every live expiry for put-call parity deviations from the chain's own
+  aggregated median spot, ranked by implied edge. Verified with a deliberately-mispriced
+  synthetic strike: correctly surfaces it first with the right Conversion/Reversal label.
 - **[Double Diagonal Spread](strategy-double-diagonal.html)** — a call diagonal and a put
   diagonal combined: sell front-month OTM call+put closer to spot, buy back-month call+put
   at wider strikes. Cheaper than the Double Calendar's identical-strike construction for a
@@ -349,7 +354,7 @@ current option prices, not a real-world/objective forecast of where price will e
 the same honesty caveat already attached to the P(ITM) column and Probability Cone
 elsewhere in this project. Every page shows it with a tooltip repeating that caveat.
 
-Ten pages deliberately don't have it: Carry & Funding and the Income Scanner are
+Eleven pages deliberately don't have it: Carry & Funding and the Income Scanner are
 linear/yield-harvest trades where delta-band selection already serves the purpose; the
 Income Scanner's table format has no single constructed position to score; The Wheel
 Strategy is the same table-scanner format across two hypothetical phases, with no single
@@ -357,8 +362,10 @@ constructed position to score either; BTC/ETH Vol Pair Trade would need a joint 
 distribution, out of scope for this pass; Max Pain and PCR Sentiment are
 informational/contested-theory pages with no constructed position; Box Spread and
 Synthetic Forward have fixed or near-fixed payoffs at expiry where a profit probability
-isn't a meaningful concept; and Risk-Neutral Density and the IV Term Structure Curve are
-both measurements of a distribution/curve shape, not a constructed position either.
+isn't a meaningful concept; Risk-Neutral Density and the IV Term Structure Curve are both
+measurements of a distribution/curve shape, not a constructed position either; and the
+Conversion/Reversal Scanner is a ranked table across many strikes, the same table-format
+reason as the Income Scanner.
 
 ## Tools
 
