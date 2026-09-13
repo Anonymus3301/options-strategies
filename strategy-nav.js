@@ -81,6 +81,7 @@ const TOOL_PAGES = [
   { href: "tool-greeks-table.html", label: "🛠 Greeks Table" },
   { href: "tool-liquidity-explorer.html", label: "🛠 Liquidity Explorer" },
   { href: "tool-strategy-builder.html", label: "🛠 Strategy Builder" },
+  { href: "tool-var-calculator.html", label: "🛠 VaR / CVaR Calculator" },
 ];
 
 function renderNavInto(id, pages) {

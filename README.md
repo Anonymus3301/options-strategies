@@ -413,7 +413,7 @@ an informational per-expiry comparison, not a constructed position.
 
 ## Tools
 
-Seven utility pages that complement the strategy suite rather than adding another
+Eight utility pages that complement the strategy suite rather than adding another
 strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
 `strategy-nav.js`) on every strategy page and the main ladder:
 
@@ -448,6 +448,13 @@ strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
   the payoff's slope far outside the plotted range to tell a capped tail from a genuinely
   unlimited one — a bug in that check's sign (an uncapped-loss tail was first mislabeled
   "unlimited profit") was caught and fixed by testing a naked short call before shipping.
+- **[Options Portfolio VaR / CVaR Calculator](tool-var-calculator.html)** — every
+  Probability of Profit stat on this site answers "how likely is a loss"; this answers
+  "how bad could it actually be," computing VaR and CVaR (Expected Shortfall) at 95%/99%
+  confidence for the same up-to-4-leg combination as the Strategy Builder, via the same
+  lognormal integration behind every POP stat. Verified with a naked short call (VaR99 ≥
+  VaR95, CVaR ≥ VaR at each level, all confirmed) and a defined-risk spread, where all
+  four figures correctly collapse to exactly its max loss.
 
 ## What's deliberately not included
 

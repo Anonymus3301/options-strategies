@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Strategy Builder</title>
+<title>VaR / CVaR Calculator</title>
 <link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="brand">
       <a href="index.html" class="back-link">← Ladder</a>
       <div>
-        <h1>Custom Multi-Leg Strategy Builder</h1>
-        <p class="subtitle">Combine up to 4 legs from the live chain freely — every named structure on this site is really just a fixed leg combination of this same generic payoff engine</p>
+        <h1>Options Portfolio VaR / CVaR Calculator</h1>
+        <p class="subtitle">Every Probability of Profit stat on this site answers "how likely is a loss" — this answers "how bad could it actually be," for the same kind of up-to-4-leg combination as the Strategy Builder tool</p>
       </div>
     </div>
     <div class="status-cluster">
@@ -37,7 +37,7 @@
   <section class="chart-card chart-card-wide">
     <div class="panel-header">
       <h2>Legs</h2>
-      <span class="hint">Same expiry only — mixing expiries needs the bespoke math the Calendar/Diagonal pages already have</span>
+      <span class="hint">Same expiry only, same 4-leg model as the Strategy Builder tool</span>
     </div>
     <div class="data-table-wrap">
       <table class="data-table" id="legsTable">
@@ -46,7 +46,7 @@
           <tr>
             <td><input id="leg1Enable" type="checkbox" checked /></td>
             <td><select id="leg1Type" class="poll-rate-select"><option value="call">Call</option><option value="put">Put</option></select></td>
-            <td><select id="leg1Side" class="poll-rate-select"><option value="long">Long</option><option value="short">Short</option></select></td>
+            <td><select id="leg1Side" class="poll-rate-select"><option value="short">Short</option><option value="long">Long</option></select></td>
             <td><select id="leg1Strike" class="poll-rate-select"></select></td>
             <td><input id="leg1Qty" type="number" min="1" step="1" value="1" style="width: 56px; font: inherit; background: var(--panel-alt); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px;" /></td>
           </tr>
@@ -78,42 +78,36 @@
 
   <section class="market-stats">
     <div class="mstat">
-      <span class="mstat-label">Net Cost</span>
-      <span id="netCostStat" class="mstat-value">—</span>
+      <span class="mstat-label">VaR 95% (worst 5% threshold)</span>
+      <span id="var95Stat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Max Profit</span>
-      <span id="maxProfitStat" class="mstat-value">—</span>
+      <span class="mstat-label">CVaR 95% (avg. loss beyond VaR 95)</span>
+      <span id="cvar95Stat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Max Loss</span>
-      <span id="maxLossStat" class="mstat-value">—</span>
+      <span class="mstat-label">VaR 99% (worst 1% threshold)</span>
+      <span id="var99Stat" class="mstat-value">—</span>
     </div>
-    <div class="mstat" title="Risk-neutral probability under the average IV of the enabled legs, not a real-world/objective probability">
-      <span class="mstat-label">Probability of Profit (live)</span>
-      <span id="popStat" class="mstat-value">—</span>
+    <div class="mstat">
+      <span class="mstat-label">CVaR 99% (avg. loss beyond VaR 99)</span>
+      <span id="cvar99Stat" class="mstat-value">—</span>
     </div>
-  </section>
-
-  <section class="chart-card chart-card-wide">
-    <div class="panel-header">
-      <h2>Payoff at Expiry</h2>
-      <span class="hint">Illustrative only — ignores fees/margin/early assignment</span>
-    </div>
-    <div id="payoffChart" class="svg-chart"></div>
   </section>
 
   <p class="chart-note">
-    <strong>Not financial advice.</strong> Max Profit/Loss is estimated by checking the
-    payoff's slope far outside the plotted range — a "capped" reading is only as reliable
-    as that check, and thin liquidity at combined strikes isn't accounted for. This is a
-    generic reference tool for exploring arbitrary leg combinations, not a suggested
-    position; every named strategy elsewhere on this site is a specific, pre-chosen
-    combination of exactly this kind.
+    <strong>Not financial advice.</strong> VaR is the loss level you'd expect to exceed
+    only 5% (or 1%) of the time under the risk-neutral lognormal distribution implied by
+    the enabled legs' average IV — the same driftless-in-log convention behind every
+    Probability of Profit stat on this site, not a real-world/objective forecast. CVaR
+    (Expected Shortfall) is the average loss <em>given</em> you're already past that
+    threshold — a defined-risk structure's CVaR is capped at its max loss; an
+    undefined-risk one (a naked short leg) is not. Ignores fees, margin, and early
+    assignment.
   </p>
 
   <script src="quant.js?v=6"></script>
   <script src="strategy-nav.js?v=28"></script>
-  <script src="tool-strategy-builder.js?v=1"></script>
+  <script src="tool-var-calculator.js?v=1"></script>
 </body>
 </html>
