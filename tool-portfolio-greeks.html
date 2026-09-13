@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Greeks P&amp;L Attribution</title>
+<title>Portfolio Greeks</title>
 <link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="brand">
       <a href="index.html" class="back-link">← Ladder</a>
       <div>
-        <h1>Greeks P&amp;L Attribution</h1>
-        <p class="subtitle">Decomposes an assumed price move into delta/gamma/theta contributions (Taylor expansion) and compares that estimate against the actual repriced P&amp;L — no other page here shows how the approximation error grows with move size</p>
+        <h1>Portfolio Greeks Dashboard</h1>
+        <p class="subtitle">Net delta/gamma/vega/theta for the same up-to-4-leg combination as the Strategy Builder tool, plus a delta-hedge suggestion — no other page here shows the raw net greeks of a custom combination</p>
       </div>
     </div>
     <div class="status-cluster">
@@ -76,60 +76,39 @@
     </div>
   </section>
 
-  <section class="chart-card chart-card-wide">
-    <div class="panel-header">
-      <h2>Assumed Scenario</h2>
-    </div>
-    <div class="alerts-form" style="padding: 16px; flex-wrap: wrap;">
-      <label class="chart-select-label">
-        Price move (%)
-        <input id="moveInput" type="number" step="any" value="2" style="width: 80px; font: inherit; background: var(--panel-alt); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px;" />
-      </label>
-      <label class="chart-select-label">
-        Days elapsed
-        <input id="daysInput" type="number" step="any" value="1" style="width: 80px; font: inherit; background: var(--panel-alt); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px;" />
-      </label>
-    </div>
-  </section>
-
   <section class="market-stats">
     <div class="mstat">
-      <span class="mstat-label">Delta Contribution</span>
-      <span id="deltaContribStat" class="mstat-value">—</span>
+      <span class="mstat-label">Net Delta</span>
+      <span id="netDeltaStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Gamma Contribution</span>
-      <span id="gammaContribStat" class="mstat-value">—</span>
+      <span class="mstat-label">Net Gamma</span>
+      <span id="netGammaStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Theta Contribution</span>
-      <span id="thetaContribStat" class="mstat-value">—</span>
+      <span class="mstat-label">Net Vega</span>
+      <span id="netVegaStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Taylor Estimate (sum of above)</span>
-      <span id="taylorTotalStat" class="mstat-value">—</span>
+      <span class="mstat-label">Net Theta</span>
+      <span id="netThetaStat" class="mstat-value">—</span>
     </div>
-    <div class="mstat">
-      <span class="mstat-label">Actual Repriced P&L</span>
-      <span id="actualTotalStat" class="mstat-value">—</span>
-    </div>
-    <div class="mstat">
-      <span class="mstat-label">Approximation Error</span>
-      <span id="errorStat" class="mstat-value">—</span>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Delta-Hedge Suggestion</span>
+      <span id="hedgeStat" class="mstat-value">—</span>
     </div>
   </section>
 
   <p class="chart-note">
-    <strong>Not financial advice.</strong> The Taylor estimate uses only delta, gamma, and
-    theta — it ignores vega entirely (this scenario holds IV fixed) and higher-order
-    terms (speed, color), so its error grows with move size even before any real-world IV
-    change is considered. A small move (a percent or two) should show a small error; a
-    large one will show gamma's second-order approximation visibly diverging from the
-    actual repriced value. A teaching/reference tool, not a suggested position.
+    <strong>Not financial advice.</strong> Greeks are computed from each leg's own quoted
+    mark IV via Black-Scholes (r=0), the same convention every other page here uses — not
+    a live greeks feed. The delta-hedge suggestion is a snapshot, not a standing
+    instruction: net delta shifts continuously as spot and time pass, so a real hedge
+    needs rebalancing, not a one-time trade. Ignores fees, margin, and early assignment.
   </p>
 
   <script src="quant.js?v=6"></script>
   <script src="strategy-nav.js?v=35"></script>
-  <script src="tool-pnl-attribution.js?v=1"></script>
+  <script src="tool-portfolio-greeks.js?v=1"></script>
 </body>
 </html>

@@ -426,7 +426,7 @@ an informational per-expiry comparison, not a constructed position.
 
 ## Tools
 
-Thirteen utility pages that complement the strategy suite rather than adding another
+Fourteen utility pages that complement the strategy suite rather than adding another
 strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
 `strategy-nav.js`) on every strategy page and the main ladder:
 
@@ -505,6 +505,14 @@ strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
   Forward pages already use for arbitrage-hunting as a pedagogical reference instead.
   Verified by cycling through all 6 recipes at both a trivial deep-ITM strike and a
   representative ATM one (call = put = $3,769): every parity check reads exactly 0.
+- **[Portfolio Greeks Dashboard](tool-portfolio-greeks.html)** — net delta/gamma/vega/theta
+  for the same up-to-4-leg combination as the Strategy Builder, plus a delta-hedge
+  suggestion. None of the Greeks Table, Strategy Builder, VaR Calculator, or P&L
+  Attribution tools show a custom combination's raw net greeks. Verified with a long ATM
+  call: delta (+0.531) and theta (-62.7 $/day) match exactly what the independent Greeks
+  Table and Theta Decay Curve pages compute for the identical synthetic setup, the
+  delta-hedge suggestion has the correct sign ("Sell" for positive delta), and adding an
+  offsetting short call at the same strike nets delta to exactly 0.
 
 ## What's deliberately not included
 

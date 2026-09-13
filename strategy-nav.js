@@ -88,6 +88,7 @@ const TOOL_PAGES = [
   { href: "tool-yield-heatmap.html", label: "🛠 Yield Heatmap" },
   { href: "tool-pnl-attribution.html", label: "🛠 Greeks P&L Attribution" },
   { href: "tool-synthetic-equivalents.html", label: "🛠 Synthetic Equivalents" },
+  { href: "tool-portfolio-greeks.html", label: "🛠 Portfolio Greeks" },
 ];
 
 function renderNavInto(id, pages) {
