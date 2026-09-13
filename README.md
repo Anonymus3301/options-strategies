@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Seventy-one dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Seventy-two dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -384,6 +384,18 @@ financial advice, and each page's own disclaimer spells out its specific limitat
   IV history (50/55/50/55…) plus a live-fetched 16th day: the computed vol-of-vol (196.3%)
   and average daily move (±5.2pp) both matched an independent reference computation on the
   identical series exactly.
+- **[Skewness & Kurtosis: Historical vs. Risk-Neutral](strategy-skew-kurtosis.html)** — the
+  Risk-Neutral Density page shows the market-implied distribution's shape visually but
+  never reduces it to a number; this integrates that same Breeden-Litzenberger density
+  numerically to get actual skewness/excess-kurtosis figures, and compares them against the
+  same moments computed from REAL historical returns over a DTE-matched window (the same
+  window-matching idea as VRP Term Structure and the Empirical POP page). Verified three
+  ways: a flat-IV synthetic chain correctly produced near-zero risk-neutral skew/kurtosis
+  (as theory predicts for an undistorted lognormal), a deliberately put-skewed chain
+  produced a clearly negative risk-neutral skew (-0.55) matching an independent reference
+  computation on the identical density exactly, and a realistic non-degenerate synthetic
+  price history's historical skew/kurtosis (+1.24 / -0.47) also matched an independent
+  reference computation on the identical closes array exactly.
 
 **[Strategy Hub](strategy-hub.html)** ties the set together: a live market snapshot
 (front-month ATM IV, realized vol, vol risk premium, IV Rank) plus every strategy page
@@ -420,7 +432,7 @@ current option prices, not a real-world/objective forecast of where price will e
 the same honesty caveat already attached to the P(ITM) column and Probability Cone
 elsewhere in this project. Every page shows it with a tooltip repeating that caveat.
 
-Nineteen pages deliberately don't have it: Carry & Funding and the Income Scanner are
+Twenty pages deliberately don't have it: Carry & Funding and the Income Scanner are
 linear/yield-harvest trades where delta-band selection already serves the purpose; the
 Income Scanner's table format has no single constructed position to score; The Wheel
 Strategy is the same table-scanner format across two hypothetical phases, with no single
@@ -440,8 +452,10 @@ informational positioning read with no constructed position, the same reason as 
 the Realized Volatility Cone is a historical-distribution measurement, not a
 constructed position either; the BTC/ETH Correlation Cone is the same kind of
 measurement for a different underlying metric; the Vol Risk Premium Term Structure is
-an informational per-expiry comparison, not a constructed position; and Vol-of-Vol is a
-measurement of the IV history's own volatility, not a constructed position either.
+an informational per-expiry comparison, not a constructed position; Vol-of-Vol is a
+measurement of the IV history's own volatility, not a constructed position either; and
+Skewness & Kurtosis is a pair of distribution-shape measurements, the same reason as the
+Risk-Neutral Density page it extends.
 
 ## Tools
 

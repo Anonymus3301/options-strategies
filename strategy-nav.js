@@ -74,6 +74,7 @@ const STRATEGY_PAGES = [
   { href: "strategy-empirical-pop.html", label: "Empirical vs Risk-Neutral POP" },
   { href: "strategy-straddle.html", label: "Straddle (Long/Short)" },
   { href: "strategy-vol-of-vol.html", label: "Vol-of-Vol (IV Volatility)" },
+  { href: "strategy-skew-kurtosis.html", label: "Skewness & Kurtosis" },
 ];
 
 const TOOL_PAGES = [

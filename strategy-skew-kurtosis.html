@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Skewness &amp; Kurtosis</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Skewness &amp; Kurtosis: Historical vs. Risk-Neutral</h1>
+        <p class="subtitle">The Risk-Neutral Density page shows the market-implied distribution's shape visually; this reduces it to an actual skewness/kurtosis number and compares it against the same moments computed from REAL historical returns over a DTE-matched window</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> risk-neutral side — the same Breeden-Litzenberger second-derivative density the Risk-Neutral Density page builds, but instead of just plotting it, this integrates it numerically (trapezoidal rule) in log-moneyness space to get actual skewness and excess kurtosis numbers. Historical side — REAL BTC-PERPETUAL daily closes, walked in overlapping windows matching the selected expiry's DTE (the same window-matching idea the VRP Term Structure and Empirical vs. Risk-Neutral POP pages use), with sample skewness/kurtosis computed on that windowed log-return distribution.</p>
+      <p><strong>Market view:</strong> none by itself — a measurement, not a position. A companion to the Risk-Neutral Density page the same way the Empirical vs. Risk-Neutral POP page is a companion to every other POP stat: this is the one place skew and fat-tail-ness get an actual number instead of a shape or a vol-point spread.</p>
+      <p><strong>Why it matters:</strong> RR25 and BF25 (Skew Arbitrage, Convexity Arb) measure the smile in vol-point terms; this instead answers the statistician's actual question — how skewed and how fat-tailed is the terminal distribution, in the same units (skewness, excess kurtosis) used to describe any other distribution, and does the option market's own answer agree with what has actually happened.</p>
+      <p><strong>How to use it:</strong> risk-neutral and historical skew disagreeing in direction/magnitude is the same kind of signal the Empirical vs. Risk-Neutral POP page surfaces — a hint about which side (buying or selling tail risk) history has favored versus what the market currently prices.</p>
+      <p><strong>Key risk / caveat:</strong> the risk-neutral side inherits the Risk-Neutral Density page's own noise sensitivity (a second derivative amplifies quote noise on thin chains); the historical side uses overlapping, non-independent windows, so its skew/kurtosis describes the lookback period, not a rigorous statistical estimate.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Risk-Neutral Skewness</span>
+      <span id="rnSkewStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Risk-Neutral Excess Kurtosis</span>
+      <span id="rnKurtStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Historical Skewness (DTE-matched)</span>
+      <span id="histSkewStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Historical Excess Kurtosis</span>
+      <span id="histKurtStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Read</h2>
+    </div>
+    <p id="readStat" class="loading">—</p>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> A negative skewness means a fatter left (down)
+    tail than a symmetric distribution; positive excess kurtosis means fatter tails than a
+    normal distribution overall (either direction). Both sides are noisy estimates — the
+    risk-neutral side from a second derivative of noisy quotes, the historical side from
+    overlapping, non-independent windows — read directional agreement or disagreement, not
+    the exact decimal values.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=44"></script>
+  <script src="strategy-skew-kurtosis.js?v=1"></script>
+</body>
+</html>
