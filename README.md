@@ -459,7 +459,7 @@ Risk-Neutral Density page it extends.
 
 ## Tools
 
-Twenty-two utility pages that complement the strategy suite rather than adding another
+Twenty-three utility pages that complement the strategy suite rather than adding another
 strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
 `strategy-nav.js`) on every strategy page and the main ladder:
 
@@ -623,6 +623,18 @@ strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
   hand-picked long-call/short-put combination with known mark/bid/ask on each leg: mark cost
   (debit $600), realistic cost (debit $840), dollar slippage (+$240), slippage % (+40.0%),
   and both legs' individual spread % (8.0% / 10.0%) all matched a hand computation exactly.
+- **[Multi-Leg Greeks Forecast](tool-greeks-forecast.html)** — the Theta Decay Curve page
+  shows one ATM option's theta accelerating toward expiry; Portfolio Greeks shows a custom
+  combination's net greeks as a single snapshot. This walks time-to-expiry down for the
+  same up-to-4-leg combination as the Strategy Builder, holding spot and each leg's own IV
+  fixed, and shows all four net greeks (delta, gamma, theta, vega) evolving together
+  instead of just theta for a single option. Verified three ways: a single long ATM call's
+  "today" delta/gamma/theta/vega matched an independent reference exactly (and matched the
+  Portfolio Greeks Dashboard's own previously-verified figures for the identical setup);
+  adding an identical short call at the same strike drove every net greek to precisely
+  zero, confirming leg aggregation; and the Black-Scholes PDE identity θ = -½σ²S²Γ (which
+  quant.js's theta and gamma formulas must satisfy exactly, since both derive from the same
+  closed-form price) held to the penny.
 
 ## What's deliberately not included
 

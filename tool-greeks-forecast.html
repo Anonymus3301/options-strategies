@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>VaR / CVaR Calculator</title>
+<title>Greeks Forecast</title>
 <link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="brand">
       <a href="index.html" class="back-link">← Ladder</a>
       <div>
-        <h1>Options Portfolio VaR / CVaR Calculator</h1>
-        <p class="subtitle">Every Probability of Profit stat on this site answers "how likely is a loss" — this answers "how bad could it actually be," for the same kind of up-to-4-leg combination as the Strategy Builder tool</p>
+        <h1>Multi-Leg Greeks Forecast</h1>
+        <p class="subtitle">The Theta Decay Curve page shows one ATM option's theta accelerating toward expiry; Portfolio Greeks shows a custom combination's net greeks as a single snapshot. This walks time-to-expiry down for the same up-to-4-leg combination and shows ALL FOUR net greeks evolving together</p>
       </div>
     </div>
     <div class="status-cluster">
@@ -46,7 +46,7 @@
           <tr>
             <td><input id="leg1Enable" type="checkbox" checked /></td>
             <td><select id="leg1Type" class="poll-rate-select"><option value="call">Call</option><option value="put">Put</option></select></td>
-            <td><select id="leg1Side" class="poll-rate-select"><option value="short">Short</option><option value="long">Long</option></select></td>
+            <td><select id="leg1Side" class="poll-rate-select"><option value="long">Long</option><option value="short">Short</option></select></td>
             <td><select id="leg1Strike" class="poll-rate-select"></select></td>
             <td><input id="leg1Qty" type="number" min="1" step="1" value="1" style="width: 56px; font: inherit; background: var(--panel-alt); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px;" /></td>
           </tr>
@@ -78,36 +78,62 @@
 
   <section class="market-stats">
     <div class="mstat">
-      <span class="mstat-label">VaR 95% (worst 5% threshold)</span>
-      <span id="var95Stat" class="mstat-value">—</span>
+      <span class="mstat-label">Net Delta (today)</span>
+      <span id="deltaTodayStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">CVaR 95% (avg. loss beyond VaR 95)</span>
-      <span id="cvar95Stat" class="mstat-value">—</span>
+      <span class="mstat-label">Net Gamma (today)</span>
+      <span id="gammaTodayStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">VaR 99% (worst 1% threshold)</span>
-      <span id="var99Stat" class="mstat-value">—</span>
+      <span class="mstat-label">Net Theta / day (today)</span>
+      <span id="thetaTodayStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">CVaR 99% (avg. loss beyond VaR 99)</span>
-      <span id="cvar99Stat" class="mstat-value">—</span>
+      <span class="mstat-label">Net Vega (today)</span>
+      <span id="vegaTodayStat" class="mstat-value">—</span>
     </div>
   </section>
 
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Net Delta — Full Life → Near Expiry</h2>
+      <span class="hint">Spot and each leg's own IV held fixed at today's live values; left = today's full time-to-expiry, right = just before expiry</span>
+    </div>
+    <div id="deltaChart" class="svg-chart"></div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Net Gamma — Full Life → Near Expiry</h2>
+    </div>
+    <div id="gammaChart" class="svg-chart"></div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Net Theta / Day — Full Life → Near Expiry</h2>
+    </div>
+    <div id="thetaChart" class="svg-chart"></div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Net Vega — Full Life → Near Expiry</h2>
+    </div>
+    <div id="vegaChart" class="svg-chart"></div>
+  </section>
+
   <p class="chart-note">
-    <strong>Not financial advice.</strong> VaR is the loss level you'd expect to exceed
-    only 5% (or 1%) of the time under the risk-neutral lognormal distribution implied by
-    the enabled legs' average IV — the same driftless-in-log convention behind every
-    Probability of Profit stat on this site, not a real-world/objective forecast. CVaR
-    (Expected Shortfall) is the average loss <em>given</em> you're already past that
-    threshold — a defined-risk structure's CVaR is capped at its max loss; an
-    undefined-risk one (a naked short leg) is not. Ignores fees, margin, and early
-    assignment.
+    <strong>Not financial advice.</strong> Holds spot and each leg's own quoted IV fixed
+    throughout — the same simplification the Theta Decay Curve page already makes and
+    discloses, since no forward-IV forecast exists on this site. A real position's actual
+    greeks will also move with spot and IV, not just time; this isolates the time-alone
+    effect the way Theta Decay Curve does for a single option.
   </p>
 
   <script src="quant.js?v=6"></script>
   <script src="strategy-nav.js?v=47"></script>
-  <script src="tool-var-calculator.js?v=1"></script>
+  <script src="tool-greeks-forecast.js?v=1"></script>
 </body>
 </html>
