@@ -426,7 +426,7 @@ an informational per-expiry comparison, not a constructed position.
 
 ## Tools
 
-Seventeen utility pages that complement the strategy suite rather than adding another
+Eighteen utility pages that complement the strategy suite rather than adding another
 strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
 `strategy-nav.js`) on every strategy page and the main ladder:
 
@@ -538,6 +538,14 @@ strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
   Node-side reference computation using the identical closest-to-target-delta search on a
   synthetic two-expiry skewed chain: every one of the 10 grid cells (5 buckets × 2
   expiries) matched the reference exactly, with zero page errors.
+- **[Open Interest Concentration by Expiry](tool-oi-by-expiry.html)** — Max Pain and
+  Gamma Exposure both slice open interest by strike within one expiry at a time; this
+  shows how OI is split ACROSS expiries instead, and breaks the PCR Sentiment page's
+  single whole-chain put/call ratio out expiry by expiry. Verified with a synthetic
+  two-expiry chain carrying deliberately different, known OI (a put-heavy 7d expiry, a
+  balanced 30d expiry): every call/put/total OI figure, notional dollar value, share-of-book
+  percentage, and per-expiry PCR matched an independent hand computation exactly (front
+  expiry: 62.5% of total OI, PCR 4.00), with zero page errors.
 
 ## What's deliberately not included
 

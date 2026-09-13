@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Open Interest by Expiry</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Open Interest Concentration by Expiry</h1>
+        <p class="subtitle">Max Pain and Gamma Exposure slice OI by strike within one expiry — this shows how OI is split ACROSS expiries, and breaks the PCR Sentiment page's single whole-chain ratio out expiry by expiry</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="market-stats">
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Largest Expiry (by notional OI)</span>
+      <span id="largestExpiryStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Front Expiry's Share of Total OI</span>
+      <span id="frontShareStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Front Expiry PCR (OI)</span>
+      <span id="frontPcrStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Notional Open Interest by Expiry ($M)</h2>
+      <span class="hint">Contracts × implied spot, calls and puts combined</span>
+    </div>
+    <div id="oiChart" class="svg-chart"></div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Detail</h2>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table" id="oiTable">
+        <thead><tr><th>Expiry</th><th>Call OI</th><th>Put OI</th><th>Total OI</th><th>Notional</th><th>Share of Book</th></tr></thead>
+        <tbody><tr><td colspan="6" class="loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Notional is contracts × implied spot (1 contract
+    = 1 BTC), not risk-adjusted or netted against any dealer positioning — a large expiry
+    here means many open contracts settle then, not a directional prediction. Cross-reference
+    a specific expiry's strike-level detail on the Max Pain or Gamma Exposure pages.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=39"></script>
+  <script src="tool-oi-by-expiry.js?v=1"></script>
+</body>
+</html>

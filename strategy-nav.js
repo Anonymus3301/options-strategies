@@ -92,6 +92,7 @@ const TOOL_PAGES = [
   { href: "tool-roll-analyzer.html", label: "🛠 Roll Analyzer" },
   { href: "tool-scenario-analysis.html", label: "🛠 Scenario Analysis" },
   { href: "tool-vol-surface-heatmap.html", label: "🛠 Vol Surface Heatmap" },
+  { href: "tool-oi-by-expiry.html", label: "🛠 OI by Expiry" },
 ];
 
 function renderNavInto(id, pages) {
