@@ -68,6 +68,7 @@ const STRATEGY_PAGES = [
   { href: "strategy-vol-smile.html", label: "Volatility Smile Curve" },
   { href: "strategy-gamma-exposure.html", label: "Gamma Exposure (GEX)" },
   { href: "strategy-vol-cone.html", label: "Volatility Cone" },
+  { href: "strategy-correlation-cone.html", label: "BTC/ETH Correlation Cone" },
 ];
 
 const TOOL_PAGES = [

@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Sixty-five dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Sixty-six dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -120,6 +120,12 @@ financial advice, and each page's own disclaimer spells out its specific limitat
   ETH (each via its own put-call-parity implied spot), 30D realized correlation, a spread
   history/rank, and a suggested pair structure. Named a "pair trade," not "dispersion" —
   true index dispersion needs 3+ constituents, which doesn't exist in crypto.
+- **[BTC/ETH Correlation Cone](strategy-correlation-cone.html)** — the cross-asset
+  counterpart to the Realized Volatility Cone: today's rolling BTC/ETH correlation at
+  14/30/60/90-day windows against its own full historical distribution, computed from
+  ~400 days of real daily closes for both assets. Verified with a synthetic price history
+  carrying a deliberate correlation breakdown: current readings correctly land in the
+  0th-26th percentile after the break, across every window.
 - **[Max Pain / Pin Risk](strategy-maxpain.html)** — max pain strike and OI-by-strike
   chart per expiry, plus a table across every live expiry. Explicitly flagged as a
   contested theory with weak empirical support, not a forecast.
@@ -370,7 +376,7 @@ current option prices, not a real-world/objective forecast of where price will e
 the same honesty caveat already attached to the P(ITM) column and Probability Cone
 elsewhere in this project. Every page shows it with a tooltip repeating that caveat.
 
-Fourteen pages deliberately don't have it: Carry & Funding and the Income Scanner are
+Fifteen pages deliberately don't have it: Carry & Funding and the Income Scanner are
 linear/yield-harvest trades where delta-band selection already serves the purpose; the
 Income Scanner's table format has no single constructed position to score; The Wheel
 Strategy is the same table-scanner format across two hypothetical phases, with no single
@@ -384,8 +390,9 @@ Conversion/Reversal Scanner is a ranked table across many strikes, the same tabl
 reason as the Income Scanner; the Volatility Smile Curve is a whole-curve measurement
 the same way its Term Structure Curve sibling is; Gamma Exposure is an
 informational positioning read with no constructed position, the same reason as Max Pain;
-and the Realized Volatility Cone is a historical-distribution measurement, not a
-constructed position either.
+the Realized Volatility Cone is a historical-distribution measurement, not a
+constructed position either; and the BTC/ETH Correlation Cone is the same kind of
+measurement for a different underlying metric.
 
 ## Tools
 
