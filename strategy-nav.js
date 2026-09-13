@@ -96,6 +96,7 @@ const TOOL_PAGES = [
   { href: "tool-vol-surface-heatmap.html", label: "🛠 Vol Surface Heatmap" },
   { href: "tool-oi-by-expiry.html", label: "🛠 OI by Expiry" },
   { href: "tool-historical-backtest.html", label: "🛠 Historical Backtest" },
+  { href: "tool-vanna-charm.html", label: "🛠 Vanna & Charm" },
 ];
 
 function renderNavInto(id, pages) {

@@ -445,7 +445,7 @@ measurement of the IV history's own volatility, not a constructed position eithe
 
 ## Tools
 
-Nineteen utility pages that complement the strategy suite rather than adding another
+Twenty utility pages that complement the strategy suite rather than adding another
 strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
 `strategy-nav.js`) on every strategy page and the main ladder:
 
@@ -577,6 +577,17 @@ strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
   the exact same % move): median, 5th/95th percentile, and best/worst all correctly
   collapsed to the single expected P&L value, matching an independent hand computation
   exactly, with the correct window count (371) and zero page errors.
+- **[Vanna & Charm (Second-Order Greeks)](tool-vanna-charm.html)** — Portfolio Greeks
+  shows net delta/gamma/vega/theta; P&L Attribution Taylor-expands delta+gamma+theta
+  against an assumed move. Neither shows why a delta hedge drifts for reasons other than
+  price moving: Vanna (delta's sensitivity to an IV change) and Charm (delta's decay from
+  time alone), computed for the same up-to-4-leg combination. Both formulas were checked
+  against a finite-difference numerical derivative of quant.js's own delta function before
+  shipping (matched to 5-6 decimal places), and the page itself was verified end-to-end: a
+  single ATM call's Vanna/Charm matched that same reference exactly, and adding an ATM long
+  put at the same strike exactly doubled both — a live confirmation of the put-call-parity
+  consequence that Charm is identical for a call and put at the same strike under this
+  site's r=0 convention.
 
 ## What's deliberately not included
 
