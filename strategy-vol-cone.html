@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Volatility Cone</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Realized Volatility Cone</h1>
+        <p class="subtitle">Today's realized vol at each window length against its own real historical distribution — not just a single point estimate</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (perpetual, last close)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> the classic "volatility cone" (Burghardt-style): for each window length (7/14/30/60/90 days), computes realized vol on every rolling window of that length across ~400 days of real daily closes, then plots today's reading against the min/25th/median/75th/max of that whole historical distribution.</p>
+      <p><strong>Market view:</strong> none by itself — a measurement, not a position. Every other page here that mentions realized vol (Premium Selling, Long Volatility, the Strategy Hub snapshot) shows one current number per window; this page is the distribution that number sits inside.</p>
+      <p><strong>Why it matters:</strong> "30D RVol is 55%" means very different things if 55% is near the bottom of its usual range versus near the top. This page answers that directly with a real historical percentile, computed from actual price history rather than a short, browser-local accumulated sample the way the Skew/Convexity Rank pages' history does.</p>
+      <p><strong>How to use it:</strong> cross-reference with the IV-vs-RVol comparisons on Premium Selling and Long Volatility — a current RVol reading sitting near the top of its own historical cone is a different, more informative signal than the same absolute number sitting near the bottom.</p>
+      <p><strong>Key risk / caveat:</strong> ~400 days of daily closes for BTC still isn't a long sample by traditional-market standards, and crypto's realized vol regime can shift structurally (exchange changes, macro regime shifts) in ways a historical cone can't anticipate.</p>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Realized Vol vs. Its Own Historical Range</h2>
+      <span class="hint">Dark bar = full min-max range · Gray bar = 25th-75th percentile · Orange dot = today's reading</span>
+    </div>
+    <div id="coneChart" class="svg-chart"></div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Cone Detail</h2>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table" id="coneTable">
+        <thead><tr><th>Window</th><th>Current</th><th>Historical Min</th><th>Historical Median</th><th>Historical Max</th><th>Percentile</th></tr></thead>
+        <tbody><tr><td colspan="6" class="loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Built from ~400 days of real daily closes, not a
+    simulation — still a limited sample by traditional-market standards. Realized vol
+    regimes can and do shift structurally; a cone built from the past doesn't guarantee
+    anything about the future distribution.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=21"></script>
+  <script src="strategy-vol-cone.js?v=1"></script>
+</body>
+</html>

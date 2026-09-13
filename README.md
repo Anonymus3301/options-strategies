@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Sixty-four dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Sixty-five dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -318,6 +318,12 @@ financial advice, and each page's own disclaimer spells out its specific limitat
   skew/fat-tail divergence from the Black-Scholes assumption is visible directly.
   Verified against a synthetic flat-IV chain: recovers the true lognormal density to
   within a few percent pointwise.
+- **[Realized Volatility Cone](strategy-vol-cone.html)** — today's realized vol at each
+  of 7/14/30/60/90-day windows against its own full historical distribution (min/25th/
+  median/75th/max) computed from ~400 days of real daily closes, not a single point
+  estimate the way every other realized-vol mention on this site shows it. Verified with
+  a synthetic regime-shift price history (vol doubling in the recent half): current
+  readings correctly land in the 81st-95th percentile across every window.
 - **[IV Term Structure Curve](strategy-term-structure.html)** — ATM IV plotted against
   days-to-expiry across every live expiry at once, complementing the Forward Variance
   page's two-point bootstrap with the whole curve shape (contango vs. backwardation) in
@@ -364,7 +370,7 @@ current option prices, not a real-world/objective forecast of where price will e
 the same honesty caveat already attached to the P(ITM) column and Probability Cone
 elsewhere in this project. Every page shows it with a tooltip repeating that caveat.
 
-Thirteen pages deliberately don't have it: Carry & Funding and the Income Scanner are
+Fourteen pages deliberately don't have it: Carry & Funding and the Income Scanner are
 linear/yield-harvest trades where delta-band selection already serves the purpose; the
 Income Scanner's table format has no single constructed position to score; The Wheel
 Strategy is the same table-scanner format across two hypothetical phases, with no single
@@ -376,8 +382,10 @@ isn't a meaningful concept; Risk-Neutral Density and the IV Term Structure Curve
 measurements of a distribution/curve shape, not a constructed position either; and the
 Conversion/Reversal Scanner is a ranked table across many strikes, the same table-format
 reason as the Income Scanner; the Volatility Smile Curve is a whole-curve measurement
-the same way its Term Structure Curve sibling is; and Gamma Exposure is an
-informational positioning read with no constructed position, the same reason as Max Pain.
+the same way its Term Structure Curve sibling is; Gamma Exposure is an
+informational positioning read with no constructed position, the same reason as Max Pain;
+and the Realized Volatility Cone is a historical-distribution measurement, not a
+constructed position either.
 
 ## Tools
 

@@ -67,6 +67,7 @@ const STRATEGY_PAGES = [
   { href: "strategy-conversion-scanner.html", label: "Conversion/Reversal Scanner" },
   { href: "strategy-vol-smile.html", label: "Volatility Smile Curve" },
   { href: "strategy-gamma-exposure.html", label: "Gamma Exposure (GEX)" },
+  { href: "strategy-vol-cone.html", label: "Volatility Cone" },
 ];
 
 const TOOL_PAGES = [
