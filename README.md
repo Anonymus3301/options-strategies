@@ -426,7 +426,7 @@ an informational per-expiry comparison, not a constructed position.
 
 ## Tools
 
-Sixteen utility pages that complement the strategy suite rather than adding another
+Seventeen utility pages that complement the strategy suite rather than adding another
 strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
 `strategy-nav.js`) on every strategy page and the main ladder:
 
@@ -530,6 +530,14 @@ strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
   to that single scenario's own P&L (+8,231 both times), and the default probability blend
   (8/22/40/22/8) produces a sensible intermediate expected value (-1,489) between the best
   (+8,231) and worst (-3,769) case, consistent with a long call's known payoff shape.
+- **[Volatility Surface Heatmap](tool-vol-surface-heatmap.html)** — the Volatility Smile
+  Curve page shows the full strike/delta smile for one expiry at a time; the IV Term
+  Structure Curve shows only the ATM point across every expiry. Neither shows the whole
+  surface at once — this compresses every live expiry's smile into 5 delta buckets (10Δ
+  put through 10Δ call) as a single delta × expiry grid. Verified against an independent
+  Node-side reference computation using the identical closest-to-target-delta search on a
+  synthetic two-expiry skewed chain: every one of the 10 grid cells (5 buckets × 2
+  expiries) matched the reference exactly, with zero page errors.
 
 ## What's deliberately not included
 

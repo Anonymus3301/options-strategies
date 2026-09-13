@@ -91,6 +91,7 @@ const TOOL_PAGES = [
   { href: "tool-portfolio-greeks.html", label: "🛠 Portfolio Greeks" },
   { href: "tool-roll-analyzer.html", label: "🛠 Roll Analyzer" },
   { href: "tool-scenario-analysis.html", label: "🛠 Scenario Analysis" },
+  { href: "tool-vol-surface-heatmap.html", label: "🛠 Vol Surface Heatmap" },
 ];
 
 function renderNavInto(id, pages) {

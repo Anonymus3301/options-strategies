@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Volatility Surface Heatmap</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Volatility Surface Heatmap</h1>
+        <p class="subtitle">Every live expiry's smile compressed into 5 delta buckets (10Δ put through 10Δ call) as one grid — the Smile Curve shows one expiry at a time, the Term Structure Curve shows only the ATM point across expiries, this shows both dimensions together</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="market-stats">
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Front-Expiry Wing Skew (10Δ Put − 10Δ Call)</span>
+      <span id="frontSkewStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Back-Expiry Wing Skew (10Δ Put − 10Δ Call)</span>
+      <span id="backSkewStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>IV Surface — Delta Bucket × Expiry</h2>
+      <span class="hint">Darker = higher IV, scaled to this grid's own min/max · each cell is the strike closest to that delta in that expiry, from its own quoted mark IV</span>
+    </div>
+    <div id="surfaceHeatmap"><p class="loading">Loading…</p></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Each cell is the single quoted strike closest to
+    the target delta for that expiry — thin books can make the nearest strike an imprecise
+    match for the stated delta, especially far from ATM. A snapshot of the surface's shape,
+    not a forecast; cross-reference a specific expiry's full smile on the Volatility Smile
+    Curve page or its ATM-only history on the IV Term Structure Curve page.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=38"></script>
+  <script src="tool-vol-surface-heatmap.js?v=1"></script>
+</body>
+</html>
