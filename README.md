@@ -459,7 +459,7 @@ Risk-Neutral Density page it extends.
 
 ## Tools
 
-Twenty utility pages that complement the strategy suite rather than adding another
+Twenty-one utility pages that complement the strategy suite rather than adding another
 strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
 `strategy-nav.js`) on every strategy page and the main ladder:
 
@@ -602,6 +602,19 @@ strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
   put at the same strike exactly doubled both — a live confirmation of the put-call-parity
   consequence that Charm is identical for a call and put at the same strike under this
   site's r=0 convention.
+- **[Multi-Expiry Strategy Builder](tool-multi-expiry-builder.html)** — every other
+  multi-leg tool here (Strategy Builder, Scenario Analysis, VaR Calculator, Portfolio
+  Greeks, Historical Backtest, Vanna & Charm) requires all legs to share one expiry.
+  Calendar Spread, Diagonal Spread, and Double Calendar each hand-build a payoff for
+  exactly two legs across two expiries; this generalizes that same "settle the expired leg
+  at intrinsic, reprice the alive one via Black-Scholes at its own IV" logic to up to 4
+  legs, each with its own independently selectable expiry, evaluated at any chosen date.
+  Verified with a synthetic 7-day/30-day put diagonal: net cost (debit $1,947) matched an
+  independent reference exactly; evaluating at the front expiry (one leg settled, one still
+  alive) produced a P&L (+1,354) matching an independent Black-Scholes reprice of the alive
+  leg exactly; and evaluating at the back expiry (both legs settled) produced a P&L
+  (-1,947) also matching exactly, with the correct alive/settled leg counts reported at
+  each date.
 
 ## What's deliberately not included
 

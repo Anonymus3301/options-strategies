@@ -98,6 +98,7 @@ const TOOL_PAGES = [
   { href: "tool-oi-by-expiry.html", label: "🛠 OI by Expiry" },
   { href: "tool-historical-backtest.html", label: "🛠 Historical Backtest" },
   { href: "tool-vanna-charm.html", label: "🛠 Vanna & Charm" },
+  { href: "tool-multi-expiry-builder.html", label: "🛠 Multi-Expiry Builder" },
 ];
 
 function renderNavInto(id, pages) {
