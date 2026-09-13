@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Wheel Strategy</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>The Wheel Strategy</h1>
+        <p class="subtitle">Sell a cash-secured put; if assigned, sell covered calls against the acquired BTC; repeat — a systematic income cycle, illustrated here as one pass through the live chain</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Delta band</span>
+        <select id="deltaBandSelect" class="poll-rate-select">
+          <option value="0.10,0.20">10–20Δ (further OTM, lower yield/risk)</option>
+          <option value="0.15,0.30" selected>15–30Δ (typical income range)</option>
+          <option value="0.25,0.40">25–40Δ (closer to ATM, higher yield/risk)</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> Phase 1 — sell an OTM cash-secured put. If price stays above the strike, keep the premium and repeat. If assigned, you now own BTC at (strike − premium). Phase 2 — sell an OTM covered call against that BTC. If it expires worthless, keep the premium and sell another; if called away, you're back to cash and the wheel starts over at Phase 1.</p>
+      <p><strong>Market view:</strong> neutral-to-mildly-bullish; comfortable owning BTC at the put strike and comfortable having it called away at the call strike — the wheel is a way to get paid while waiting for either to happen.</p>
+      <p><strong>Why trade it:</strong> a single, repeatable income process instead of separately deciding "CSP or covered call" — you're always doing whichever one matches the BTC you currently hold (cash or spot).</p>
+      <p><strong>What this page shows:</strong> Phase 1 is a live, real scan — the same delta-band/annualized-yield methodology as the Income Scanner page, so the two agree. Phase 2 is necessarily <strong>hypothetical</strong>: it can't know whether Phase 1 will actually be assigned, so it shows what a covered call sold at the assumed cost basis would look like right now, using the next listed expiry after the CSP's.</p>
+      <p><strong>Key risk:</strong> a sustained drop can assign the put well above where BTC then trades, locking in a cost basis above market — and a sustained rally after that can cap the eventual covered call's upside, meaning the wheel underperforms simply holding BTC in strong trending markets either way. The "Illustrated Full-Cycle Yield" below is a simple average of two separate premiums, not a compounded or realized return.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Phase 1 — Best CSP</span>
+      <span id="cspSummaryStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Assumed Cost Basis (if assigned)</span>
+      <span id="costBasisStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Phase 2 — Best Covered Call (hypothetical)</span>
+      <span id="callSummaryStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat" title="Simple average of the two phases' annualized yields — not a compounded or realized return">
+      <span class="mstat-label">Illustrated Full-Cycle Annualized Yield</span>
+      <span id="combinedYieldStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <p class="chart-note" id="cycleNote">—</p>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Phase 1 — Cash-Secured Put candidates</h2>
+      <span class="hint">Ranked by annualized yield on collateral (strike) · sell these while holding cash</span>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table" id="cspTable">
+        <thead><tr><th>Expiry</th><th>DTE</th><th>Strike</th><th>IV</th><th>Δ</th><th>Premium</th><th>Annualized Yield</th></tr></thead>
+        <tbody><tr><td colspan="7" class="loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Phase 2 — Covered Call candidates (hypothetical, after assignment)</h2>
+      <span class="hint">Ranked by annualized yield on the assumed cost basis · strike restricted to ≥ cost basis to avoid a locked-in loss if called away</span>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table" id="callTable">
+        <thead><tr><th>Expiry</th><th>DTE</th><th>Strike</th><th>IV</th><th>Δ</th><th>Premium</th><th>Annualized Yield</th></tr></thead>
+        <tbody><tr><td colspan="7" class="loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Phase 2 is illustrative only — it assumes the
+    Phase 1 put is assigned exactly at its strike and that a covered call is sold
+    immediately after at today's live quotes, neither of which is guaranteed. The
+    "Illustrated Full-Cycle Yield" simply averages two separate premium yields; it is not a
+    compounded return and does not account for the BTC price actually moving between the
+    two phases, fees, margin, or early assignment.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=13"></script>
+  <script src="strategy-wheel.js?v=1"></script>
+</body>
+</html>

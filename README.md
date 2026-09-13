@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Fifty-four dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Fifty-seven dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -277,6 +277,20 @@ financial advice, and each page's own disclaimer spells out its specific limitat
   at wider strikes. Cheaper than the Double Calendar's identical-strike construction for a
   similar-sized neutral range, completing the calendar/diagonal family alongside the
   straddle, single-leg, and double variants already on this site.
+- **[The Wheel Strategy](strategy-wheel.html)** — Phase 1 scans for the best-yield
+  cash-secured put using the Income Scanner's own delta-band methodology; Phase 2
+  illustrates a covered call sold at the assumed post-assignment cost basis, using the
+  next listed expiry, plus a simple-average "illustrated full-cycle" yield. Phase 2 is
+  explicitly disclosed as hypothetical — it can't know whether Phase 1 will actually be
+  assigned.
+- **[Covered Call Overwrite (2:1 Ratio Write)](strategy-covered-call-ratio.html)** — sell
+  2 OTM calls per 1 BTC held instead of 1; a 3-line chart (unhedged spot / plain covered
+  call / ratio write) makes explicit that the payoff slope above the strike flips from 0
+  (a plain covered call's flat cap) to -1 (unlimited loss), not just "a lower cap."
+- **[Covered Put Overwrite (2:1 Ratio Write)](strategy-covered-put-ratio.html)** — the
+  bearish mirror: sell 2 OTM puts per 1 BTC short instead of 1, adding a growing loss
+  below the strike (slope +1) on top of the short position's pre-existing unlimited
+  upside risk.
 
 **[Strategy Hub](strategy-hub.html)** ties the set together: a live market snapshot
 (front-month ATM IV, realized vol, vol risk premium, IV Rank) plus every strategy page
@@ -292,7 +306,7 @@ many of them — a visitor has open in that browser.
 
 ### Live Probability of Profit
 
-Forty-one of the pages above show a live **Probability of Profit** stat, recomputed on
+Forty-three of the pages above show a live **Probability of Profit** stat, recomputed on
 every refresh from that page's own strikes, premiums, and quoted IV: Premium Selling,
 Skew Arbitrage, Long Volatility, Calendar Spread, Protective Put, Collar, Iron Condor,
 Butterfly, Jade Lizard, Ratio Spread, Diagonal Spread, Call Backspread, Strap/Strip,
@@ -301,8 +315,8 @@ Strangle, Put Ratio Spread, Put Backspread, Put Ladder, Reverse Iron Condor, Cov
 Put, Poor Man's Covered Call, Poor Man's Covered Put, Double Calendar Spread, Seagull
 Spread, Broken Wing Iron Condor, Bull Call Spread, Bear Call Spread, Bull Put Spread,
 Bear Put Spread, Call Condor Spread, Put Condor Spread, Naked Call Writing, Naked
-Put Writing, Put Diagonal Spread, Call Calendar Spread, Put Calendar Spread, and Double
-Diagonal Spread.
+Put Writing, Put Diagonal Spread, Call Calendar Spread, Put Calendar Spread, Double
+Diagonal Spread, Covered Call Overwrite (2:1), and Covered Put Overwrite (2:1).
 
 It's computed by numerically integrating each structure's own PnL-at-expiry function
 against the lognormal price distribution implied by the page's IV and time-to-expiry —
@@ -312,13 +326,15 @@ current option prices, not a real-world/objective forecast of where price will e
 the same honesty caveat already attached to the P(ITM) column and Probability Cone
 elsewhere in this project. Every page shows it with a tooltip repeating that caveat.
 
-Seven pages deliberately don't have it: Carry & Funding and the Income Scanner are
+Eight pages deliberately don't have it: Carry & Funding and the Income Scanner are
 linear/yield-harvest trades where delta-band selection already serves the purpose; the
-Income Scanner's table format has no single constructed position to score; BTC/ETH Vol
-Pair Trade would need a joint two-asset distribution, out of scope for this pass; Max
-Pain and PCR Sentiment are informational/contested-theory pages with no constructed
-position; and Box Spread and Synthetic Forward have fixed or near-fixed payoffs at
-expiry where a profit probability isn't a meaningful concept.
+Income Scanner's table format has no single constructed position to score; The Wheel
+Strategy is the same table-scanner format across two hypothetical phases, with no single
+constructed position to score either; BTC/ETH Vol Pair Trade would need a joint two-asset
+distribution, out of scope for this pass; Max Pain and PCR Sentiment are
+informational/contested-theory pages with no constructed position; and Box Spread and
+Synthetic Forward have fixed or near-fixed payoffs at expiry where a profit probability
+isn't a meaningful concept.
 
 ## Tools
 

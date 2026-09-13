@@ -1,4 +1,4 @@
-// Strategy Hub — an index/overview page for all 54 standalone strategy pages, plus a
+// Strategy Hub — an index/overview page for all 57 standalone strategy pages, plus a
 // small live market snapshot (front-month IV, realized vol, vol risk premium, IV Rank)
 // computed the same way the other pages do, standalone/REST-only.
 
@@ -53,6 +53,9 @@ const CATEGORIES = [
       { href: "strategy-covered-put.html", title: "Covered Put", desc: "For a short position: sell a put for income — capped profit, unlimited risk if price rises.", risk: "undefined" },
       { href: "strategy-income.html", title: "Covered Call / CSP Income", desc: "Scans the chain for the best annualized yield by delta band.", risk: "defined" },
       { href: "strategy-seagull.html", title: "Seagull Spread", desc: "3-leg Collar refinement: cheaper floor, but only partial protection below it.", risk: "defined" },
+      { href: "strategy-wheel.html", title: "The Wheel Strategy", desc: "Sell CSPs, then covered calls if assigned, then repeat — illustrated as one live cycle.", risk: "defined" },
+      { href: "strategy-covered-call-ratio.html", title: "Covered Call Overwrite (2:1)", desc: "2 short calls per 1 BTC held — flips a covered call's flat upside into unlimited loss above the strike.", risk: "undefined" },
+      { href: "strategy-covered-put-ratio.html", title: "Covered Put Overwrite (2:1)", desc: "2 short puts per 1 BTC short — adds growing downside loss to a covered put's existing unlimited upside risk.", risk: "undefined" },
     ],
   },
   {

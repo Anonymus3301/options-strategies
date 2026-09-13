@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Covered Put Overwrite (2:1 Ratio Write)</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Covered Put Overwrite (2:1 Ratio Write)</h1>
+        <p class="subtitle">Sell 2 OTM puts per 1 BTC short instead of 1 — the bearish mirror of the Covered Call Overwrite, adding growing loss below the strike to a short position's existing unlimited upside risk</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Put width (below spot)</span>
+        <select id="widthSelect" class="poll-rate-select">
+          <option value="5">5% of spot</option>
+          <option value="10" selected>10% of spot</option>
+          <option value="15">15% of spot</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> for an assumed 1 BTC short position (e.g. via a dated future) — instead of a plain covered put (sell 1 OTM put), sell 2 OTM puts at the same strike. The extra short put is naked against the short.</p>
+      <p><strong>Market view:</strong> bearish-to-neutral down to the strike, with conviction that price will <em>not</em> keep falling meaningfully past it — the opposite of a plain covered put, which is comfortable being wrong about that.</p>
+      <p><strong>Why trade it:</strong> the extra premium roughly doubles the income of a plain covered put for the same strike, and above the strike the payoff is identical to a plain covered put (unwound there in effect).</p>
+      <p><strong>Max profit:</strong> (spot − strike) + 2×premium, achieved exactly at the strike. <strong>Max loss:</strong> unlimited above the strike (unchanged from a plain covered put — that risk was already there from the short) <em>plus</em> now-growing loss below the strike as price keeps falling, capped only by BTC's floor at zero.</p>
+      <p><strong>Key risk:</strong> a plain covered put is flat (0 slope) below its strike — the short is effectively closed out there and a further crash costs nothing extra. A 2:1 ratio write's slope below the strike is <strong>+1</strong>: past the "amplified-risk breakeven" shown below, every further dollar BTC falls costs you a dollar on top of what a plain covered put would have lost. This turns an already undefined-risk short position into one with growing risk on <em>both</em> sides, not just the short's usual upside exposure.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Short Put Strike (×2)</span>
+      <span id="strikeStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Premium (per put × 2)</span>
+      <span id="premiumStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Max Profit (at the strike)</span>
+      <span id="maxProfitStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Upside Breakeven (unlimited risk above)</span>
+      <span id="upsideBeStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat" title="Below this price the position loses more than a plain covered put would, growing (though floor-bounded at zero) as BTC keeps falling">
+      <span class="mstat-label">Amplified-Risk Breakeven (below)</span>
+      <span id="riskBeStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat" title="Risk-neutral probability under the put's quoted IV, not a real-world/objective probability">
+      <span class="mstat-label">Probability of Profit (live)</span>
+      <span id="popStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Unhedged Short vs. Plain Covered Put (1×) vs. Ratio Write (2×) — <span id="payoffExpiry">—</span></h2>
+      <span class="hint">Short 1 BTC (assumed) throughout — only the number of short puts differs</span>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> This page assumes a short BTC notional the same
+    way the Covered Put page does — it does not fetch or model an actual futures position,
+    funding costs, or margin. The red "ratio write" line's slope below the strike is exactly
+    +1: unlike a plain covered put (flat below its strike), this position keeps losing more
+    the further BTC falls, on top of the unlimited loss the short side already carries if
+    price rises instead. Ignores fees, margin for the naked leg, and early assignment.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=13"></script>
+  <script src="strategy-covered-put-ratio.js?v=1"></script>
+</body>
+</html>

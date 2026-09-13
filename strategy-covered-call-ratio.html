@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Covered Call Overwrite (2:1 Ratio Write)</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Covered Call Overwrite (2:1 Ratio Write)</h1>
+        <p class="subtitle">Sell 2 OTM calls per 1 BTC held instead of 1 — doubles the income below the strike, but flips a plain covered call's flat, safe upside into a genuinely unlimited-loss short position above it</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Call width (above spot)</span>
+        <select id="widthSelect" class="poll-rate-select">
+          <option value="5">5% of spot</option>
+          <option value="10" selected>10% of spot</option>
+          <option value="15">15% of spot</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> for an assumed 1 BTC long position — instead of a plain covered call (sell 1 OTM call), sell 2 OTM calls at the same strike. The extra short call is naked against the held BTC.</p>
+      <p><strong>Market view:</strong> neutral-to-mildly-bullish up to the strike, and a conviction that price will <em>not</em> run meaningfully past it — the opposite of a plain covered call, which is comfortable being wrong about that.</p>
+      <p><strong>Why trade it:</strong> the extra premium roughly doubles the income of a plain covered call for the same strike, and below the strike the payoff is simply that covered call with a bigger cushion.</p>
+      <p><strong>Max profit:</strong> (strike − spot) + 2×premium, achieved exactly at the strike. <strong>Max loss:</strong> unlimited above the strike — this is the critical difference from a plain covered call.</p>
+      <p><strong>Key risk:</strong> a plain covered call is flat (0 slope) above its strike — you keep the stock's worth up to the cap and no more, but never lose more from a further rally. A 2:1 ratio write's slope above the strike is <strong>−1</strong>: past the "unlimited-risk breakeven" shown below, every further dollar BTC rises costs you a dollar, with no ceiling. This is NOT simply "a covered call with a lower cap" — it is a fundamentally more dangerous, undefined-risk position that happens to look similar below the strike.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Short Call Strike (×2)</span>
+      <span id="strikeStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Premium (per call × 2)</span>
+      <span id="premiumStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Max Profit (at the strike)</span>
+      <span id="maxProfitStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Downside Breakeven</span>
+      <span id="downsideBeStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat" title="Above this price the position has unlimited loss as BTC keeps rising — this is the number that matters most on this page">
+      <span class="mstat-label">Unlimited-Risk Breakeven (above)</span>
+      <span id="riskBeStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat" title="Risk-neutral probability under the call's quoted IV, not a real-world/objective probability">
+      <span class="mstat-label">Probability of Profit (live)</span>
+      <span id="popStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Unhedged vs. Plain Covered Call (1×) vs. Ratio Write (2×) — <span id="payoffExpiry">—</span></h2>
+      <span class="hint">Long 1 BTC (assumed) throughout — only the number of short calls differs</span>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> This page assumes a held 1 BTC long position the
+    same way the Protective Put, Collar, and Covered Put pages do — it does not fetch or
+    model an actual spot/futures position. The red "ratio write" line's slope past the
+    strike is exactly −1: unlike a plain covered call (flat past its strike), this position
+    keeps losing without limit as BTC keeps rising. Ignores fees, margin requirements for
+    the naked leg, and early assignment.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=13"></script>
+  <script src="strategy-covered-call-ratio.js?v=1"></script>
+</body>
+</html>

@@ -57,6 +57,9 @@ const STRATEGY_PAGES = [
   { href: "strategy-put-calendar.html", label: "Put Calendar" },
   { href: "strategy-jelly-roll.html", label: "Jelly Roll" },
   { href: "strategy-double-diagonal.html", label: "Double Diagonal" },
+  { href: "strategy-wheel.html", label: "The Wheel Strategy" },
+  { href: "strategy-covered-call-ratio.html", label: "Covered Call Overwrite (2:1)" },
+  { href: "strategy-covered-put-ratio.html", label: "Covered Put Overwrite (2:1)" },
 ];
 
 const TOOL_PAGES = [
