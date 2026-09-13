@@ -1,4 +1,4 @@
-// Strategy Hub — an index/overview page for all 62 standalone strategy pages, plus a
+// Strategy Hub — an index/overview page for all 63 standalone strategy pages, plus a
 // small live market snapshot (front-month IV, realized vol, vol risk premium, IV Rank)
 // computed the same way the other pages do, standalone/REST-only.
 
@@ -64,6 +64,7 @@ const CATEGORIES = [
       { href: "strategy-skew-arb.html", title: "Skew Arbitrage", desc: "25Δ risk reversal mean-reversion vs. its own recent range.", risk: "defined" },
       { href: "strategy-convexity-arb.html", title: "Convexity Arb (25Δ Butterfly)", desc: "Wing-vs-ATM IV mean-reversion — the convexity companion to Skew Arbitrage's directional signal.", risk: "defined" },
       { href: "strategy-term-structure.html", title: "IV Term Structure Curve", desc: "ATM IV vs. days-to-expiry across every live expiry — the whole curve, not just two points.", risk: "defined" },
+      { href: "strategy-vol-smile.html", title: "Volatility Smile Curve", desc: "IV vs. strike for one expiry — the actual curve RR25/BF25 each reduce to a number.", risk: "defined" },
       { href: "strategy-calendar.html", title: "Calendar Spread", desc: "Sell front straddle, buy back straddle, same strike.", risk: "defined" },
       { href: "strategy-diagonal.html", title: "Diagonal Spread", desc: "Calendar spread with a directional lean via different strikes.", risk: "defined" },
       { href: "strategy-put-diagonal.html", title: "Put Diagonal Spread", desc: "Bearish mirror of the Diagonal Spread.", risk: "defined" },

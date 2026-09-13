@@ -65,6 +65,7 @@ const STRATEGY_PAGES = [
   { href: "strategy-convexity-arb.html", label: "Convexity Arb (25Δ Butterfly)" },
   { href: "strategy-term-structure.html", label: "IV Term Structure Curve" },
   { href: "strategy-conversion-scanner.html", label: "Conversion/Reversal Scanner" },
+  { href: "strategy-vol-smile.html", label: "Volatility Smile Curve" },
 ];
 
 const TOOL_PAGES = [

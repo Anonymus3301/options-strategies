@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Sixty-two dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Sixty-three dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -318,6 +318,11 @@ financial advice, and each page's own disclaimer spells out its specific limitat
   page's two-point bootstrap with the whole curve shape (contango vs. backwardation) in
   one view. Verified against a deliberately-sloped synthetic chain: correctly classifies
   contango.
+- **[Volatility Smile Curve](strategy-vol-smile.html)** — IV plotted against strike for
+  one selected expiry, the actual curve the Skew Arbitrage (RR25) and Convexity Arb
+  (BF25) pages each reduce to a single number, with the ATM/25Δ-call/25Δ-put points
+  marked. Verified against a deliberately-skewed synthetic chain: correctly reports a
+  negative RR25 (puts richer) and positive BF25 (wings rich vs. ATM).
 
 **[Strategy Hub](strategy-hub.html)** ties the set together: a live market snapshot
 (front-month ATM IV, realized vol, vol risk premium, IV Rank) plus every strategy page
@@ -354,7 +359,7 @@ current option prices, not a real-world/objective forecast of where price will e
 the same honesty caveat already attached to the P(ITM) column and Probability Cone
 elsewhere in this project. Every page shows it with a tooltip repeating that caveat.
 
-Eleven pages deliberately don't have it: Carry & Funding and the Income Scanner are
+Twelve pages deliberately don't have it: Carry & Funding and the Income Scanner are
 linear/yield-harvest trades where delta-band selection already serves the purpose; the
 Income Scanner's table format has no single constructed position to score; The Wheel
 Strategy is the same table-scanner format across two hypothetical phases, with no single
@@ -365,7 +370,8 @@ Synthetic Forward have fixed or near-fixed payoffs at expiry where a profit prob
 isn't a meaningful concept; Risk-Neutral Density and the IV Term Structure Curve are both
 measurements of a distribution/curve shape, not a constructed position either; and the
 Conversion/Reversal Scanner is a ranked table across many strikes, the same table-format
-reason as the Income Scanner.
+reason as the Income Scanner; and the Volatility Smile Curve is a whole-curve measurement
+the same way its Term Structure Curve sibling is.
 
 ## Tools
 

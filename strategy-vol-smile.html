@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Volatility Smile Curve</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Volatility Smile Curve</h1>
+        <p class="subtitle">IV plotted against strike for one expiry — the actual smile that Skew Arbitrage (RR25) and Convexity Arb (BF25) each reduce to a single number</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> for one selected expiry, plots each strike's quoted OTM IV (puts below spot, calls above — the same convention as the Variance Swap page's OTM price curve) against its strike, with the ATM, 25Δ put, and 25Δ call points marked.</p>
+      <p><strong>Market view:</strong> none by itself — a measurement, not a position. It's the visual, whole-curve counterpart to the Skew Arbitrage and Convexity Arb pages' single RR25/BF25 numbers — this is literally the curve those two numbers are extracted from.</p>
+      <p><strong>Why it matters:</strong> RR25 (the IV gap between the two marked 25Δ points) and BF25 (their average vs. the ATM point) are useful summaries, but a summary can hide shape — a smile can be lopsided, kinked, or have a flat side that a single number wouldn't reveal. Seeing the actual curve shows whether the summary numbers are describing a clean, textbook smile or something stranger.</p>
+      <p><strong>How to use it:</strong> cross-reference with Skew Arbitrage and Convexity Arb — if their rank/percentile readings say RR25 or BF25 is "stretched," look at the shape here to see whether that stretch is a clean, tradeable skew/convexity read or an artifact of one noisy strike.</p>
+      <p><strong>Key risk / caveat:</strong> needs at least a handful of quoted strikes on both sides of spot for this expiry; thin chains will show as "insufficient data." Uses each strike's own quoted mark IV, not a smoothed or fitted curve.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">ATM IV</span>
+      <span id="atmIvStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">25Δ Risk Reversal</span>
+      <span id="rr25Stat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">25Δ Butterfly</span>
+      <span id="bf25Stat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>IV vs. Strike</h2>
+      <span class="hint">Orange = ATM · Blue = 25Δ call · Red = 25Δ put</span>
+    </div>
+    <div id="smileChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> This is the raw quoted curve, not a smoothed or
+    parametrically fitted one — a single stale or thin quote can put a visible kink in it.
+    An informational read of shape, not a suggested trade or forecast.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=19"></script>
+  <script src="strategy-vol-smile.js?v=1"></script>
+</body>
+</html>
