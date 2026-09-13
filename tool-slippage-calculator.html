@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Strategy Builder</title>
+<title>Execution Slippage</title>
 <link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="brand">
       <a href="index.html" class="back-link">← Ladder</a>
       <div>
-        <h1>Custom Multi-Leg Strategy Builder</h1>
-        <p class="subtitle">Combine up to 4 legs from the live chain freely — every named structure on this site is really just a fixed leg combination of this same generic payoff engine</p>
+        <h1>Execution Slippage Calculator</h1>
+        <p class="subtitle">Every multi-leg tool here prices off the theoretical mark, which no real order can guarantee — buying crosses the ask, selling crosses the bid. This computes the same up-to-4-leg combination's cost twice: at mark, and at the realistic bid/ask a market order would actually cross</p>
       </div>
     </div>
     <div class="status-cluster">
@@ -37,7 +37,7 @@
   <section class="chart-card chart-card-wide">
     <div class="panel-header">
       <h2>Legs</h2>
-      <span class="hint">Same expiry only — mixing expiries needs the bespoke math the Calendar/Diagonal pages already have</span>
+      <span class="hint">Same expiry only, same 4-leg model as the Strategy Builder tool</span>
     </div>
     <div class="data-table-wrap">
       <table class="data-table" id="legsTable">
@@ -78,42 +78,46 @@
 
   <section class="market-stats">
     <div class="mstat">
-      <span class="mstat-label">Net Cost</span>
-      <span id="netCostStat" class="mstat-value">—</span>
+      <span class="mstat-label">Cost at Mark (theoretical)</span>
+      <span id="markCostStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Max Profit</span>
-      <span id="maxProfitStat" class="mstat-value">—</span>
+      <span class="mstat-label">Cost at Bid/Ask (realistic)</span>
+      <span id="realCostStat" class="mstat-value">—</span>
     </div>
     <div class="mstat">
-      <span class="mstat-label">Max Loss</span>
-      <span id="maxLossStat" class="mstat-value">—</span>
+      <span class="mstat-label">Slippage ($)</span>
+      <span id="slippageStat" class="mstat-value">—</span>
     </div>
-    <div class="mstat" title="Risk-neutral probability under the average IV of the enabled legs, not a real-world/objective probability">
-      <span class="mstat-label">Probability of Profit (live)</span>
-      <span id="popStat" class="mstat-value">—</span>
+    <div class="mstat">
+      <span class="mstat-label">Slippage (% of mark cost)</span>
+      <span id="slippagePctStat" class="mstat-value">—</span>
     </div>
   </section>
 
   <section class="chart-card chart-card-wide">
     <div class="panel-header">
-      <h2>Payoff at Expiry</h2>
-      <span class="hint">Illustrative only — ignores fees/margin/early assignment</span>
+      <h2>Per-Leg Detail</h2>
+      <span class="hint">"Realistic" is the ask for a long leg (buying crosses the ask) or the bid for a short leg (selling crosses the bid) — always the worse side of the market</span>
     </div>
-    <div id="payoffChart" class="svg-chart"></div>
+    <div class="data-table-wrap">
+      <table class="data-table" id="legsDetailTable">
+        <thead><tr><th>Leg</th><th>Mark</th><th>Realistic (bid/ask)</th><th>Spread %</th><th>Qty</th></tr></thead>
+        <tbody><tr><td colspan="5" class="loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
   </section>
 
   <p class="chart-note">
-    <strong>Not financial advice.</strong> Max Profit/Loss is estimated by checking the
-    payoff's slope far outside the plotted range — a "capped" reading is only as reliable
-    as that check, and thin liquidity at combined strikes isn't accounted for. This is a
-    generic reference tool for exploring arbitrary leg combinations, not a suggested
-    position; every named strategy elsewhere on this site is a specific, pre-chosen
-    combination of exactly this kind.
+    <strong>Not financial advice.</strong> Assumes a market order crossing the full quoted
+    spread on every leg simultaneously — a limit order, partial fills, or legging in over
+    time could do better or worse. A leg with no live bid/ask quote falls back to mark for
+    its "realistic" figure, flagged in the slippage total. See the Liquidity Explorer page
+    for per-strike spread % in isolation, without a specific combination's dollar impact.
   </p>
 
   <script src="quant.js?v=6"></script>
   <script src="strategy-nav.js?v=46"></script>
-  <script src="tool-strategy-builder.js?v=1"></script>
+  <script src="tool-slippage-calculator.js?v=1"></script>
 </body>
 </html>

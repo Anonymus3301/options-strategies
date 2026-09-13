@@ -99,6 +99,7 @@ const TOOL_PAGES = [
   { href: "tool-historical-backtest.html", label: "🛠 Historical Backtest" },
   { href: "tool-vanna-charm.html", label: "🛠 Vanna & Charm" },
   { href: "tool-multi-expiry-builder.html", label: "🛠 Multi-Expiry Builder" },
+  { href: "tool-slippage-calculator.html", label: "🛠 Execution Slippage" },
 ];
 
 function renderNavInto(id, pages) {

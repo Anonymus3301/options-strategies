@@ -459,7 +459,7 @@ Risk-Neutral Density page it extends.
 
 ## Tools
 
-Twenty-one utility pages that complement the strategy suite rather than adding another
+Twenty-two utility pages that complement the strategy suite rather than adding another
 strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
 `strategy-nav.js`) on every strategy page and the main ladder:
 
@@ -615,6 +615,14 @@ strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
   leg exactly; and evaluating at the back expiry (both legs settled) produced a P&L
   (-1,947) also matching exactly, with the correct alive/settled leg counts reported at
   each date.
+- **[Execution Slippage Calculator](tool-slippage-calculator.html)** — every multi-leg
+  tool here prices legs off the theoretical mark, which no real order can guarantee — buying
+  crosses the ask, selling crosses the bid. This computes the same up-to-4-leg combination's
+  net cost twice: once at mark, once at the realistic bid/ask a market order would actually
+  cross, reporting the gap in dollars and as a % of the mark-priced cost. Verified with a
+  hand-picked long-call/short-put combination with known mark/bid/ask on each leg: mark cost
+  (debit $600), realistic cost (debit $840), dollar slippage (+$240), slippage % (+40.0%),
+  and both legs' individual spread % (8.0% / 10.0%) all matched a hand computation exactly.
 
 ## What's deliberately not included
 
