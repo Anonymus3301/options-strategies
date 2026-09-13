@@ -354,7 +354,9 @@ financial advice, and each page's own disclaimer spells out its specific limitat
   DTE (using the Volatility Cone's real daily-close history), answering "which specific
   expiry is richest to sell" rather than Premium Selling's "is IV rich in general."
   Verified with a synthetic rich-front/cheap-back chain: correctly ranks the 7-day expiry
-  richest (+17.6pp) and the 60-day expiry cheapest (-14.2pp).
+  richest (+17.6pp) and the 60-day expiry cheapest (-14.2pp). Also tracks the front
+  expiry's VRP day-over-day in this browser for a Rank/Percentile read, completing a trio
+  with the Skew Arbitrage and Convexity Arb pages' own RR25/BF25 rank tracking.
 
 **[Strategy Hub](strategy-hub.html)** ties the set together: a live market snapshot
 (front-month ATM IV, realized vol, vol risk premium, IV Rank) plus every strategy page

@@ -8,6 +8,9 @@
 
 const CURRENCY = "BTC";
 const HISTORY_DAYS = 400;
+const VRP_RANK_HISTORY_KEY = "btc-options-vrp-rank-history-v1";
+const VRP_RANK_HISTORY_MAX_DAYS = 400;
+const VRP_RANK_HISTORY_MIN_DAYS = 5;
 
 const $ = (id) => document.getElementById(id);
 
@@ -40,6 +43,21 @@ function buildChart(rows) {
   });
   svg += "</svg>";
   return svg;
+}
+
+function updateVrpRankStat(frontVrp) {
+  const history = qRecordDailyHistory(VRP_RANK_HISTORY_KEY, "vrp", frontVrp, VRP_RANK_HISTORY_MAX_DAYS);
+  const values = history.map((h) => h.vrp).filter((v) => v != null);
+  const res = qComputeRankPercentile(frontVrp, values, VRP_RANK_HISTORY_MIN_DAYS);
+  const el = $("vrpRankStat");
+  if (frontVrp == null || res.days < VRP_RANK_HISTORY_MIN_DAYS) {
+    el.textContent = `Collecting history (${res.days}d so far, this browser — need ${VRP_RANK_HISTORY_MIN_DAYS}+)`;
+  } else {
+    const extreme = res.percentile >= 80 || res.percentile <= 20;
+    el.textContent =
+      `VRP Rank ${qFmt(res.rank, 0)} · Pctl ${qFmt(res.percentile, 0)} (${res.days}d, this browser)` +
+      (extreme ? " — stretched vs. its own recent range" : "");
+  }
 }
 
 async function refresh() {
@@ -85,9 +103,12 @@ async function refresh() {
       $("richestStat").textContent = "—";
       $("cheapestStat").textContent = "—";
       $("chart").innerHTML = '<p class="loading">Not enough data (need matching IV and price history)</p>';
+      updateVrpRankStat(null);
       setStatus("live", "pill-live");
       return;
     }
+
+    updateVrpRankStat(rows[0].vrp);
 
     const richest = rows.reduce((best, r) => (r.vrp > best.vrp ? r : best));
     const cheapest = rows.reduce((best, r) => (r.vrp < best.vrp ? r : best));
