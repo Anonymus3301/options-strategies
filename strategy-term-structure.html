@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Term Structure Curve</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>IV Term Structure Curve</h1>
+        <p class="subtitle">ATM IV plotted against days-to-expiry across every live expiry at once — the full curve, not just two bootstrapped points</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> ATM IV (average of the closest-to-spot call and put's quoted IV) computed independently for every live expiry, plotted against each one's days-to-expiry — the whole term structure curve in one view.</p>
+      <p><strong>Market view:</strong> none by itself — a measurement, not a position. It complements the Forward Variance page (which bootstraps the implied vol for the period <em>between</em> exactly two chosen expiries) by showing the overall curve shape across every expiry at once.</p>
+      <p><strong>Why it matters:</strong> the curve's slope is a standard vol-trading read. Upward-sloping (contango) is the typical shape — more time priced with more cumulative uncertainty. Downward-sloping (backwardation) — front-dated IV trading above back-dated — often signals near-term event or stress-driven demand for short-dated protection.</p>
+      <p><strong>How to use it:</strong> a steeply backwardated curve is the classic setup search for calendar-spread candidates (sell the rich front, buy the cheaper back) — cross-reference with the Calendar Spread and Forward Variance pages for the actual trade construction; this page is the whole-curve view that motivates looking.</p>
+      <p><strong>Key risk / caveat:</strong> uses only the single ATM strike's IV per expiry (not a whole-chain model-free number like the Variance Swap page), and needs at least 2 live expiries with a quoted ATM strike to draw a curve at all.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Front IV (shortest expiry)</span>
+      <span id="frontIvStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Back IV (longest expiry)</span>
+      <span id="backIvStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Term Spread (back − front)</span>
+      <span id="spreadStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Curve Shape</span>
+      <span id="shapeStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>ATM IV vs. Days-to-Expiry</h2>
+      <span class="hint">Every live expiry with a quoted ATM strike</span>
+    </div>
+    <div id="curveChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Each point uses only its own single ATM
+    strike's quoted IV, not a whole-chain model-free measure — a stale or thin quote at
+    one expiry can distort that one point without affecting the others. This is an
+    informational read of the curve's shape, not a suggested trade or forecast.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=17"></script>
+  <script src="strategy-term-structure.js?v=1"></script>
+</body>
+</html>

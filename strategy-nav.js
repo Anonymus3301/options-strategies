@@ -63,6 +63,7 @@ const STRATEGY_PAGES = [
   { href: "strategy-risk-reversal.html", label: "Risk Reversal (25Δ)" },
   { href: "strategy-risk-neutral-density.html", label: "Risk-Neutral Density" },
   { href: "strategy-convexity-arb.html", label: "Convexity Arb (25Δ Butterfly)" },
+  { href: "strategy-term-structure.html", label: "IV Term Structure Curve" },
 ];
 
 const TOOL_PAGES = [

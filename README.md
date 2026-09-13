@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Sixty dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Sixty-one dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -308,6 +308,11 @@ financial advice, and each page's own disclaimer spells out its specific limitat
   skew/fat-tail divergence from the Black-Scholes assumption is visible directly.
   Verified against a synthetic flat-IV chain: recovers the true lognormal density to
   within a few percent pointwise.
+- **[IV Term Structure Curve](strategy-term-structure.html)** — ATM IV plotted against
+  days-to-expiry across every live expiry at once, complementing the Forward Variance
+  page's two-point bootstrap with the whole curve shape (contango vs. backwardation) in
+  one view. Verified against a deliberately-sloped synthetic chain: correctly classifies
+  contango.
 
 **[Strategy Hub](strategy-hub.html)** ties the set together: a live market snapshot
 (front-month ATM IV, realized vol, vol risk premium, IV Rank) plus every strategy page
@@ -344,7 +349,7 @@ current option prices, not a real-world/objective forecast of where price will e
 the same honesty caveat already attached to the P(ITM) column and Probability Cone
 elsewhere in this project. Every page shows it with a tooltip repeating that caveat.
 
-Nine pages deliberately don't have it: Carry & Funding and the Income Scanner are
+Ten pages deliberately don't have it: Carry & Funding and the Income Scanner are
 linear/yield-harvest trades where delta-band selection already serves the purpose; the
 Income Scanner's table format has no single constructed position to score; The Wheel
 Strategy is the same table-scanner format across two hypothetical phases, with no single
@@ -352,8 +357,8 @@ constructed position to score either; BTC/ETH Vol Pair Trade would need a joint 
 distribution, out of scope for this pass; Max Pain and PCR Sentiment are
 informational/contested-theory pages with no constructed position; Box Spread and
 Synthetic Forward have fixed or near-fixed payoffs at expiry where a profit probability
-isn't a meaningful concept; and Risk-Neutral Density is a measurement of the whole
-distribution shape, not a constructed position either.
+isn't a meaningful concept; and Risk-Neutral Density and the IV Term Structure Curve are
+both measurements of a distribution/curve shape, not a constructed position either.
 
 ## Tools
 
