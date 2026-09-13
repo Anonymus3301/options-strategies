@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Greeks Table</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Option Chain Greeks Explorer</h1>
+        <p class="subtitle">Every listed strike's Black-Scholes greeks for one expiry, side by side — a raw reference table, not a strategy</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Greeks by Strike — Calls | Strike | Puts</h2>
+      <span class="hint">Highlighted row = strike closest to spot · vega is per 1 vol point, theta is per day</span>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table" id="greeksTable">
+        <thead>
+          <tr>
+            <th>Call IV</th><th>Call Δ</th><th>Call Γ</th><th>Call Vega</th><th>Call Θ/day</th>
+            <th>Strike</th>
+            <th>Put Δ</th><th>Put Γ</th><th>Put Vega</th><th>Put Θ/day</th><th>Put IV</th>
+          </tr>
+        </thead>
+        <tbody><tr><td colspan="11" class="loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Every greek is computed from each strike's own
+    quoted mark IV via Black-Scholes (r=0), not a live greeks feed — this can diverge
+    slightly from a venue's own reported greeks, which may use a different rate convention
+    or model. A reference table for building intuition or cross-checking other pages'
+    numbers, not a suggested position.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=22"></script>
+  <script src="tool-greeks-table.js?v=1"></script>
+</body>
+</html>

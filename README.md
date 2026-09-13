@@ -389,7 +389,7 @@ constructed position either.
 
 ## Tools
 
-Four utility pages that complement the strategy suite rather than adding another
+Five utility pages that complement the strategy suite rather than adding another
 strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
 `strategy-nav.js`) on every strategy page and the main ladder:
 
@@ -408,6 +408,10 @@ strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
   spot, net cost, max profit/loss, notes) and tracks them to close with a realized P&L,
   entirely in `localStorage`; CSV export for external record-keeping. Not synced anywhere
   — clearing site data or switching browsers loses it.
+- **[Option Chain Greeks Explorer](tool-greeks-table.html)** — every listed strike's
+  delta/gamma/vega/theta for one expiry, calls and puts side by side, computed from each
+  strike's own quoted IV the same way every other page here does. A raw reference table,
+  not a strategy or suggested position.
 
 ## What's deliberately not included
 
