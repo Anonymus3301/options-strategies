@@ -78,6 +78,7 @@ const TOOL_PAGES = [
   { href: "tool-journal.html", label: "🛠 Trade Journal" },
   { href: "tool-greeks-table.html", label: "🛠 Greeks Table" },
   { href: "tool-liquidity-explorer.html", label: "🛠 Liquidity Explorer" },
+  { href: "tool-strategy-builder.html", label: "🛠 Strategy Builder" },
 ];
 
 function renderNavInto(id, pages) {

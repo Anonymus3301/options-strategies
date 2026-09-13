@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Strategy Builder</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Custom Multi-Leg Strategy Builder</h1>
+        <p class="subtitle">Combine up to 4 legs from the live chain freely — every named structure on this site is really just a fixed leg combination of this same generic payoff engine</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry (all legs share this one)</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Legs</h2>
+      <span class="hint">Same expiry only — mixing expiries needs the bespoke math the Calendar/Diagonal pages already have</span>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table" id="legsTable">
+        <thead><tr><th>On</th><th>Type</th><th>Side</th><th>Strike</th><th>Qty</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><input id="leg1Enable" type="checkbox" checked /></td>
+            <td><select id="leg1Type" class="poll-rate-select"><option value="call">Call</option><option value="put">Put</option></select></td>
+            <td><select id="leg1Side" class="poll-rate-select"><option value="long">Long</option><option value="short">Short</option></select></td>
+            <td><select id="leg1Strike" class="poll-rate-select"></select></td>
+            <td><input id="leg1Qty" type="number" min="1" step="1" value="1" style="width: 56px; font: inherit; background: var(--panel-alt); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px;" /></td>
+          </tr>
+          <tr>
+            <td><input id="leg2Enable" type="checkbox" /></td>
+            <td><select id="leg2Type" class="poll-rate-select"><option value="call">Call</option><option value="put">Put</option></select></td>
+            <td><select id="leg2Side" class="poll-rate-select"><option value="long">Long</option><option value="short">Short</option></select></td>
+            <td><select id="leg2Strike" class="poll-rate-select"></select></td>
+            <td><input id="leg2Qty" type="number" min="1" step="1" value="1" style="width: 56px; font: inherit; background: var(--panel-alt); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px;" /></td>
+          </tr>
+          <tr>
+            <td><input id="leg3Enable" type="checkbox" /></td>
+            <td><select id="leg3Type" class="poll-rate-select"><option value="call">Call</option><option value="put">Put</option></select></td>
+            <td><select id="leg3Side" class="poll-rate-select"><option value="long">Long</option><option value="short">Short</option></select></td>
+            <td><select id="leg3Strike" class="poll-rate-select"></select></td>
+            <td><input id="leg3Qty" type="number" min="1" step="1" value="1" style="width: 56px; font: inherit; background: var(--panel-alt); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px;" /></td>
+          </tr>
+          <tr>
+            <td><input id="leg4Enable" type="checkbox" /></td>
+            <td><select id="leg4Type" class="poll-rate-select"><option value="call">Call</option><option value="put">Put</option></select></td>
+            <td><select id="leg4Side" class="poll-rate-select"><option value="long">Long</option><option value="short">Short</option></select></td>
+            <td><select id="leg4Strike" class="poll-rate-select"></select></td>
+            <td><input id="leg4Qty" type="number" min="1" step="1" value="1" style="width: 56px; font: inherit; background: var(--panel-alt); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px;" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Net Cost</span>
+      <span id="netCostStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Max Profit</span>
+      <span id="maxProfitStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Max Loss</span>
+      <span id="maxLossStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat" title="Risk-neutral probability under the average IV of the enabled legs, not a real-world/objective probability">
+      <span class="mstat-label">Probability of Profit (live)</span>
+      <span id="popStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Payoff at Expiry</h2>
+      <span class="hint">Illustrative only — ignores fees/margin/early assignment</span>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Max Profit/Loss is estimated by checking the
+    payoff's slope far outside the plotted range — a "capped" reading is only as reliable
+    as that check, and thin liquidity at combined strikes isn't accounted for. This is a
+    generic reference tool for exploring arbitrary leg combinations, not a suggested
+    position; every named strategy elsewhere on this site is a specific, pre-chosen
+    combination of exactly this kind.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=25"></script>
+  <script src="tool-strategy-builder.js?v=1"></script>
+</body>
+</html>

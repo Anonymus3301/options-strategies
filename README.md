@@ -396,7 +396,7 @@ measurement for a different underlying metric.
 
 ## Tools
 
-Six utility pages that complement the strategy suite rather than adding another
+Seven utility pages that complement the strategy suite rather than adding another
 strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
 `strategy-nav.js`) on every strategy page and the main ladder:
 
@@ -424,6 +424,13 @@ strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
   fields already present in Deribit's book summary. Every strategy page here prices off
   mark, which hides how wide or thin a given strike actually is to trade — this is the
   one page that surfaces that directly.
+- **[Custom Multi-Leg Strategy Builder](tool-strategy-builder.html)** — combine up to 4
+  same-expiry legs from the live chain freely, built directly on quant.js's existing
+  generic `qBuildPayoffSvg`/`qComputeProbabilityOfProfit` primitives (the same ones every
+  named strategy page already uses under the hood). Estimates max profit/loss by checking
+  the payoff's slope far outside the plotted range to tell a capped tail from a genuinely
+  unlimited one — a bug in that check's sign (an uncapped-loss tail was first mislabeled
+  "unlimited profit") was caught and fixed by testing a naked short call before shipping.
 
 ## What's deliberately not included
 
