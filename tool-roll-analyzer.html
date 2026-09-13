@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Roll Analyzer</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Roll Analyzer</h1>
+        <p class="subtitle">Close a near-dated option and open a farther-dated one — a common real action for anyone running the Income Scanner or Wheel Strategy pages that nothing else here prices directly</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Setup</h2>
+    </div>
+    <div class="alerts-form" style="padding: 16px; flex-wrap: wrap;">
+      <label class="chart-select-label">
+        Type
+        <select id="typeSelect" class="poll-rate-select"><option value="call">Call</option><option value="put">Put</option></select>
+      </label>
+      <label class="chart-select-label">
+        Side (of the front position you hold)
+        <select id="sideSelect" class="poll-rate-select"><option value="short">Short</option><option value="long">Long</option></select>
+      </label>
+      <label class="chart-select-label">
+        Front expiry (closing)
+        <select id="frontExpirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </label>
+      <label class="chart-select-label">
+        Front strike
+        <select id="frontStrikeSelect" class="poll-rate-select"></select>
+      </label>
+      <label class="chart-select-label">
+        Back expiry (opening)
+        <select id="backExpirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </label>
+      <label class="chart-select-label">
+        Back strike
+        <select id="backStrikeSelect" class="poll-rate-select"></select>
+      </label>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Roll Result</h2>
+    </div>
+    <div id="resultBody" class="scanner-body">
+      <p class="loading">Loading…</p>
+    </div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> "Net Roll Cash Flow" is the combined cost of
+    closing the front leg and opening the back leg right now at quoted mark prices — it
+    isn't a guaranteed fill, ignores fees and bid/ask spread, and doesn't account for early
+    assignment risk on the leg being closed. Rolling to a new strike changes your position's
+    risk shape as well as its expiry; this only prices the transaction, not the resulting
+    position's own greeks (see the Portfolio Greeks Dashboard for that).
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=36"></script>
+  <script src="tool-roll-analyzer.js?v=1"></script>
+</body>
+</html>

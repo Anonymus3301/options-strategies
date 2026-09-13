@@ -426,7 +426,7 @@ an informational per-expiry comparison, not a constructed position.
 
 ## Tools
 
-Fourteen utility pages that complement the strategy suite rather than adding another
+Fifteen utility pages that complement the strategy suite rather than adding another
 strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
 `strategy-nav.js`) on every strategy page and the main ladder:
 
@@ -513,6 +513,13 @@ strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
   Table and Theta Decay Curve pages compute for the identical synthetic setup, the
   delta-hedge suggestion has the correct sign ("Sell" for positive delta), and adding an
   offsetting short call at the same strike nets delta to exactly 0.
+- **[Roll Analyzer](tool-roll-analyzer.html)** — closing a near-dated option and opening
+  a farther-dated one, a common real action for anyone running the Income Scanner or
+  Wheel Strategy pages that nothing else here prices directly. Computes the net cash flow
+  of both legs together. Verified with a short ATM call rolled from 7d to 30d: the credit
+  ($1,947) matches the premium difference exactly (3,769 − 1,822), and toggling to the
+  long side flips the same trade to an exact -$1,947 debit, confirming the sign convention
+  is internally consistent.
 
 ## What's deliberately not included
 

@@ -89,6 +89,7 @@ const TOOL_PAGES = [
   { href: "tool-pnl-attribution.html", label: "🛠 Greeks P&L Attribution" },
   { href: "tool-synthetic-equivalents.html", label: "🛠 Synthetic Equivalents" },
   { href: "tool-portfolio-greeks.html", label: "🛠 Portfolio Greeks" },
+  { href: "tool-roll-analyzer.html", label: "🛠 Roll Analyzer" },
 ];
 
 function renderNavInto(id, pages) {
