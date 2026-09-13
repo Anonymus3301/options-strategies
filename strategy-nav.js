@@ -60,6 +60,7 @@ const STRATEGY_PAGES = [
   { href: "strategy-wheel.html", label: "The Wheel Strategy" },
   { href: "strategy-covered-call-ratio.html", label: "Covered Call Overwrite (2:1)" },
   { href: "strategy-covered-put-ratio.html", label: "Covered Put Overwrite (2:1)" },
+  { href: "strategy-risk-reversal.html", label: "Risk Reversal (25Δ)" },
 ];
 
 const TOOL_PAGES = [

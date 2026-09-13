@@ -1,4 +1,4 @@
-// Strategy Hub — an index/overview page for all 57 standalone strategy pages, plus a
+// Strategy Hub — an index/overview page for all 58 standalone strategy pages, plus a
 // small live market snapshot (front-month IV, realized vol, vol risk premium, IV Rank)
 // computed the same way the other pages do, standalone/REST-only.
 
@@ -95,6 +95,7 @@ const CATEGORIES = [
       { href: "strategy-put-ladder.html", title: "Put Ladder (Christmas Tree)", desc: "Bearish mirror of the Call Ladder — loses its floor below the lowest strike.", risk: "undefined" },
       { href: "strategy-naked-call.html", title: "Naked Call Writing", desc: "Sell a call with nothing behind it — the highest-risk-per-dollar structure here.", risk: "undefined" },
       { href: "strategy-naked-put.html", title: "Naked Put Writing", desc: "Sell a put on margin instead of fully cash-secured — capital-efficient, leverage risk.", risk: "undefined" },
+      { href: "strategy-risk-reversal.html", title: "Risk Reversal (25Δ)", desc: "Long call + short put (or reverse) near 25Δ — a naked-leg directional bet with a flat dead zone.", risk: "undefined" },
     ],
   },
   {

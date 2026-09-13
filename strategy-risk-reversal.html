@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Risk Reversal (25-Delta)</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Risk Reversal (25-Delta)</h1>
+        <p class="subtitle">Buy an OTM call, sell an OTM put (or the reverse) — a pure leveraged directional bet with a flat "dead zone" between the two strikes, standing alone with no assumed underlying position</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Direction</span>
+        <select id="directionSelect" class="poll-rate-select">
+          <option value="bullish" selected>Bullish (long call / short put)</option>
+          <option value="bearish">Bearish (long put / short call)</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> no underlying position — just two legs, each near 25-delta. Bullish: buy an OTM call, sell an OTM put. Bearish: buy an OTM put, sell an OTM call. Unlike the Synthetic Forward (same ATM strike, one-to-one payoff everywhere), the two different OTM strikes here leave a flat "dead zone" between them where the position earns or loses only the net premium, nothing more.</p>
+      <p><strong>Market view:</strong> a leveraged, capital-efficient directional bet — same market view as a Bull/Bear Call/Put Spread, but undefined risk on one side instead of a capped debit, in exchange for often being enterable near zero cost or even a credit.</p>
+      <p><strong>Why trade it:</strong> the short leg's premium subsidizes (or fully funds) the long leg, so a directional view can be expressed for much less capital than an outright long call/put — at the cost of real, undefined risk on the short leg if the market moves against it.</p>
+      <p><strong>Max profit / max loss:</strong> unlimited profit on the long leg's side; on the short leg's side, loss grows without limit as price moves further away (floor-bounded only at BTC = 0 for a short put). <strong>Breakeven:</strong> because both outer slopes point the same direction, this payoff is monotonic — there is exactly <em>one</em> overall breakeven, not two. It sits above the call strike if the structure is a net debit, or below the put strike if it's a net credit (shown below).</p>
+      <p><strong>Key risk:</strong> this is not a defined-risk spread — it has a genuinely naked leg. The "dead zone" can look deceptively similar to a defined-risk collar, but there is no held underlying here providing offsetting protection; the short leg's risk is real and uncapped.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Strikes (put / call)</span>
+      <span id="strikesStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Net Cost</span>
+      <span id="netCostStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Breakeven (the one real crossing)</span>
+      <span id="breakevenStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Dead Zone (between the strikes)</span>
+      <span id="deadZoneStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat" title="Risk-neutral probability under the legs' average IV, not a real-world/objective probability">
+      <span class="mstat-label">Probability of Profit (live)</span>
+      <span id="popStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Payoff at Expiry — <span id="payoffExpiry">—</span></h2>
+      <span class="hint">Illustrative only — ignores fees/margin/early assignment</span>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Both strikes are picked as the closest listed
+    strike to 25-delta on their respective side, from each strike's own quoted IV — not a
+    guarantee of assignment probability. This structure carries a genuinely naked leg with
+    undefined risk; the "dead zone" between strikes is not protection, only an absence of
+    additional P&L in that range. Ignores fees, margin for the short leg, and early
+    assignment.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=14"></script>
+  <script src="strategy-risk-reversal.js?v=1"></script>
+</body>
+</html>

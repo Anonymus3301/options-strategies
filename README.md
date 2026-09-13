@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Fifty-seven dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Fifty-eight dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -291,6 +291,12 @@ financial advice, and each page's own disclaimer spells out its specific limitat
   bearish mirror: sell 2 OTM puts per 1 BTC short instead of 1, adding a growing loss
   below the strike (slope +1) on top of the short position's pre-existing unlimited
   upside risk.
+- **[Risk Reversal (25-Delta)](strategy-risk-reversal.html)** — no assumed underlying:
+  buy an OTM call and sell an OTM put near 25-delta (or the reverse), leaving a flat
+  "dead zone" between the two strikes. Verified numerically (bisection root-finding) that
+  the payoff is monotonic on both outer segments, so there's exactly one real breakeven,
+  not two — which side it falls on flips with the net debit/credit sign, a subtlety the
+  page gets right after an initial wrong assumption caught before shipping.
 
 **[Strategy Hub](strategy-hub.html)** ties the set together: a live market snapshot
 (front-month ATM IV, realized vol, vol risk premium, IV Rank) plus every strategy page
@@ -306,7 +312,7 @@ many of them — a visitor has open in that browser.
 
 ### Live Probability of Profit
 
-Forty-three of the pages above show a live **Probability of Profit** stat, recomputed on
+Forty-four of the pages above show a live **Probability of Profit** stat, recomputed on
 every refresh from that page's own strikes, premiums, and quoted IV: Premium Selling,
 Skew Arbitrage, Long Volatility, Calendar Spread, Protective Put, Collar, Iron Condor,
 Butterfly, Jade Lizard, Ratio Spread, Diagonal Spread, Call Backspread, Strap/Strip,
@@ -316,7 +322,8 @@ Put, Poor Man's Covered Call, Poor Man's Covered Put, Double Calendar Spread, Se
 Spread, Broken Wing Iron Condor, Bull Call Spread, Bear Call Spread, Bull Put Spread,
 Bear Put Spread, Call Condor Spread, Put Condor Spread, Naked Call Writing, Naked
 Put Writing, Put Diagonal Spread, Call Calendar Spread, Put Calendar Spread, Double
-Diagonal Spread, Covered Call Overwrite (2:1), and Covered Put Overwrite (2:1).
+Diagonal Spread, Covered Call Overwrite (2:1), Covered Put Overwrite (2:1), and Risk
+Reversal (25-Delta).
 
 It's computed by numerically integrating each structure's own PnL-at-expiry function
 against the lognormal price distribution implied by the page's IV and time-to-expiry —
