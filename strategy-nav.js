@@ -82,6 +82,7 @@ const TOOL_PAGES = [
   { href: "tool-liquidity-explorer.html", label: "🛠 Liquidity Explorer" },
   { href: "tool-strategy-builder.html", label: "🛠 Strategy Builder" },
   { href: "tool-var-calculator.html", label: "🛠 VaR / CVaR Calculator" },
+  { href: "tool-theta-decay-curve.html", label: "🛠 Theta Decay Curve" },
 ];
 
 function renderNavInto(id, pages) {

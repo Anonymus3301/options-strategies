@@ -413,7 +413,7 @@ an informational per-expiry comparison, not a constructed position.
 
 ## Tools
 
-Eight utility pages that complement the strategy suite rather than adding another
+Nine utility pages that complement the strategy suite rather than adding another
 strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
 `strategy-nav.js`) on every strategy page and the main ladder:
 
@@ -455,6 +455,14 @@ strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
   lognormal integration behind every POP stat. Verified with a naked short call (VaR99 ≥
   VaR95, CVaR ≥ VaR at each level, all confirmed) and a defined-risk spread, where all
   four figures correctly collapse to exactly its max loss.
+- **[ATM Theta Decay Curve](tool-theta-decay-curve.html)** — every page that shows theta
+  (the Greeks Table included) shows a single snapshot number; this holds spot and IV
+  fixed at today's live values and walks time-to-expiry down toward zero to show the
+  well-known but never-visualized-here fact that decay accelerates near expiry, not
+  linearly. An indexing bug (comparing the wrong end of the computed curve to itself)
+  initially showed decay *slowing* near expiry — caught by checking the ratio against the
+  theoretical √(T₁/T₂) scaling before shipping, which the fixed version matches almost
+  exactly (3.17 observed vs. 3.16 theoretical).
 
 ## What's deliberately not included
 
