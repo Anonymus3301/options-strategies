@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Yield Heatmap</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Income Yield Heatmap</h1>
+        <p class="subtitle">The same CSP/covered-call scan as the Income Scanner page, organized as a delta × expiry grid instead of one flat ranked list — term-structure-of-yield patterns visible at a glance</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Covered Call — Best Annualized Yield by Δ Band × Expiry</h2>
+      <span class="hint">Darker green = richer yield · each cell is the best strike found in that band/expiry combination</span>
+    </div>
+    <div id="callHeatmap"><p class="loading">Loading…</p></div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Cash-Secured Put — Best Annualized Yield by Δ Band × Expiry</h2>
+      <span class="hint">Yield on collateral (strike), same convention as the Income Scanner page</span>
+    </div>
+    <div id="putHeatmap"><p class="loading">Loading…</p></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Same simple premium/time annualization as the
+    Income Scanner page — not compounded or risk-adjusted, and assumes the same terms
+    repeat every cycle (unlikely). Delta is a Black-Scholes estimate from each strike's
+    own quoted IV, not a guarantee of assignment probability. A dash means no strike in
+    that specific delta band was quoted for that expiry, not zero yield.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=32"></script>
+  <script src="tool-yield-heatmap.js?v=1"></script>
+</body>
+</html>

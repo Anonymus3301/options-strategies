@@ -426,7 +426,7 @@ an informational per-expiry comparison, not a constructed position.
 
 ## Tools
 
-Ten utility pages that complement the strategy suite rather than adding another
+Eleven utility pages that complement the strategy suite rather than adding another
 strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
 `strategy-nav.js`) on every strategy page and the main ladder:
 
@@ -484,6 +484,11 @@ strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
   asymmetric condor — verified against a hand-checked case (904 shown vs. 1,904 actual)
   and fixed to `Math.max`, then re-verified against two live scanned rows matching by
   hand exactly.
+- **[Income Yield Heatmap](tool-yield-heatmap.html)** — the same CSP/covered-call scan
+  as the Income Scanner page, organized as a delta-band × expiry grid instead of one flat
+  ranked list, so a term-structure-of-yield pattern is visible at a glance. Verified with
+  a 4-expiry synthetic chain: all 16 cells in each grid populate correctly, with yield
+  rising by delta band and falling by tenor exactly as expected.
 
 ## What's deliberately not included
 
