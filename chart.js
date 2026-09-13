@@ -155,11 +155,24 @@ function resolutionLabel(r) {
 // Ask for a generously wide window and let Delta's API trim it to whatever
 // data it actually has, rather than us guessing a bar count and potentially
 // cutting off history the exchange would otherwise return.
+//
+// That "trim it for us" assumption holds for D/W/M in practice, but NOT for
+// intraday minute resolutions: confirmed directly against Delta's own API
+// that a 2-year window at resolution=1 comes back completely empty
+// ({t:[], s:"ok"}) rather than trimmed to whatever recent bars actually
+// exist. So minute resolutions instead get a fixed BAR BUDGET per page
+// (proportional to the resolution) rather than a fixed multi-year span —
+// finer resolutions ask for a narrower window, and the existing backfill()
+// loop below still pages further back in budget-sized chunks if the
+// exchange actually has more history than one page's worth.
 function windowSecondsFor(resolution) {
   if (resolution === "M") return 6 * 365 * 86400;
   if (resolution === "W" || /^\d+W$/.test(resolution)) return 4 * 365 * 86400;
   if (resolution === "D") return 3 * 365 * 86400;
-  return 2 * 365 * 86400; // any intraday minute resolution
+  const mins = parseInt(resolution, 10);
+  const BAR_BUDGET = 5000;
+  if (Number.isFinite(mins) && mins > 0) return mins * 60 * BAR_BUDGET;
+  return 3 * 86400; // unrecognized resolution string: a conservative few-day window
 }
 
 function init() {
