@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Delta Exchange Chain</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Deribit Ladder</a>
+      <div>
+        <h1>BTC Options Chain — Delta Exchange</h1>
+        <p class="subtitle">A genuinely separate venue and order book from Deribit (which every other page here reads) — Delta's own strikes/expiries don't necessarily match, and premiums here are USD-denominated, not BTC-denominated like the Deribit ladder</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (Delta spot)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <div class="ladder-wrap">
+    <div class="ladder-panel">
+      <div class="ladder-scroll">
+        <table class="ladder">
+          <thead>
+            <tr>
+              <th colspan="7" class="side-header calls">CALLS</th>
+              <th class="strike-header">STRIKE</th>
+              <th colspan="7" class="side-header puts">PUTS</th>
+            </tr>
+            <tr class="col-labels">
+              <th>OI</th><th>Vol</th><th>IV%</th><th>Δ</th><th>Bid $</th><th>Mark $</th><th>Ask $</th>
+              <th class="strike-col"></th>
+              <th>Bid $</th><th>Mark $</th><th>Ask $</th><th>Δ</th><th>IV%</th><th>Vol</th><th>OI</th>
+            </tr>
+          </thead>
+          <tbody id="ladderBody">
+            <tr><td colspan="15" class="loading">Loading Delta Exchange's BTC options chain…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <section id="diagnostics" class="chart-card chart-card-wide" hidden></section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Delta Exchange is a different order book from
+    Deribit — its available strikes, expiries, and actual liquidity can differ substantially,
+    and thin/new listings may show few or no live quotes. Field names for this page's
+    bid/ask/IV/greeks parsing are this session's best-documented understanding of Delta's
+    public API, not confirmed against live traffic from this development environment — if a
+    whole column comes back empty, a diagnostics panel appears below the table with one raw
+    ticker's actual field names.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=48"></script>
+  <script src="delta-ladder.js?v=1"></script>
+</body>
+</html>

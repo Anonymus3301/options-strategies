@@ -459,7 +459,7 @@ Risk-Neutral Density page it extends.
 
 ## Tools
 
-Twenty-three utility pages that complement the strategy suite rather than adding another
+Twenty-four utility pages that complement the strategy suite rather than adding another
 strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
 `strategy-nav.js`) on every strategy page and the main ladder:
 
@@ -635,6 +635,20 @@ strategy, reachable via their own nav strip (`#toolsNav`, also rendered by
   zero, confirming leg aggregation; and the Black-Scholes PDE identity θ = -½σ²S²Γ (which
   quant.js's theta and gamma formulas must satisfy exactly, since both derive from the same
   closed-form price) held to the penny.
+- **[BTC Options Chain — Delta Exchange](delta-ladder.html)** — every other page here reads
+  Deribit; this is a standalone options chain sourced entirely from Delta Exchange's own
+  public v2 REST API (`api.india.delta.exchange`), a genuinely separate venue and order
+  book — same strike-centered calls/strike/puts layout as the main ladder, but Delta's own
+  strikes/expiries and USD-denominated premiums (the main ladder's are BTC-denominated,
+  per Deribit's own convention). Field names for parsing Delta's product/ticker JSON are
+  this session's best-documented understanding of its public API, not confirmed against
+  live traffic (this sandbox's egress policy blocks every Delta Exchange domain, including
+  the one `chart.html`'s already-deployed Delta integration reaches fine from a real
+  browser) — verified instead by mocking Delta's response shape two ways: a "happy path"
+  matching the assumed field names, which rendered every OI/Vol/IV/Δ/bid/mark/ask cell
+  correctly with zero errors, and a deliberate field-name mismatch, which correctly fell
+  back to dashes and surfaced a diagnostics panel dumping one raw ticker's actual keys
+  rather than failing silently — so a real mismatch, if there is one, fixes in one round.
 
 ## What's deliberately not included
 

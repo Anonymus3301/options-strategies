@@ -101,6 +101,7 @@ const TOOL_PAGES = [
   { href: "tool-multi-expiry-builder.html", label: "🛠 Multi-Expiry Builder" },
   { href: "tool-slippage-calculator.html", label: "🛠 Execution Slippage" },
   { href: "tool-greeks-forecast.html", label: "🛠 Greeks Forecast" },
+  { href: "delta-ladder.html", label: "🛠 Delta Exchange Chain" },
 ];
 
 function renderNavInto(id, pages) {
