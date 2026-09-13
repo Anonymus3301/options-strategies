@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Sixty-nine dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Seventy dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -366,6 +366,15 @@ financial advice, and each page's own disclaimer spells out its specific limitat
   richest (+17.6pp) and the 60-day expiry cheapest (-14.2pp). Also tracks the front
   expiry's VRP day-over-day in this browser for a Rank/Percentile read, completing a trio
   with the Skew Arbitrage and Convexity Arb pages' own RR25/BF25 rank tracking.
+- **[Straddle (Long/Short)](strategy-straddle.html)** — the single most basic volatility
+  structure, oddly absent from this set until now: buy or sell one ATM call and one ATM
+  put, same strike and expiry, with a toggle for either side. Long Volatility and Premium
+  Selling both trade this exact structure already, but as a timing scanner rather than a
+  plain payoff/breakeven reference. Verified with a 30-day/55%-IV synthetic chain: long
+  and short share identical strike/breakevens, the "paid"/"received" premium label and the
+  max-profit/max-loss figures flip correctly between sides, Probability of Profit is
+  exactly complementary (42% long + 58% short = 100%), and the premium ($7,538) matches
+  the standard √(2/π)·σ√T·S breakeven-width approximation ($7,546) almost exactly.
 
 **[Strategy Hub](strategy-hub.html)** ties the set together: a live market snapshot
 (front-month ATM IV, realized vol, vol risk premium, IV Rank) plus every strategy page
@@ -381,7 +390,7 @@ many of them — a visitor has open in that browser.
 
 ### Live Probability of Profit
 
-Forty-five of the pages above show a live **Probability of Profit** stat, recomputed on
+Forty-six of the pages above show a live **Probability of Profit** stat, recomputed on
 every refresh from that page's own strikes, premiums, and quoted IV: Premium Selling,
 Skew Arbitrage, Long Volatility, Calendar Spread, Protective Put, Collar, Iron Condor,
 Butterfly, Jade Lizard, Ratio Spread, Diagonal Spread, Call Backspread, Strap/Strip,
@@ -392,7 +401,7 @@ Spread, Broken Wing Iron Condor, Bull Call Spread, Bear Call Spread, Bull Put Sp
 Bear Put Spread, Call Condor Spread, Put Condor Spread, Naked Call Writing, Naked
 Put Writing, Put Diagonal Spread, Call Calendar Spread, Put Calendar Spread, Double
 Diagonal Spread, Covered Call Overwrite (2:1), Covered Put Overwrite (2:1), Risk
-Reversal (25-Delta), and Convexity Arbitrage (25Δ Butterfly).
+Reversal (25-Delta), Convexity Arbitrage (25Δ Butterfly), and Straddle (Long/Short).
 
 It's computed by numerically integrating each structure's own PnL-at-expiry function
 against the lognormal price distribution implied by the page's IV and time-to-expiry —

@@ -1,4 +1,4 @@
-// Strategy Hub — an index/overview page for all 69 standalone strategy pages, plus a
+// Strategy Hub — an index/overview page for all 70 standalone strategy pages, plus a
 // small live market snapshot (front-month IV, realized vol, vol risk premium, IV Rank)
 // computed the same way the other pages do, standalone/REST-only.
 
@@ -36,6 +36,7 @@ const CATEGORIES = [
     title: "Volatility Buying",
     items: [
       { href: "strategy-long-vol.html", title: "Long Volatility", desc: "Long ATM straddle when IV looks cheap vs. realized vol.", risk: "defined" },
+      { href: "strategy-straddle.html", title: "Straddle (Long/Short)", desc: "Plain ATM call+put payoff/breakeven reference, toggle either side.", risk: "undefined" },
       { href: "strategy-long-strangle.html", title: "Long Strangle", desc: "Cheaper than a straddle, but needs a bigger move to pay off.", risk: "defined" },
       { href: "strategy-guts.html", title: "Guts (ITM Strangle)", desc: "Same shape as a strangle, with a guaranteed value locked in between strikes.", risk: "defined" },
       { href: "strategy-strap-strip.html", title: "Strap / Strip", desc: "Weighted straddle with a bullish or bearish lean.", risk: "defined" },

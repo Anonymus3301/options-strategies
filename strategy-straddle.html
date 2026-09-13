@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Straddle</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Straddle (Long/Short)</h1>
+        <p class="subtitle">Buy or sell both the ATM call and ATM put at the same strike and expiry — the single most basic volatility structure, and the one the Long Volatility and Premium Selling pages both trade under the hood without showing its plain payoff</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Side</span>
+        <select id="sideSelect" class="poll-rate-select">
+          <option value="long" selected>Long (buy)</option>
+          <option value="short">Short (sell)</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> buy (long) or sell (short) one ATM call and one ATM put, same strike, same expiry — the tightest, most expensive version of a volatility bet before Long Strangle widens the strikes out for a cheaper trade, or Guts moves both legs in-the-money for a more expensive one.</p>
+      <p><strong>Market view (long):</strong> a big move is coming, direction unknown — the same view the Long Volatility page scores for using IV Rank and realized-vol comparisons before recommending a buy. <strong>Market view (short):</strong> price stays range-bound through expiry — the same view the Premium Selling page scores for, though that page's own scanner leans toward a strangle rather than this tighter straddle.</p>
+      <p><strong>Max loss / profit (long):</strong> loss capped at premium paid, profit unlimited. <strong>Max loss / profit (short):</strong> profit capped at premium received, loss unlimited — see Iron Butterfly for a defined-risk way to sell this same view.</p>
+      <p><strong>Breakeven:</strong> strike ± total premium, in both directions, for either side of the trade.</p>
+      <p><strong>Key risk:</strong> long side needs a move bigger than the ATM strangle would (since it starts paying full ATM premium for both legs); short side has unlimited-loss tail risk exactly like a naked call or put, just centered rather than one-sided.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">ATM Strike</span>
+      <span id="strikeStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Total Premium</span>
+      <span id="premiumStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Breakevens</span>
+      <span id="breakevenStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Max Profit</span>
+      <span id="maxProfitStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Max Loss</span>
+      <span id="maxLossStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat" title="Risk-neutral probability under the legs' average IV, not a real-world/objective probability">
+      <span class="mstat-label">Probability of Profit (live)</span>
+      <span id="popStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Payoff at Expiry — <span id="straddleExpiry">—</span></h2>
+      <span class="hint">Tightest, most expensive version of a volatility bet — Long Strangle trades cost for a bigger required move, Guts trades the opposite way</span>
+    </div>
+    <div id="payoffChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> The short side carries genuinely unlimited loss
+    risk, identical in kind to a naked call or put, just centered on the strike instead of
+    one-sided. Cross-reference the Long Volatility page for a live buy-timing signal on
+    this exact structure, the Premium Selling page for a sell-timing signal, and the Iron
+    Butterfly page for a defined-risk way to express the same short view.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=40"></script>
+  <script src="strategy-straddle.js?v=1"></script>
+</body>
+</html>

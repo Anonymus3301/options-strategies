@@ -72,6 +72,7 @@ const STRATEGY_PAGES = [
   { href: "strategy-vrp-term-structure.html", label: "VRP Term Structure" },
   { href: "strategy-spot-consistency.html", label: "Spot Consistency Check" },
   { href: "strategy-empirical-pop.html", label: "Empirical vs Risk-Neutral POP" },
+  { href: "strategy-straddle.html", label: "Straddle (Long/Short)" },
 ];
 
 const TOOL_PAGES = [
