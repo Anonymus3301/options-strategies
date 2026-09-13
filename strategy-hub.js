@@ -1,4 +1,4 @@
-// Strategy Hub — an index/overview page for all 58 standalone strategy pages, plus a
+// Strategy Hub — an index/overview page for all 59 standalone strategy pages, plus a
 // small live market snapshot (front-month IV, realized vol, vol risk premium, IV Rank)
 // computed the same way the other pages do, standalone/REST-only.
 
@@ -110,6 +110,7 @@ const CATEGORIES = [
       { href: "strategy-forward-variance.html", title: "Forward Variance", desc: "Bootstraps the implied vol for the period between two expiries, not just each endpoint.", risk: "defined" },
       { href: "strategy-vega-neutral-calendar.html", title: "Vega-Neutral Calendar", desc: "Sizes the back leg so net vega ≈ 0, isolating the theta/gamma bet.", risk: "defined" },
       { href: "strategy-hedged-risk-reversal.html", title: "Delta-Hedged Risk Reversal", desc: "Skew Arbitrage plus a hedge sized to null the initial directional lean.", risk: "defined" },
+      { href: "strategy-risk-neutral-density.html", title: "Risk-Neutral Density", desc: "Breeden-Litzenberger: recovers the market's full implied distribution shape, not just its variance.", risk: "defined" },
     ],
   },
 ];

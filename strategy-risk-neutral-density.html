@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Risk-Neutral Density</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Risk-Neutral Density (Breeden-Litzenberger)</h1>
+        <p class="subtitle">Recovers the market's full implied probability distribution for the terminal price from the whole smile — not just a single variance number</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> Breeden & Litzenberger (1978) showed the risk-neutral probability density of the terminal price equals the second derivative of the call price with respect to strike. With r=0 (this app's convention), f(K) = d²C/dK² exactly. OTM puts below spot are first converted to their call-equivalent price via put-call parity, so the whole curve is one consistent unit before the finite-difference second derivative is taken.</p>
+      <p><strong>Market view:</strong> none by itself — a measurement, not a position. It's the natural extension of the Variance Swap page: that page compresses the whole smile into one number (fair vol); this page recovers the whole <em>shape</em> the smile implies — skewness, fat tails, and where the market's most likely outcome actually sits.</p>
+      <p><strong>Why it matters:</strong> Black-Scholes itself assumes a symmetric lognormal terminal distribution. The green curve here is what the market's actual quoted smile implies instead; the gray reference curve is the lognormal a single ATM IV would imply. Where they diverge is exactly where the market disagrees with the Black-Scholes assumption — visible directly, not just inferred from a skew number.</p>
+      <p><strong>How to use it:</strong> compare the mode (most likely terminal price) against spot, and the green curve's shape against the gray reference — a green curve sitting well below/above the gray one at a given strike says the market prices that outcome as more/less likely than a plain lognormal would.</p>
+      <p><strong>Key risk / caveat:</strong> a second derivative amplifies quote noise, so this needs a reasonably liquid, densely-quoted chain — thin strikes or wide bid/ask spreads (this uses mark price, but marks can still be stale on thin strikes) can produce a bumpy or unreliable curve. Flagged as "insufficient data" below a minimum strike count.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">ATM IV (reference)</span>
+      <span id="atmIvStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">Mode (most likely terminal price)</span>
+      <span id="modeStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">P(terminal &lt; spot) — actual smile</span>
+      <span id="probBelowStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat">
+      <span class="mstat-label">P(terminal &lt; spot) — lognormal reference</span>
+      <span id="refProbBelowStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Implied Density — Actual Smile vs. Lognormal Reference</h2>
+      <span class="hint">Green: recovered from the live chain · Gray: theoretical lognormal at the same ATM IV</span>
+    </div>
+    <div id="densityChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> This is a discretized numerical second
+    derivative of quoted option prices — inherently noisier than a first-derivative
+    quantity like the Variance Swap page's fair vol. Densities are clipped at zero
+    (a real risk-neutral density can't be negative, but finite-difference noise on a thin
+    chain occasionally produces small negative values) and the curve is shown as measured,
+    not smoothed or fitted to any parametric model.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=15"></script>
+  <script src="strategy-risk-neutral-density.js?v=1"></script>
+</body>
+</html>
