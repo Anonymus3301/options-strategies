@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gamma Exposure (GEX)</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Gamma Exposure (GEX) by Strike</h1>
+        <p class="subtitle">Open-interest-weighted dealer gamma exposure per strike — a different OI-based positioning read from the Max Pain page's pin-risk theory</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Expiry</span>
+        <select id="expirySelect" class="poll-rate-select" disabled><option>Loading…</option></select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> for each strike, Net GEX = (call open interest × call gamma − put open interest × put gamma) × spot² × 0.01 — the standard "$ exposure per 1% move" scaling used for gamma exposure estimates. Gamma comes from Black-Scholes at each strike's own quoted IV, same as every other page here.</p>
+      <p><strong>Market view:</strong> none by itself — a measurement, not a position. It rests on a market heuristic, not a verifiable fact: that dealers/market-makers are net long calls and net short puts against retail/customer flow, so their hedging is assumed to run opposite the sign of Net GEX at each strike. Deribit does not disclose counterparty identity, so this cannot be confirmed from the data alone — the same "contested theory, shown as data" framing already used for the Max Pain page.</p>
+      <p><strong>Why it matters:</strong> under that heuristic, a strongly positive Net GEX region suggests dealer hedging flows that dampen price moves near those strikes (buying dips, selling rallies); a strongly negative region suggests the opposite (amplifying moves). It's a different lens from Max Pain's "price gravitates toward the strike costing option holders the most."</p>
+      <p><strong>How to use it:</strong> read alongside Max Pain and PCR Sentiment as one more OI-based positioning signal, not in isolation — three different, partially-overlapping heuristics agreeing is a stronger (though still not conclusive) read than any one alone.</p>
+      <p><strong>Key risk / caveat:</strong> the dealer-positioning assumption is a common industry heuristic, not verified fact on this venue. Open interest also mixes all market participants, not just the dealers the heuristic is about.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat">
+      <span class="mstat-label">Total Net GEX (this expiry)</span>
+      <span id="totalGexStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Read (under the standard dealer-positioning heuristic)</span>
+      <span id="readStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Net GEX by Strike ($ millions per 1% move)</h2>
+      <span class="hint">Green = net positive (dampening under the heuristic) · Red = net negative (amplifying)</span>
+    </div>
+    <div id="gexChart" class="svg-chart"></div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> This is a contested market heuristic, not a
+    verified fact about who holds which side of open interest — Deribit's public API does
+    not disclose counterparty identity. Treated the same as the Max Pain page: shown as
+    data for context, not a forecast or trade signal on its own.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=20"></script>
+  <script src="strategy-gamma-exposure.js?v=1"></script>
+</body>
+</html>

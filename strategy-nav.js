@@ -66,6 +66,7 @@ const STRATEGY_PAGES = [
   { href: "strategy-term-structure.html", label: "IV Term Structure Curve" },
   { href: "strategy-conversion-scanner.html", label: "Conversion/Reversal Scanner" },
   { href: "strategy-vol-smile.html", label: "Volatility Smile Curve" },
+  { href: "strategy-gamma-exposure.html", label: "Gamma Exposure (GEX)" },
 ];
 
 const TOOL_PAGES = [

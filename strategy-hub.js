@@ -1,4 +1,4 @@
-// Strategy Hub — an index/overview page for all 63 standalone strategy pages, plus a
+// Strategy Hub — an index/overview page for all 64 standalone strategy pages, plus a
 // small live market snapshot (front-month IV, realized vol, vol risk premium, IV Rank)
 // computed the same way the other pages do, standalone/REST-only.
 
@@ -88,6 +88,7 @@ const CATEGORIES = [
       { href: "strategy-cross-asset.html", title: "BTC/ETH Vol Pair", desc: "Relative-value vol read across BTC and ETH.", risk: "defined" },
       { href: "strategy-maxpain.html", title: "Max Pain / Pin Risk", desc: "OI-implied pinning level — a contested theory, shown as data.", risk: "defined" },
       { href: "strategy-pcr.html", title: "PCR Contrarian Sentiment", desc: "Whole-chain put/call ratio vs. its own recent range.", risk: "defined" },
+      { href: "strategy-gamma-exposure.html", title: "Gamma Exposure (GEX)", desc: "OI-weighted dealer gamma by strike — a contested heuristic, shown as data like Max Pain.", risk: "defined" },
     ],
   },
   {

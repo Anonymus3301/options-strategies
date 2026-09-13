@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Sixty-three dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Sixty-four dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -123,6 +123,11 @@ financial advice, and each page's own disclaimer spells out its specific limitat
 - **[Max Pain / Pin Risk](strategy-maxpain.html)** — max pain strike and OI-by-strike
   chart per expiry, plus a table across every live expiry. Explicitly flagged as a
   contested theory with weak empirical support, not a forecast.
+- **[Gamma Exposure (GEX) by Strike](strategy-gamma-exposure.html)** — a different
+  OI-weighted positioning read from Max Pain: Net GEX(K) = (call OI × call gamma − put OI
+  × put gamma) × spot² × 0.01, under the standard (unverifiable on this venue) heuristic
+  that dealers are net long calls/short puts. Verified with a synthetic chain carrying
+  heavy call OI at one strike: correctly reports a large positive Net GEX there.
 - **[Calendar Spread](strategy-calendar.html)** — sell the front-month ATM straddle, buy
   the back-month ATM straddle at the same strike; independent front/back expiry pickers,
   an ATM IV term-structure sparkline, and a payoff-at-front-expiry chart that reprices the
@@ -359,7 +364,7 @@ current option prices, not a real-world/objective forecast of where price will e
 the same honesty caveat already attached to the P(ITM) column and Probability Cone
 elsewhere in this project. Every page shows it with a tooltip repeating that caveat.
 
-Twelve pages deliberately don't have it: Carry & Funding and the Income Scanner are
+Thirteen pages deliberately don't have it: Carry & Funding and the Income Scanner are
 linear/yield-harvest trades where delta-band selection already serves the purpose; the
 Income Scanner's table format has no single constructed position to score; The Wheel
 Strategy is the same table-scanner format across two hypothetical phases, with no single
@@ -370,8 +375,9 @@ Synthetic Forward have fixed or near-fixed payoffs at expiry where a profit prob
 isn't a meaningful concept; Risk-Neutral Density and the IV Term Structure Curve are both
 measurements of a distribution/curve shape, not a constructed position either; and the
 Conversion/Reversal Scanner is a ranked table across many strikes, the same table-format
-reason as the Income Scanner; and the Volatility Smile Curve is a whole-curve measurement
-the same way its Term Structure Curve sibling is.
+reason as the Income Scanner; the Volatility Smile Curve is a whole-curve measurement
+the same way its Term Structure Curve sibling is; and Gamma Exposure is an
+informational positioning read with no constructed position, the same reason as Max Pain.
 
 ## Tools
 
