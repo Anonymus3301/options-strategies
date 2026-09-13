@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VRP Term Structure</title>
+<link rel="stylesheet" href="styles.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="back-link">← Ladder</a>
+      <div>
+        <h1>Vol Risk Premium Term Structure</h1>
+        <p class="subtitle">Each expiry's ATM IV minus a DTE-matched realized vol — which specific expiry currently carries the richest or cheapest premium, not just "is IV rich in general"</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <span class="stat-label">BTC (implied)</span>
+        <span id="spotStat" class="stat-value">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Feed</span>
+        <span id="feedStatus" class="pill pill-connecting">loading…</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="strategy-nav" id="strategyNav"></nav>
+  <nav class="strategy-nav" id="toolsNav"></nav>
+
+  <section class="chart-card chart-card-wide explainer-card">
+    <div class="panel-header">
+      <h2>Strategy Explained</h2>
+    </div>
+    <div class="explainer-body">
+      <p><strong>Construction:</strong> for every live expiry, VRP = ATM IV − realized vol computed over a lookback matched to that expiry's own days-to-expiry (a 7-day expiry compared to 7-day realized vol, a 60-day expiry to 60-day realized vol, and so on) — using the same real daily-close history as the Realized Volatility Cone page, not the fixed 7/14/30-day windows the Premium Selling page compares every expiry against.</p>
+      <p><strong>Market view:</strong> none by itself — a measurement, not a position. It's the maturity-matched combination of two ideas already on this site: the IV Term Structure Curve's per-expiry IV and the Volatility Cone's real historical realized vol.</p>
+      <p><strong>Why it matters:</strong> Premium Selling asks "is IV rich vs. realized in general." This page asks the sharper question a real premium seller actually needs answered: "given I have to pick one expiry, which one is currently the richest to sell (or the cheapest to buy)?" — since front and back months can carry very different premiums relative to their own matched realized vol.</p>
+      <p><strong>How to use it:</strong> the richest-VRP expiry is a candidate for premium-selling structures (see Iron Condor, Premium Selling); the cheapest is a candidate for long-vol structures (see Long Volatility) — cross-reference either with the IV Term Structure Curve to see the raw IV shape alongside this premium read.</p>
+      <p><strong>Key risk / caveat:</strong> uses a single ATM strike's IV per expiry (not whole-chain model-free vol) and BTC's own realized vol history, which is a limited (~400-day) sample that can shift regime without warning.</p>
+    </div>
+  </section>
+
+  <section class="market-stats">
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Richest Expiry (highest VRP)</span>
+      <span id="richestStat" class="mstat-value">—</span>
+    </div>
+    <div class="mstat mstat-wide">
+      <span class="mstat-label">Cheapest Expiry (lowest VRP)</span>
+      <span id="cheapestStat" class="mstat-value">—</span>
+    </div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>VRP by Expiry (ATM IV − DTE-Matched Realized Vol)</h2>
+      <span class="hint">Green = IV rich vs. matched realized vol · Red = IV cheap vs. matched realized vol</span>
+    </div>
+    <div id="chart" class="svg-chart"></div>
+  </section>
+
+  <section class="chart-card chart-card-wide">
+    <div class="panel-header">
+      <h2>Detail</h2>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table" id="vrpTable">
+        <thead><tr><th>Expiry</th><th>DTE</th><th>ATM IV</th><th>Matched RVol</th><th>VRP</th></tr></thead>
+        <tbody><tr><td colspan="5" class="loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="chart-note">
+    <strong>Not financial advice.</strong> Matched realized vol is capped at ~400 days of
+    available history, so very long-dated expiries fall back to the longest lookback
+    actually available rather than a true DTE match. An informational read of relative
+    richness across expiries, not a forecast or guaranteed trade.
+  </p>
+
+  <script src="quant.js?v=6"></script>
+  <script src="strategy-nav.js?v=26"></script>
+  <script src="strategy-vrp-term-structure.js?v=1"></script>
+</body>
+</html>

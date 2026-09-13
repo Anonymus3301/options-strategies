@@ -84,7 +84,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Standalone Strategy Pages
 
-Sixty-six dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
+Sixty-seven dedicated pages plus a [Strategy Hub](strategy-hub.html) index, each buildable
 purely from Deribit's free public REST API (no
 WebSocket, no auth, no dependency on the main ladder page being open — every page fetches
 its own data). Linked from a shared nav strip (`strategy-nav.js`) on the main ladder page
@@ -340,6 +340,13 @@ financial advice, and each page's own disclaimer spells out its specific limitat
   (BF25) pages each reduce to a single number, with the ATM/25Δ-call/25Δ-put points
   marked. Verified against a deliberately-skewed synthetic chain: correctly reports a
   negative RR25 (puts richer) and positive BF25 (wings rich vs. ATM).
+- **[Vol Risk Premium Term Structure](strategy-vrp-term-structure.html)** — combines two
+  ideas already on this site that had never been put together: each expiry's ATM IV (like
+  the Term Structure Curve) minus a realized vol lookback matched to that expiry's own
+  DTE (using the Volatility Cone's real daily-close history), answering "which specific
+  expiry is richest to sell" rather than Premium Selling's "is IV rich in general."
+  Verified with a synthetic rich-front/cheap-back chain: correctly ranks the 7-day expiry
+  richest (+17.6pp) and the 60-day expiry cheapest (-14.2pp).
 
 **[Strategy Hub](strategy-hub.html)** ties the set together: a live market snapshot
 (front-month ATM IV, realized vol, vol risk premium, IV Rank) plus every strategy page
@@ -376,7 +383,7 @@ current option prices, not a real-world/objective forecast of where price will e
 the same honesty caveat already attached to the P(ITM) column and Probability Cone
 elsewhere in this project. Every page shows it with a tooltip repeating that caveat.
 
-Fifteen pages deliberately don't have it: Carry & Funding and the Income Scanner are
+Sixteen pages deliberately don't have it: Carry & Funding and the Income Scanner are
 linear/yield-harvest trades where delta-band selection already serves the purpose; the
 Income Scanner's table format has no single constructed position to score; The Wheel
 Strategy is the same table-scanner format across two hypothetical phases, with no single
@@ -391,8 +398,9 @@ reason as the Income Scanner; the Volatility Smile Curve is a whole-curve measur
 the same way its Term Structure Curve sibling is; Gamma Exposure is an
 informational positioning read with no constructed position, the same reason as Max Pain;
 the Realized Volatility Cone is a historical-distribution measurement, not a
-constructed position either; and the BTC/ETH Correlation Cone is the same kind of
-measurement for a different underlying metric.
+constructed position either; the BTC/ETH Correlation Cone is the same kind of
+measurement for a different underlying metric; and the Vol Risk Premium Term Structure is
+an informational per-expiry comparison, not a constructed position.
 
 ## Tools
 

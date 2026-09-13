@@ -69,6 +69,7 @@ const STRATEGY_PAGES = [
   { href: "strategy-gamma-exposure.html", label: "Gamma Exposure (GEX)" },
   { href: "strategy-vol-cone.html", label: "Volatility Cone" },
   { href: "strategy-correlation-cone.html", label: "BTC/ETH Correlation Cone" },
+  { href: "strategy-vrp-term-structure.html", label: "VRP Term Structure" },
 ];
 
 const TOOL_PAGES = [
